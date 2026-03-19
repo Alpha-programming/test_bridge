@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Landing Page</title>
+
+  <!-- Bootstrap -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      margin: 0;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    /* SPLIT SCREEN */
+    .split-section {
+      height: 100vh;
+      display: flex;
+    }
+
+    /* SIDE (VIDEO CONTAINER) */
+    .side {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+      flex: 1;
+    }
+
+    /* VIDEO BACKGROUND */
+    .bg-video {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      width: 120%;
+      height: 120%;
+      object-fit: cover;
+      transform: translate(-50%, -50%);
+      z-index: 0;
+    }
+
+    /* DARK OVERLAY */
+    .side::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: rgba(0,0,0,0.15);
+      z-index: 1;
+    }
+
+    /* CONTENT */
+    .content-box {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+      color: white;
+    }
+
+    /* CORPORATE BUTTON */
+    .corp-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+
+      width: 300px;
+      height: 70px;
+
+      border-radius: 12px;
+      text-decoration: none;
+      font-size: 20px;
+      font-weight: 600;
+      letter-spacing: 1px;
+
+      color: white;
+      background: linear-gradient(135deg, #9c0b2f, #1e6091);
+
+      border: 1px solid rgba(255,255,255,0.2);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+
+      transition: all 0.3s ease;
+    }
+
+    .corp-btn:hover {
+      transform: translateY(-4px);
+      background: linear-gradient(135deg, #1e6091, #9c0b2f);
+      box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+      color: white;
+    }
+
+    .corp-btn:active {
+      transform: scale(0.97);
+    }
+
+    /* DIVIDER */
+    .divider {
+      width: 4px;
+      background: rgba(255,255,255,0.4);
+    }
+
+    /* ABOUT */
+    .about {
+      background: #111;
+      color: white;
+      text-align: center;
+      padding: 20px;
+    }
+
+    .about a {
+      color: #0d6efd;
+      text-decoration: none;
+    }
+
+    .about a:hover {
+      text-decoration: underline;
+    }
+
+  </style>
+</head>
+<body>
+
+  <div class="split-section">
+
+    <!-- IELTS SIDE -->
+    <div class="side d-flex align-items-center justify-content-center">
+      <video autoplay muted loop playsinline class="bg-video">
+        <source src="./media/main/uk.mp4" type="video/mp4">
+      </video>
+
+      <div class="content-box">
+        <a href="{% url 'ielts:home' %}" class="corp-btn">IELTS</a>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- TOPIK SIDE -->
+    <div class="side d-flex align-items-center justify-content-center">
+      <video autoplay muted loop playsinline class="bg-video">
+        <source src="./media/main/korea.mp4" type="video/mp4">
+      </video>
+
+      <div class="content-box">
+        <a href="#" class="corp-btn">TOPIK</a>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="about">
+    <p>© UzCoders | <a href="#">About Us</a></p>
+  </div>
+
+</body>
+</html>

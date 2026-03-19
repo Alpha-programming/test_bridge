@@ -1,0 +1,96 @@
+body {
+    background: #0f172a;
+    color: white;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* NAVBAR */
+.navbar {
+    background: rgba(15, 23, 42, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+.navbar-brand {
+    font-weight: bold;
+    letter-spacing: 1px;
+    color: #38bdf8 !important;
+}
+
+.nav-link {
+    color: rgba(255,255,255,0.8) !important;
+    transition: 0.3s;
+}
+
+.nav-link:hover {
+    color: #38bdf8 !important;
+}
+
+/* BUTTON */
+.main-btn {
+    background: linear-gradient(135deg, #1e6091, #9c0b2f);
+    border: none;
+    color: white;
+    padding: 8px 18px;
+    border-radius: 8px;
+    transition: 0.3s;
+    text-decoration: none;
+}
+
+.main-btn:hover {
+    transform: translateY(-2px);
+    opacity: 0.9;
+}
+
+/* CARD */
+.card-custom {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    padding: 20px;
+    transition: 0.3s;
+}
+
+.card-custom:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+/* SEARCH CONTAINER */
+.search-box {
+    max-width: 500px;
+    width: 100%;
+}
+
+/* INPUT STYLE */
+.search-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: white;
+    padding: 10px;
+}
+
+/* REMOVE BOOTSTRAP WHITE */
+.search-input:focus {
+    background: rgba(255,255,255,0.08);
+    border-color: #38bdf8;
+    box-shadow: none;
+    color: white;
+}
+
+/* PLACEHOLDER */
+.search-input::placeholder {
+    color: rgba(255,255,255,0.5);
+}
+
+/* BUTTON */
+.search-btn {
+    background: linear-gradient(135deg, #1e6091, #9c0b2f);
+    color: white;
+    border: none;
+    padding: 0 20px;
+}
+
+.search-btn:hover {
+    opacity: 0.9;
+}

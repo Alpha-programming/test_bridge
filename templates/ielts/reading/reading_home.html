@@ -1,0 +1,74 @@
+{% extends "ielts/ielts.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- 🔍 SEARCH -->
+    <form method="GET" class="mb-4 d-flex justify-content-center">
+        <div class="input-group search-box">
+
+            <input
+                type="text"
+                name="q"
+                value="{{ query|default:'' }}"
+                class="form-control search-input"
+                placeholder="Search tests..."
+            >
+
+            <button class="btn search-btn">Search</button>
+
+        </div>
+    </form>
+
+    <!-- 📘 TEST LIST -->
+    <h3 class="mb-3">Reading Tests</h3>
+
+    {% for test in tests %}
+        <div class="card-custom test-card mb-3 p-3 d-flex justify-content-between align-items-center">
+
+            <div>
+                <h5 class="mb-1">{{ test.title }}</h5>
+                <small class="text-muted">{{ test.duration_minutes }} minutes</small>
+            </div>
+
+            <a href="" class="main-btn">
+                Start
+            </a>
+
+        </div>
+    {% empty %}
+        <p>No tests found</p>
+    {% endfor %}
+
+    <!-- 📊 RESULTS -->
+    <hr class="my-5">
+
+    <div class="card-custom p-4">
+        <h5 class="mb-3">Your Recent Results</h5>
+
+        {% for ut in user_tests %}
+            <div class="d-flex justify-content-between mb-2">
+                <span>{{ ut.test.title }}</span>
+                <strong>{{ ut.score }}/40</strong>
+            </div>
+        {% empty %}
+            <p>No attempts yet</p>
+        {% endfor %}
+    </div>
+
+    <!-- 📈 GRAPH (READY FOR FUTURE) -->
+    <div class="card-custom mt-4 p-4">
+        <h5>Your Progress</h5>
+        <canvas id="scoreChart" height="100"></canvas>
+    </div>
+
+    <!-- 🤖 FUTURE AI SECTION -->
+    <div class="card-custom mt-4 p-4">
+        <h5>AI Assistant</h5>
+        <p>Coming soon...</p>
+    </div>
+
+</div>
+
+{% endblock %}
