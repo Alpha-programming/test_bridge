@@ -32,7 +32,7 @@
                 <small class="text-muted">{{ test.duration_minutes }} minutes</small>
             </div>
 
-            <a href="" class="main-btn">
+            <a href="{% url 'ielts:start_test' test.id %}" class="main-btn">
                 Start
             </a>
 

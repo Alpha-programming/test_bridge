@@ -1,0 +1,90 @@
+{% extends "ielts/ielts.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <h3>{{ test.title }}</h3>
+
+    {% for passage in passages %}
+        <div class="mb-5">
+
+            <h4>{{ passage.title }}</h4>
+
+            <!-- PARAGRAPHS -->
+            {% if passage.paragraphs.exists %}
+                {% for p in passage.paragraphs.all %}
+                    <p><strong>{{ p.label }}</strong> {{ p.content }}</p>
+                {% endfor %}
+            {% else %}
+                <p>{{ passage.content|linebreaks }}</p>
+            {% endif %}
+
+            <!-- GROUPS -->
+            {% for group in passage.groups.all %}
+                <div class="mt-4">
+
+                    <h5>{{ group.title }}</h5>
+                    <p>{{ group.instruction }}</p>
+
+                    {% if group.diagram_image %}
+                        <img src="{{ group.diagram_image.url }}" class="img-fluid mb-3">
+                    {% endif %}
+
+                    {% for q in group.questions.all %}
+                        <div class="mb-2">
+
+                            <strong>{{ q.number }}</strong>
+
+                            <!-- TFNG -->
+                            {% if group.group_type == "TFNG" %}
+                                <select class="answer-input"
+                                        data-question="{{ q.id }}"
+                                        data-user-test="{{ user_test.id }}">
+                                    <option value="">---</option>
+                                    <option>TRUE</option>
+                                    <option>FALSE</option>
+                                    <option>NOT GIVEN</option>
+                                </select>
+
+                            <!-- MCQ -->
+                            {% elif group.group_type == "MCQ_SINGLE" %}
+                                {% for opt in q.options.all %}
+                                    <div>
+                                        <input type="radio"
+                                               name="q{{ q.id }}"
+                                               value="{{ opt.label }}"
+                                               class="answer-input"
+                                               data-question="{{ q.id }}"
+                                               data-user-test="{{ user_test.id }}">
+                                        {{ opt.label }}. {{ opt.text }}
+                                    </div>
+                                {% endfor %}
+
+                            <!-- DEFAULT -->
+                            {% else %}
+                                <input type="text"
+                                       class="answer-input"
+                                       data-question="{{ q.id }}"
+                                       data-user-test="{{ user_test.id }}">
+                            {% endif %}
+
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+
+        </div>
+    {% endfor %}
+
+    <form method="POST" action="{% url 'ielts:submit_test' user_test.id %}">
+        {% csrf_token %}
+
+        <button type="submit" class="btn btn-success mt-4">
+            Submit Test
+        </button>
+    </form>
+
+</div>
+
+{% endblock %}

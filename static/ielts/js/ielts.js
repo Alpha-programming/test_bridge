@@ -28,3 +28,38 @@ if (searchInput) {
         });
     });
 }
+
+document.querySelectorAll(".answer-input").forEach(el => {
+    el.addEventListener("change", function () {
+
+        let value;
+
+        if (this.type === "radio") {
+            value = this.value;
+        } else {
+            value = this.value;
+        }
+
+        fetch("/ielts/save-answer/", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/x-www-form-urlencoded",
+                "X-CSRFToken": getCookie("csrftoken")
+            },
+            body: `question_id=${this.dataset.question}&answer=${value}&user_test_id=${this.dataset.userTest}`
+        });
+    });
+});
+
+function getCookie(name) {
+    let cookieValue = null;
+    if (document.cookie && document.cookie !== "") {
+        document.cookie.split(";").forEach(cookie => {
+            const c = cookie.trim();
+            if (c.startsWith(name + "=")) {
+                cookieValue = decodeURIComponent(c.substring(name.length + 1));
+            }
+        });
+    }
+    return cookieValue;
+}
