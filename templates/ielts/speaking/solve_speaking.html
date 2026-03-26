@@ -64,16 +64,68 @@ body { margin:0; font-family:Arial; overflow:hidden; }
     background:#0d6efd;
     color:#fff;
 }
+
+.overlay {
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:#000; /* ✅ FULL BLACK */
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index:99999; /* 🔥 ensure it's above EVERYTHING */
+    color:white;
+}
+
+.timer-box {
+    padding:6px 14px;
+    border-radius:20px;
+    border:2px solid #0d6efd;
+    color:#0d6efd;
+    font-weight:600;
+    min-width:90px;
+    text-align:center;
+    transition:0.3s;
+}
+
+/* WARNING */
+.timer-warning {
+    border-color:#ff9800;
+    color:#ff9800;
+}
+
+/* CRITICAL */
+.timer-danger {
+    border-color:#dc3545;
+    color:#dc3545;
+    animation:pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+    100% { transform:scale(1); }
+}
+
+#mainContent {
+    display:none;
+}
 </style>
 </head>
 
 <body>
+<div id="startOverlay" class="overlay">
+    <h3 class="mb-3">Are you ready?</h3>
+    <p>You will have {{ test.duration_minutes }} minutes to complete this test.</p>
+    <button class="btn btn-danger btn-lg" onclick="startTest()">Start Speaking</button>
+</div>
 
 <!-- HEADER -->
+<div id="mainContent">
 <div class="top-bar">
     <h5>{{ user_test.test.title }}</h5>
 
-    <div id="globalTimer" style="color:red;font-weight:bold;"></div>
+    <div id="globalTimer" class="timer-box"></div>
 
     <button onclick="submitTest()" class="btn btn-danger btn-sm">Submit</button>
 </div>
@@ -149,12 +201,33 @@ body { margin:0; font-family:Arial; overflow:hidden; }
     <button onclick="switchPart(3)">Part 3</button>
 </div>
 
+<!-- 🔥 LOADING OVERLAY -->
+<div id="loadingOverlay" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.6);
+    z-index:9999;
+    justify-content:center;
+    align-items:center;
+    color:#fff;
+    font-size:22px;
+    flex-direction:column;
+">
+    <div id="loadingText">Preparing your evaluation...</div>
+    <div class="spinner-border text-light mb-3"></div>
+    <div>Evaluating your speaking... 🎤</div>
+    <small>Please wait, do not close the page</small>
+</div>
+</div>
 <script>
 
 let recorder, chunks = [], stream;
 let currentQuestion = null;
-let timerInterval;
-let seconds = 0;
+
 
 // 🎤 START
 async function startRecording(qid){
@@ -237,26 +310,66 @@ function globalTimer(){
     const now = Math.floor(Date.now()/1000);
     const remain = duration - (now - startTime);
 
+    const el = document.getElementById("globalTimer");
+
     if(remain <= 0){
-        submitTest(); // 🔥 AUTO SUBMIT
+        submitTest();
         return;
     }
 
     const m = Math.floor(remain/60);
-    const s = remain%60;
+    const s = remain % 60;
 
-    document.getElementById("globalTimer").innerText =
-        `Time Left: ${m}:${s<10?'0':''}${s}`;
+    el.innerText = `Time Left: ${m}:${s<10?'0':''}${s}`;
+
+    el.classList.remove("timer-danger");
+
+    if(m <= 5){
+        el.classList.add("timer-danger");
+    }
 }
 
-setInterval(globalTimer,1000);
-globalTimer();
+
 
 // SUBMIT
+let isSubmitting = false;
+
 function submitTest(){
+    if(isSubmitting) return; // prevent double click
+
+    isSubmitting = true;
+
+    // 🔥 show loading
+    const overlay = document.getElementById("loadingOverlay");
+    overlay.style.display = "flex";
+
+    // disable buttons
+    document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+
+    // redirect (backend will process AI)
     window.location.href = "{% url 'ielts:speaking_submit' user_test.id %}";
 }
 
+let started = false;
+let timerInterval = null;
+
+function startTest(){
+    if(started) return;
+    started = true;
+
+    document.getElementById("startOverlay").style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+
+    // start timer only now
+    timerInterval = setInterval(globalTimer, 1000);
+    globalTimer();
+}
+
+document.addEventListener("click", function(e){
+    if(!started){
+        e.preventDefault();
+    }
+});
 </script>
 
 </body>

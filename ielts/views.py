@@ -13,6 +13,9 @@ from .services.ai_selector import get_model_for_user
 from .services.ai_writing import evaluate_with_retry
 from django.core.paginator import Paginator
 import re
+from .services.pipeline import process_speaking
+from .services.evaluation import evaluate_full_speaking
+from .services.speech import transcribe_audio
 
 LISTENING_REVIEW_SECONDS = 120
 
@@ -112,16 +115,15 @@ def start_test(request, test_id):
         test=test,
     )
 
-    # 🔥 RESET if already completed
-    if user_test.completed_at:
-        user_test.score = 0
-        user_test.answers_json = {}
-        user_test.started_at = timezone.now()
-        user_test.completed_at = None
-        user_test.save()
+    # 🔥 ALWAYS RESET START TIME
+    user_test.started_at = timezone.now()
+    user_test.completed_at = None
+    user_test.score = 0
+    user_test.answers_json = {}
+    user_test.save()
 
-        # ❗ delete old answers
-        user_test.answers.all().delete()
+    # ❗ delete old answers
+    user_test.answers.all().delete()
 
     return redirect("ielts:reading_solve", user_test.id)
 
@@ -498,7 +500,7 @@ def save_writing_answer(request):
         user_test.save()
         return JsonResponse({"status": "saved"})
 
-@login_required
+
 @login_required
 def submit_writing(request, user_test_id):
     user_test = get_object_or_404(UserWritingTest, id=user_test_id)
@@ -672,24 +674,55 @@ def upload_speaking_answer(request):
 
         question = SpeakingQuestion.objects.get(id=question_id)
 
-        attempt = SpeakingAttempt.objects.create(
+        attempt, _ = SpeakingAttempt.objects.update_or_create(
             user=request.user,
             question=question,
-            audio=audio
+            test=question.test,
+            defaults={
+                "audio": audio
+            }
         )
 
-        result = process_speaking(attempt)
-
-        return JsonResponse(result)
+        return JsonResponse({"status": "saved"})
 
 @login_required
 def submit_speaking(request, user_test_id):
     user_test = get_object_or_404(UserSpeakingTest, id=user_test_id)
 
+    attempts = SpeakingAttempt.objects.filter(
+        user=request.user,
+        test=user_test.test
+    )
+
+    full_text = ""
+
+    # 1. TRANSCRIBE ALL
+    for a in attempts:
+        if not a.transcript:
+            transcript = transcribe_audio(a.audio.path)
+            a.transcript = transcript
+            a.save()
+
+        full_text += f"\nQ: {a.question.question_text}\nA: {a.transcript}\n"
+
+    # 2. ONE GPT CALL
+    result = evaluate_full_speaking(full_text)
+
+    # 3. SAVE SAME RESULT TO ALL
+    for a in attempts:
+        a.fluency_score = result["fluency"]
+        a.grammar_score = result["grammar"]
+        a.vocabulary_score = result["lexical"]
+        a.pronunciation_score = result["pronunciation"]
+        a.overall_band = result["overall"]
+        a.feedback = json.dumps(result["feedback"])
+        a.save()
+
     user_test.completed_at = timezone.now()
     user_test.save()
 
     return redirect("ielts:speaking_result", user_test.id)
+
 
 @login_required
 def speaking_result(request, user_test_id):
@@ -698,9 +731,21 @@ def speaking_result(request, user_test_id):
     attempts = SpeakingAttempt.objects.filter(
         user=request.user,
         question__test=user_test.test
-    ).order_by("-created_at")
+    ).select_related("question").order_by("created_at")
+
+    # ✅ Parse feedback JSON
+    for a in attempts:
+        try:
+            a.feedback_parsed = json.loads(a.feedback)
+        except:
+            a.feedback_parsed = {}
+
+    # ✅ Average band
+    bands = [a.overall_band for a in attempts if a.overall_band]
+    avg_band = round(sum(bands)/len(bands), 1) if bands else None
 
     return render(request, "ielts/speaking/result.html", {
         "attempts": attempts,
-        "test": user_test.test
+        "test": user_test.test,
+        "avg_band": avg_band
     })

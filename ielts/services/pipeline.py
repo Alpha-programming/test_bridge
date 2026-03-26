@@ -1,31 +1,45 @@
 from .speech import transcribe_audio
 from .evaluation import evaluate_speaking
+import json
+
+def combine_scores(data, pronunciation_score):
+    fluency = data["fluency"]
+    lexical = data["lexical"]
+    grammar = data["grammar"]
+
+    overall = round(
+        (fluency + lexical + grammar + pronunciation_score) / 4, 1
+    )
+
+    return overall
 
 
 def process_speaking(attempt):
     file_path = attempt.audio.path
 
-    # 1. Transcription
+    # 1. TRANSCRIPT
     transcript = transcribe_audio(file_path)
 
-    # 2. GPT evaluation
+    # 2. GPT
     data = evaluate_speaking(transcript)
 
-    # (temporary pronunciation score)
+    # 3. PRONUNCIATION (temporary logic)
     pronunciation_score = 6.5
 
-    # Save
+    # 4. FINAL BAND
+    overall = combine_scores(data, pronunciation_score)
+
+    # SAVE
     attempt.transcript = transcript
     attempt.fluency_score = data["fluency"]
+    attempt.vocabulary_score = data["lexical"]
     attempt.grammar_score = data["grammar"]
-    attempt.vocabulary_score = data["vocabulary"]
-    attempt.overall_band = data["overall"]
     attempt.pronunciation_score = pronunciation_score
-    attempt.feedback = data["feedback"]
+    attempt.overall_band = overall
+    attempt.feedback = json.dumps(data["feedback"])
     attempt.save()
 
     return {
-        "transcript": transcript,
-        **data,
-        "pronunciation": pronunciation_score
+        "band": overall,
+        "feedback": data["feedback"]
     }

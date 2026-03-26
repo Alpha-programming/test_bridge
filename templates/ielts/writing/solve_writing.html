@@ -69,7 +69,35 @@ textarea {
 .warning { color:red; font-weight:bold; }
 
 /* TIMER */
-.timer { color:red; font-weight:bold; }
+.timer-box {
+    padding:6px 14px;
+    border-radius:20px;
+    border:2px solid #0d6efd;
+    color:#0d6efd;
+    font-weight:600;
+    min-width:90px;
+    text-align:center;
+    transition:0.3s;
+}
+
+/* WARNING */
+.timer-warning {
+    border-color:#ff9800;
+    color:#ff9800;
+}
+
+/* CRITICAL */
+.timer-danger {
+    border-color:#dc3545;
+    color:#dc3545;
+    animation:pulse 1s infinite;
+}
+
+@keyframes pulse {
+    0% { transform:scale(1); }
+    50% { transform:scale(1.05); }
+    100% { transform:scale(1); }
+}
 
 /* NAV */
 .bottom-bar {
@@ -96,16 +124,34 @@ textarea {
 #answer2 {
     display: none;
 }
+
+.overlay {
+    position:fixed;
+    top:0; left:0; right:0; bottom:0;
+    background:rgba(0,0,0,0.85);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    z-index:9999;
+    color:white;
+}
 </style>
 </head>
 
 <body>
+<div id="startOverlay" class="overlay">
+    <h3 class="mb-3">Are you ready?</h3>
+    <p>You will have {{ test.duration_minutes }} minutes to complete this test.</p>
+    <button class="btn btn-danger btn-lg" onclick="startTest()">Start Writing</button>
+</div>
 
 <!-- 🔝 HEADER -->
+<div id="mainContent" style="display:none;">
 <div class="top-bar">
     <h5>{{ test.title }}</h5>
 
-    <div class="timer" id="timer"></div>
+    <div id="timer" class="timer-box"></div>
 
     <div>
         <button class="btn btn-sm btn-outline-dark" onclick="setTheme('light')">Light</button>
@@ -196,6 +242,27 @@ textarea {
     <button class="tab-btn" id="btn2" onclick="switchTask(2)">Task 2</button>
 </div>
 
+<!-- 🔥 LOADING OVERLAY -->
+<div id="loadingOverlay" style="
+    display:none;
+    position:fixed;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    background:rgba(0,0,0,0.7);
+    z-index:9999;
+    justify-content:center;
+    align-items:center;
+    flex-direction:column;
+    color:#fff;
+    font-size:22px;
+">
+    <div class="spinner-border text-light mb-3"></div>
+    <div id="loadingText">Evaluating your writing... ✍️</div>
+    <small>Please wait, this may take 5–15 seconds</small>
+</div>
+</div>
 <script>
 
 // SWITCH TASK
@@ -261,7 +328,11 @@ function saveAnswer(task,text){
 }
 
 // SUBMIT
+let isSubmitting = false;
+
 function submitTest(){
+    if(isSubmitting) return;
+
     let t1 = document.getElementById("task1").value.trim().split(/\s+/).filter(w=>w).length;
     let t2 = document.getElementById("task2").value.trim().split(/\s+/).filter(w=>w).length;
 
@@ -276,6 +347,16 @@ function submitTest(){
         }
     }
 
+    isSubmitting = true;
+
+    // 🔥 SHOW LOADING
+    const overlay = document.getElementById("loadingOverlay");
+    overlay.style.display = "flex";
+
+    // disable all buttons
+    document.querySelectorAll("button").forEach(btn => btn.disabled = true);
+
+    // redirect
     window.location.href = "{% url 'ielts:writing_submit' user_test.id %}";
 }
 
@@ -284,6 +365,20 @@ let isManualSubmit = false;
 
 const startTime = {{ user_test.started_at|date:"U"|default:"0" }};
 const duration = {{ test.duration_minutes }} * 60;
+
+function updateTimer(remain){
+    const el = document.getElementById("timer");
+
+    const minutes = Math.floor(remain / 60);
+
+    el.classList.remove("timer-warning", "timer-danger");
+
+    if(minutes <= 5){
+        el.classList.add("timer-danger");
+    } else if(minutes <= 10){
+        el.classList.add("timer-warning");
+    }
+}
 
 function timer(){
     const now = Math.floor(Date.now() / 1000);
@@ -299,10 +394,11 @@ function timer(){
 
     document.getElementById("timer").innerText =
         `${m}:${s < 10 ? '0' : ''}${s}`;
+
+    updateTimer(remain);
 }
 
-setInterval(timer, 1000);
-timer();
+
 
 // RESIZER
 const resizer=document.getElementById('resizer');
@@ -341,6 +437,45 @@ window.onload=function(){
     setTheme(localStorage.getItem("theme")||"light");
     document.body.style.fontSize=(localStorage.getItem("fontSize")||16)+"px";
 };
+
+const messages = [
+    "Analyzing task response...",
+    "Checking coherence and cohesion...",
+    "Evaluating vocabulary...",
+    "Analyzing grammar...",
+    "Calculating final band score..."
+];
+
+let i = 0;
+
+setInterval(()=>{
+    const el = document.getElementById("loadingText");
+    if(el && document.getElementById("loadingOverlay").style.display === "flex"){
+        el.innerText = messages[i % messages.length];
+        i++;
+    }
+},2000);
+
+let started = false;
+let timerInterval = null;
+
+function startTest(){
+    if(started) return;
+    started = true;
+
+    document.getElementById("startOverlay").style.display = "none";
+    document.getElementById("mainContent").style.display = "block";
+
+    // start timer only now
+    timerInterval = setInterval(timer, 1000);
+    timer();
+}
+
+document.addEventListener("click", function(e){
+    if(!started){
+        e.preventDefault();
+    }
+});
 </script>
 
 </body>

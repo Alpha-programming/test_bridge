@@ -83,3 +83,8 @@ if (ctx) {
     });
 }
 
+document.querySelectorAll("a").forEach(link=>{
+  link.addEventListener("click", ()=>{
+    document.body.style.opacity = "0.7";
+  });
+});

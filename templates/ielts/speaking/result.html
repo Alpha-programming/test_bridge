@@ -13,10 +13,7 @@
   --card:#ffffff;
   --border:#e5e7eb;
   --text:#111827;
-  --muted:#6b7280;
   --primary:#2563eb;
-  --success:#16a34a;
-  --danger:#dc2626;
   --shadow: 0 10px 25px rgba(0,0,0,.06);
   --radius: 16px;
 }
@@ -100,6 +97,19 @@ header{
   line-height:1.6;
 }
 
+.section-title{
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+
+.feedback-box{
+  background:#f0fdf4;
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
+}
+
 .actions{
   margin-top:15px;
 }
@@ -113,12 +123,6 @@ header{
 
 .primary{background:var(--primary); color:#fff;}
 .secondary{background:#e5e7eb;}
-
-.section-title{
-  font-size:18px;
-  font-weight:800;
-  margin-bottom:10px;
-}
 </style>
 
 </head>
@@ -141,9 +145,13 @@ header{
     <div class="metric">
       <div>Average Band</div>
       <div class="value">
-        <span class="band" style="background:#e0f2fe; border-color:#bae6fd;">
-          {{ avg_band|default:"—" }}
-        </span>
+        {% if avg_band %}
+          <span class="band" style="background:#e0f2fe; border-color:#bae6fd;">
+            Band {{ avg_band }}
+          </span>
+        {% else %}
+          <span class="band">Not evaluated</span>
+        {% endif %}
       </div>
     </div>
 
@@ -156,24 +164,25 @@ header{
   <!-- INFO -->
   <div class="card">
     <div class="title" style="font-size:18px;">Summary</div>
-
     <p><b>Test:</b> {{ test.title }}</p>
     <p><b>User:</b> {{ request.user.username }}</p>
   </div>
 
 </div>
 
-<!-- 🎤 PART 1 -->
+<!-- 🔥 PART LOOP -->
+{% for part in "123" %}
 <div class="card" style="margin-top:15px;">
-  <div class="section-title">Part 1</div>
+  <div class="section-title">Part {{ part }}</div>
 
   {% for a in attempts %}
-    {% if a.question.part == 1 %}
+    {% if a.question.part|stringformat:"s" == part %}
       <div class="answer-box">
+
         <p><b>Question:</b> {{ a.question.question_text }}</p>
 
         {% if a.audio %}
-        <audio controls>
+        <audio controls style="margin-top:8px;">
             <source src="{{ a.audio.url }}">
         </audio>
         {% endif %}
@@ -181,6 +190,7 @@ header{
         <p><b>Transcript:</b> {{ a.transcript|default:"—" }}</p>
 
         <p>
+          <b>Scores:</b><br>
           Fluency: {{ a.fluency_score }} |
           Grammar: {{ a.grammar_score }} |
           Vocabulary: {{ a.vocabulary_score }} |
@@ -188,69 +198,31 @@ header{
           <b>Band: {{ a.overall_band }}</b>
         </p>
 
-        <p>{{ a.feedback }}</p>
+        <!-- ✅ STRUCTURED FEEDBACK -->
+        {% if a.feedback_parsed %}
+        <div class="feedback-box">
+            <b>Fluency:</b> {{ a.feedback_parsed.fluency }}<br>
+            <b>Vocabulary:</b> {{ a.feedback_parsed.lexical }}<br>
+            <b>Grammar:</b> {{ a.feedback_parsed.grammar }}<br>
+
+            <br>
+            <b>Improvements:</b>
+            <ul>
+                {% for i in a.feedback_parsed.improvements %}
+                    <li>{{ i }}</li>
+                {% empty %}
+                    <li>No suggestions</li>
+                {% endfor %}
+            </ul>
+        </div>
+        {% endif %}
+
       </div>
     {% endif %}
   {% endfor %}
+
 </div>
-
-<!-- 🎤 PART 2 -->
-<div class="card" style="margin-top:15px;">
-  <div class="section-title">Part 2</div>
-
-  {% for a in attempts %}
-    {% if a.question.part == 2 %}
-      <div class="answer-box">
-        <p><b>Question:</b> {{ a.question.question_text }}</p>
-
-        <audio controls>
-            <source src="{{ a.audio.url }}">
-        </audio>
-
-        <p><b>Transcript:</b> {{ a.transcript }}</p>
-
-        <p>
-          Fluency: {{ a.fluency_score }} |
-          Grammar: {{ a.grammar_score }} |
-          Vocabulary: {{ a.vocabulary_score }} |
-          Pronunciation: {{ a.pronunciation_score }} |
-          <b>Band: {{ a.overall_band }}</b>
-        </p>
-
-        <p>{{ a.feedback }}</p>
-      </div>
-    {% endif %}
-  {% endfor %}
-</div>
-
-<!-- 🎤 PART 3 -->
-<div class="card" style="margin-top:15px;">
-  <div class="section-title">Part 3</div>
-
-  {% for a in attempts %}
-    {% if a.question.part == 3 %}
-      <div class="answer-box">
-        <p><b>Question:</b> {{ a.question.question_text }}</p>
-
-        <audio controls>
-            <source src="{{ a.audio.url }}">
-        </audio>
-
-        <p><b>Transcript:</b> {{ a.transcript }}</p>
-
-        <p>
-          Fluency: {{ a.fluency_score }} |
-          Grammar: {{ a.grammar_score }} |
-          Vocabulary: {{ a.vocabulary_score }} |
-          Pronunciation: {{ a.pronunciation_score }} |
-          <b>Band: {{ a.overall_band }}</b>
-        </p>
-
-        <p>{{ a.feedback }}</p>
-      </div>
-    {% endif %}
-  {% endfor %}
-</div>
+{% endfor %}
 
 </div>
 

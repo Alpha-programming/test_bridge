@@ -23,7 +23,7 @@
 .hero-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(0,0,0,0.15);
+  background: rgba(0,0,0,0.35);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -79,6 +79,21 @@
 .hero-btn.red:hover {
   background: #a50d26;
 }
+
+.hero-content {
+  animation: fadeUp 1s ease;
+}
+
+@keyframes fadeUp {
+  from {
+    opacity:0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity:1;
+    transform: translateY(0);
+  }
+}
 </style>
 
 <!-- HERO -->
@@ -94,24 +109,54 @@
     <div class="hero-content">
 
       <h1>
-        {{ content.title|default:"The world's most trusted English test" }}
+        Achieve Band 7+ with AI-Powered IELTS Practice 🚀
       </h1>
 
-      <p class="mt-3">
-        {{ content.subtitle|default:"Prepare with real practice tests and AI-powered evaluation." }}
+      <p class="mt-3 fs-5">
+      Practice Reading, Writing, Listening and Speaking with real exam simulations and instant AI feedback.
       </p>
 
       <div class="hero-buttons">
+
         <a href="{% url 'ielts:reading' %}" class="hero-btn">
-          Reading Practice →
+          Start Reading Test →
         </a>
 
         <a href="{% url 'ielts:writing' %}" class="hero-btn red">
-          Writing AI →
+          Try Writing AI →
         </a>
+
+        <a href="{% url 'ielts:speaking' %}" class="hero-btn">
+          Practice Speaking →
+        </a>
+
       </div>
 
     </div>
+  </div>
+
+</div>
+
+<div class="row text-center mt-5">
+
+  <div class="col-md-3">
+    <h5>📘 Reading</h5>
+    <p>Real IELTS passages with timer</p>
+  </div>
+
+  <div class="col-md-3">
+    <h5>🎧 Listening</h5>
+    <p>Audio + auto timing system</p>
+  </div>
+
+  <div class="col-md-3">
+    <h5>✍️ Writing AI</h5>
+    <p>Band score + detailed feedback</p>
+  </div>
+
+  <div class="col-md-3">
+    <h5>🎤 Speaking AI</h5>
+    <p>Speech analysis + pronunciation</p>
   </div>
 
 </div>

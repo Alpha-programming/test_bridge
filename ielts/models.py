@@ -474,6 +474,7 @@ class HomePageContent(models.Model):
 
 class SpeakingTest(models.Model):
     title = models.CharField(max_length=255)
+    duration_minutes = models.PositiveIntegerField(default=30)
     created_at = models.DateTimeField(auto_now_add=True)
 
 class SpeakingQuestion(models.Model):

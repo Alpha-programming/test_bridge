@@ -44,43 +44,55 @@ a:hover {
 }
 
 /* NAVBAR */
-.glass-nav{
-  position:sticky;
-  top:0;
-  z-index:1000;
-  background: #c8102e;
-  border-bottom:none;
+
+.glass-nav {
+  position: sticky;
+  top: 0;
+  z-index: 1000;
+  background: linear-gradient(135deg, #c81d22, #a10f14);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
-/* brand */
-.brand{
-  font-weight:800;
-  font-size:1.3rem;
-  color:white !important;
+/* LINKS */
+.nav-link {
+  color: white !important;
+  font-weight: 600;
+  padding: 8px 14px !important;
+  border-radius: 999px;
+  transition: 0.25s;
 }
 
-/* links */
-.nav-link{
-  font-weight:600;
-  border-radius:999px;
-  padding:8px 14px !important;
-  color:white !important;
-  transition:0.2s;
-}
-
-/* hover */
-.nav-link:hover{
+.nav-link:hover {
   background: rgba(255,255,255,0.15);
-  color:white !important;
 }
 
-/* username */
-.navbar span{
-  color:white;
+.nav-link.active {
+  background: rgba(255,255,255,0.25);
+}
+
+/* DROPDOWN */
+.dropdown-menu {
+  border-radius: 12px;
+  padding: 10px;
+}
+
+.dropdown-item {
+  border-radius: 8px;
+  padding: 8px 12px;
+  transition: 0.2s;
+}
+
+.dropdown-item:hover {
+  background: #f1f5f9;
+}
+
+/* MOBILE FIX */
+.navbar-toggler {
+  font-size: 24px;
 }
 
 .btn-main{
-  background:var(--accent);
+  background:var(--primary);
   color:#fff;
   border:none;
   border-radius:999px;
@@ -109,9 +121,22 @@ footer{
 }
 
 .logo{
-  width:50px;
-  border-radius:50%;
-  mix-blend-mode: multiply;
+  width:42px;
+  height:42px;
+  object-fit:contain;
+  border-radius:10px;
+  padding:4px;
+}
+
+@media (max-width: 991px) {
+  .dropdown-menu {
+    width: 100%;
+  }
+}
+
+.brand:hover {
+  transform: scale(1.03);
+  transition: 0.2s;
 }
 </style>
 
@@ -125,28 +150,92 @@ footer{
   <div class="container">
     <nav class="navbar navbar-expand-lg">
 
+      <!-- LOGO -->
       <a class="brand d-flex align-items-center gap-2" href="{% url 'ielts:home' %}">
-
-        <img src="{% static 'ielts/img/logo.png' %}" class="logo">
-
-        <span>IELTS Bridge</span>
-
+        <img src="{% static 'ielts/img/logo2.jpeg' %}" class="logo">
+        <span style="font-weight:800; font-size:1.2rem; letter-spacing:0.5px; color: white;">
+          TEST Bridge
+        </span>
       </a>
 
-      <div class="ms-auto d-flex align-items-center gap-2">
 
-        <a href="{% url 'ielts:reading' %}" class="nav-link">Reading</a>
-        <a href="{% url 'ielts:listening' %}" class="nav-link">Listening</a>
-        <a href="{% url 'ielts:writing' %}" class="nav-link">Writing</a>
-        <a href="{% url 'ielts:speaking' %}" class="nav-link">Speaking</a>
+      <!-- ☰ MOBILE BUTTON -->
+      <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        ☰
+      </button>
 
-        {% if user.is_authenticated %}
-          <span class="fw-bold">{{ user.username }}</span>
-          <a href="{% url 'logout' %}" class="btn btn-main btn-sm">Logout</a>
-        {% else %}
-          <a href="{% url 'login' %}" class="btn btn-outline-dark btn-sm">Login</a>
-          <a href="{% url 'register' %}" class="btn btn-main btn-sm">Register</a>
-        {% endif %}
+      <!-- NAV CONTENT -->
+      <div class="collapse navbar-collapse" id="navMenu">
+
+        <!-- CENTER LINKS -->
+        <div class="mx-auto d-flex flex-column flex-lg-row gap-2 text-center mt-3 mt-lg-0">
+          <a href="{% url 'ielts:reading' %}" class="nav-link {% if 'reading' in request.path %}active{% endif %}">Reading</a>
+          <a href="{% url 'ielts:listening' %}" class="nav-link {% if 'listening' in request.path %}active{% endif %}">Listening</a>
+          <a href="{% url 'ielts:writing' %}" class="nav-link {% if 'writing' in request.path %}active{% endif %}">Writing</a>
+          <a href="{% url 'ielts:speaking' %}" class="nav-link {% if 'speaking' in request.path %}active{% endif %}">Speaking</a>
+        </div>
+
+        <!-- RIGHT SIDE -->
+        <div class="ms-auto mt-3 mt-lg-0">
+
+          {% if user.is_authenticated %}
+          <!-- 👤 PROFILE DROPDOWN -->
+          <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle rounded-pill px-3" data-bs-toggle="dropdown">
+              👤 {{ user.username }}
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+
+              <li>
+                <a class="dropdown-item" href="#">
+                  👤Profile
+                </a>
+              </li>
+
+              <li>
+                <a class="dropdown-item" href="#">
+                  📊My Results
+                </a>
+              </li>
+
+              <li><hr class="dropdown-divider"></li>
+
+              <li>
+                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
+                  🚪Logout
+                </a>
+              </li>
+
+            </ul>
+          </div>
+
+          {% else %}
+          <!-- 🔐 LOGIN DROPDOWN -->
+          <div class="dropdown">
+            <button class="btn btn-light dropdown-toggle rounded-pill px-3" data-bs-toggle="dropdown">
+              Account
+            </button>
+
+            <ul class="dropdown-menu dropdown-menu-end shadow border-0">
+
+              <li>
+                <a class="dropdown-item" href="{% url 'login' %}">
+                  Login
+                </a>
+              </li>
+
+              <li>
+                <a class="dropdown-item" href="{% url 'register' %}">
+                  Register
+                </a>
+              </li>
+
+            </ul>
+          </div>
+          {% endif %}
+
+        </div>
 
       </div>
     </nav>
