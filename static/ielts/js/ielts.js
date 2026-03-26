@@ -63,3 +63,23 @@ function getCookie(name) {
     }
     return cookieValue;
 }
+
+const ctx = document.getElementById("scoreChart");
+
+if (ctx) {
+    const data = JSON.parse('{{ progress_data|safe }}');
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: data.map((_, i) => i + 1),
+            datasets: [{
+                label: "Band Score",
+                data: data,
+                fill: false,
+                tension: 0.3
+            }]
+        }
+    });
+}
+

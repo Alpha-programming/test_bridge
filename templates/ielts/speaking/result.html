@@ -1,0 +1,258 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Speaking Result</title>
+
+<style>
+:root{
+  --bg:#f5f5f5;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#2563eb;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --shadow: 0 10px 25px rgba(0,0,0,.06);
+  --radius: 16px;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+}
+
+.wrap{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+header{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:var(--shadow);
+}
+
+.grid{
+  margin-top:15px;
+  display:grid;
+  grid-template-columns:1.3fr .7fr;
+  gap:12px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+.title{
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.metric{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#f9fafb;
+  margin-bottom:10px;
+}
+
+.value{
+  font-size:26px;
+  font-weight:900;
+}
+
+.band{
+  font-weight:900;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+}
+
+.answer-box{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  background:#fafafa;
+  margin-top:10px;
+  line-height:1.6;
+}
+
+.actions{
+  margin-top:15px;
+}
+
+.btn{
+  padding:10px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.primary{background:var(--primary); color:#fff;}
+.secondary{background:#e5e7eb;}
+
+.section-title{
+  font-size:18px;
+  font-weight:800;
+  margin-bottom:10px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="wrap">
+
+<header>
+  <div><strong>IELTS Speaking Result</strong></div>
+  <div>Saved in your account</div>
+</header>
+
+<div class="grid">
+
+  <!-- MAIN -->
+  <div class="card">
+    <div class="title">Your Performance</div>
+
+    <div class="metric">
+      <div>Average Band</div>
+      <div class="value">
+        <span class="band" style="background:#e0f2fe; border-color:#bae6fd;">
+          {{ avg_band|default:"—" }}
+        </span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <a href="{% url 'ielts:speaking' %}" class="btn secondary">Back</a>
+      <a href="{% url 'ielts:home' %}" class="btn primary">Home</a>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="card">
+    <div class="title" style="font-size:18px;">Summary</div>
+
+    <p><b>Test:</b> {{ test.title }}</p>
+    <p><b>User:</b> {{ request.user.username }}</p>
+  </div>
+
+</div>
+
+<!-- 🎤 PART 1 -->
+<div class="card" style="margin-top:15px;">
+  <div class="section-title">Part 1</div>
+
+  {% for a in attempts %}
+    {% if a.question.part == 1 %}
+      <div class="answer-box">
+        <p><b>Question:</b> {{ a.question.question_text }}</p>
+
+        {% if a.audio %}
+        <audio controls>
+            <source src="{{ a.audio.url }}">
+        </audio>
+        {% endif %}
+
+        <p><b>Transcript:</b> {{ a.transcript|default:"—" }}</p>
+
+        <p>
+          Fluency: {{ a.fluency_score }} |
+          Grammar: {{ a.grammar_score }} |
+          Vocabulary: {{ a.vocabulary_score }} |
+          Pronunciation: {{ a.pronunciation_score }} |
+          <b>Band: {{ a.overall_band }}</b>
+        </p>
+
+        <p>{{ a.feedback }}</p>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<!-- 🎤 PART 2 -->
+<div class="card" style="margin-top:15px;">
+  <div class="section-title">Part 2</div>
+
+  {% for a in attempts %}
+    {% if a.question.part == 2 %}
+      <div class="answer-box">
+        <p><b>Question:</b> {{ a.question.question_text }}</p>
+
+        <audio controls>
+            <source src="{{ a.audio.url }}">
+        </audio>
+
+        <p><b>Transcript:</b> {{ a.transcript }}</p>
+
+        <p>
+          Fluency: {{ a.fluency_score }} |
+          Grammar: {{ a.grammar_score }} |
+          Vocabulary: {{ a.vocabulary_score }} |
+          Pronunciation: {{ a.pronunciation_score }} |
+          <b>Band: {{ a.overall_band }}</b>
+        </p>
+
+        <p>{{ a.feedback }}</p>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+<!-- 🎤 PART 3 -->
+<div class="card" style="margin-top:15px;">
+  <div class="section-title">Part 3</div>
+
+  {% for a in attempts %}
+    {% if a.question.part == 3 %}
+      <div class="answer-box">
+        <p><b>Question:</b> {{ a.question.question_text }}</p>
+
+        <audio controls>
+            <source src="{{ a.audio.url }}">
+        </audio>
+
+        <p><b>Transcript:</b> {{ a.transcript }}</p>
+
+        <p>
+          Fluency: {{ a.fluency_score }} |
+          Grammar: {{ a.grammar_score }} |
+          Vocabulary: {{ a.vocabulary_score }} |
+          Pronunciation: {{ a.pronunciation_score }} |
+          <b>Band: {{ a.overall_band }}</b>
+        </p>
+
+        <p>{{ a.feedback }}</p>
+      </div>
+    {% endif %}
+  {% endfor %}
+</div>
+
+</div>
+
+</body>
+</html>

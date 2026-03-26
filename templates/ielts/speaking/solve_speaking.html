@@ -1,0 +1,263 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>{{ user_test.test.title }}</title>
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+
+<style>
+body { margin:0; font-family:Arial; overflow:hidden; }
+
+.top-bar {
+    height:60px;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:0 20px;
+    border-bottom:1px solid #ddd;
+    background:#fff;
+}
+
+.main { display:flex; height:calc(100vh - 110px); }
+
+.left {
+    flex:60%;
+    padding:20px;
+    overflow:auto;
+    background:#fafafa;
+}
+
+.right {
+    flex:40%;
+    padding:20px;
+    display:flex;
+    flex-direction:column;
+    gap:15px;
+}
+
+.question-box {
+    padding:15px;
+    border:1px solid #ddd;
+    border-radius:10px;
+    margin-bottom:15px;
+    background:#fff;
+}
+
+.recording { color:red; font-weight:bold; }
+
+.audio-list audio {
+    width:100%;
+    margin-top:5px;
+}
+
+.bottom-bar {
+    height:50px;
+    display:flex;
+    justify-content:center;
+    gap:10px;
+    border-top:1px solid #ddd;
+}
+
+.tab-btn.active {
+    background:#0d6efd;
+    color:#fff;
+}
+</style>
+</head>
+
+<body>
+
+<!-- HEADER -->
+<div class="top-bar">
+    <h5>{{ user_test.test.title }}</h5>
+
+    <div id="globalTimer" style="color:red;font-weight:bold;"></div>
+
+    <button onclick="submitTest()" class="btn btn-danger btn-sm">Submit</button>
+</div>
+
+<div class="main">
+
+<!-- LEFT -->
+<div class="left">
+
+    <!-- PART 1 -->
+    <div id="part1">
+        <h5>Part 1</h5>
+        {% for q in part1 %}
+        <div class="question-box">
+            <p>{{ q.question_text }}</p>
+
+            <button onclick="startRecording({{ q.id }})" class="btn btn-success btn-sm">Start</button>
+            <button onclick="stopRecording()" class="btn btn-warning btn-sm">Stop</button>
+
+            <div id="timer_{{ q.id }}"></div>
+            <div id="status_{{ q.id }}"></div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- PART 2 -->
+    <div id="part2" style="display:none;">
+        <h5>Part 2</h5>
+        <div class="question-box">
+            <p>{{ part2.question_text }}</p>
+            <p>{{ part2.cue_points }}</p>
+
+            <button onclick="startRecording({{ part2.id }})" class="btn btn-success btn-sm">Start</button>
+            <button onclick="stopRecording()" class="btn btn-warning btn-sm">Stop</button>
+
+            <div id="timer_{{ part2.id }}"></div>
+            <div id="status_{{ part2.id }}"></div>
+        </div>
+    </div>
+
+    <!-- PART 3 -->
+    <div id="part3" style="display:none;">
+        <h5>Part 3</h5>
+        {% for q in part3 %}
+        <div class="question-box">
+            <p>{{ q.question_text }}</p>
+
+            <button onclick="startRecording({{ q.id }})" class="btn btn-success btn-sm">Start</button>
+            <button onclick="stopRecording()" class="btn btn-warning btn-sm">Stop</button>
+
+            <div id="timer_{{ q.id }}"></div>
+            <div id="status_{{ q.id }}"></div>
+        </div>
+        {% endfor %}
+    </div>
+
+</div>
+
+<!-- RIGHT -->
+<div class="right">
+
+    <h6>🎧 Your Recordings</h6>
+    <div id="audioList" class="audio-list"></div>
+
+</div>
+
+</div>
+
+<!-- NAV -->
+<div class="bottom-bar">
+    <button onclick="switchPart(1)">Part 1</button>
+    <button onclick="switchPart(2)">Part 2</button>
+    <button onclick="switchPart(3)">Part 3</button>
+</div>
+
+<script>
+
+let recorder, chunks = [], stream;
+let currentQuestion = null;
+let timerInterval;
+let seconds = 0;
+
+// 🎤 START
+async function startRecording(qid){
+    currentQuestion = qid;
+    seconds = 0;
+
+    stream = await navigator.mediaDevices.getUserMedia({audio:true});
+    recorder = new MediaRecorder(stream);
+
+    chunks = [];
+
+    recorder.ondataavailable = e => chunks.push(e.data);
+
+    recorder.onstop = () => {
+        clearInterval(timerInterval);
+
+        const blob = new Blob(chunks, {type:"audio/webm"});
+
+        // show audio
+        const url = URL.createObjectURL(blob);
+
+        const audioHTML = `
+            <div>
+                <b>Question ${qid}</b>
+                <audio controls src="${url}"></audio>
+            </div>
+        `;
+        document.getElementById("audioList").innerHTML += audioHTML;
+
+        // upload
+        const formData = new FormData();
+        formData.append("audio", blob);
+        formData.append("question_id", qid);
+
+        fetch("{% url 'ielts:speaking_upload' %}", {
+            method:"POST",
+            headers:{ "X-CSRFToken":"{{ csrf_token }}" },
+            body:formData
+        });
+
+        stream.getTracks().forEach(track => track.stop());
+
+        document.getElementById("status_"+qid).innerText = "✅ Recorded";
+    };
+
+    recorder.start();
+
+    document.getElementById("status_"+qid).innerHTML =
+        "<span class='recording'>🔴 Recording...</span>";
+
+    // ⏱ per-question timer
+    timerInterval = setInterval(()=>{
+        seconds++;
+        let m = Math.floor(seconds/60);
+        let s = seconds%60;
+        document.getElementById("timer_"+qid).innerText =
+            `${m}:${s<10?'0':''}${s}`;
+    },1000);
+}
+
+// ⏹ STOP
+function stopRecording(){
+    if(recorder && recorder.state !== "inactive"){
+        recorder.stop();
+    }
+}
+
+// 🔁 PART SWITCH
+function switchPart(n){
+    document.getElementById("part1").style.display = n===1?"block":"none";
+    document.getElementById("part2").style.display = n===2?"block":"none";
+    document.getElementById("part3").style.display = n===3?"block":"none";
+}
+
+// ⏱ GLOBAL TIMER (30 min)
+const startTime = {{ user_test.started_at|date:"U"|default:"0" }};
+const duration = 30 * 60;
+
+function globalTimer(){
+    const now = Math.floor(Date.now()/1000);
+    const remain = duration - (now - startTime);
+
+    if(remain <= 0){
+        submitTest(); // 🔥 AUTO SUBMIT
+        return;
+    }
+
+    const m = Math.floor(remain/60);
+    const s = remain%60;
+
+    document.getElementById("globalTimer").innerText =
+        `Time Left: ${m}:${s<10?'0':''}${s}`;
+}
+
+setInterval(globalTimer,1000);
+globalTimer();
+
+// SUBMIT
+function submitTest(){
+    window.location.href = "{% url 'ielts:speaking_submit' user_test.id %}";
+}
+
+</script>
+
+</body>
+</html>

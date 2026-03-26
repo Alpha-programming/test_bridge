@@ -1,0 +1,290 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Writing Result</title>
+
+<style>
+:root{
+  --bg:#f5f5f5;
+  --card:#ffffff;
+  --border:#e5e7eb;
+  --text:#111827;
+  --muted:#6b7280;
+  --primary:#2563eb;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --shadow: 0 10px 25px rgba(0,0,0,.06);
+  --radius: 16px;
+}
+
+*{
+  box-sizing:border-box;
+  margin:0;
+  padding:0;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+
+body{
+  background:var(--bg);
+  color:var(--text);
+}
+
+.wrap{
+  max-width:1100px;
+  margin:auto;
+  padding:20px;
+}
+
+header{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:14px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  box-shadow:var(--shadow);
+}
+
+.grid{
+  margin-top:15px;
+  display:grid;
+  grid-template-columns:1.3fr .7fr;
+  gap:12px;
+}
+
+.card{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:18px;
+  box-shadow:var(--shadow);
+}
+
+.title{
+  font-size:22px;
+  font-weight:900;
+  margin-bottom:10px;
+}
+
+.metric{
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:#f9fafb;
+  margin-bottom:10px;
+}
+
+.value{
+  font-size:26px;
+  font-weight:900;
+}
+
+.band{
+  font-weight:900;
+  padding:6px 10px;
+  border-radius:999px;
+  border:1px solid var(--border);
+}
+
+.answer-box{
+  border:1px solid var(--border);
+  border-radius:10px;
+  padding:12px;
+  background:#fafafa;
+  margin-top:10px;
+  line-height:1.6;
+}
+
+.actions{
+  margin-top:15px;
+}
+
+.btn{
+  padding:10px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:900;
+}
+
+.primary{background:var(--primary); color:#fff;}
+.secondary{background:#e5e7eb;}
+
+.card {
+  border-radius: 14px;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+}
+
+.card h5 {
+  font-weight: 800;
+  margin-bottom: 10px;
+}
+
+.card p {
+  line-height: 1.7;
+  color: #374151;
+}
+
+.card ul {
+  padding-left: 18px;
+}
+
+.card li {
+  margin-bottom: 6px;
+}
+
+</style>
+
+</head>
+
+<body>
+
+<div class="wrap">
+
+<header>
+  <div><strong>IELTS Writing Result</strong></div>
+  <div>Saved in your account</div>
+</header>
+
+<div class="grid">
+
+  <!-- MAIN -->
+  <div class="card">
+    <div class="title">Your Result</div>
+
+    <div class="metric">
+      <div>Final Band</div>
+      <div class="value">
+        {% if result.final_band %}
+          <span class="band" style="background:#e0f2fe; border-color:#bae6fd;">
+            Band {{ result.final_band }}
+          </span>
+        {% if result.final_band %}
+          <p style="color:gray; margin-top:5px;">
+            IELTS equivalent score based on your performance
+          </p>
+        {% endif %}
+        {% else %}
+          <span class="band">Not graded</span>
+        {% endif %}
+      </div>
+    </div>
+
+    {% if result.status == "submitted" %}
+    <div class="metric" style="background:#fff3cd; border-color:#ffeeba;">
+      ⏳ Your writing is being evaluated by AI. Please refresh in a few seconds.
+    </div>
+    {% endif %}
+
+    <div class="metric">
+      <div>Status</div>
+      <div class="value">
+        {% if result.status == "submitted" %}
+            ⏳ Evaluating...
+        {% elif result.status == "checked" %}
+            ✅ Completed
+        {% else %}
+            {{ result.status|title }}
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="actions">
+      <a href="{% url 'ielts:writing' %}" class="btn secondary">Back</a>
+      <a href="{% url 'ielts:home' %}" class="btn primary">Home</a>
+    </div>
+  </div>
+
+  <!-- INFO -->
+  <div class="card">
+    <div class="title" style="font-size:18px;">Summary</div>
+
+    <p><b>Test:</b> {{ result.test.title }}</p>
+    <p><b>User:</b> {{ result.user.username }}</p>
+  </div>
+
+</div>
+
+<!-- TASK 1 -->
+<div class="card" style="margin-top:15px;">
+  <div class="title" style="font-size:18px;">Task 1</div>
+
+  <div><b>Word count:</b> {{ user_test.task1_answer|wordcount }}</div>
+
+  <div class="answer-box">
+    {{ user_test.task1_answer|linebreaks }}
+  </div>
+
+  <div class="metric">
+    Task: {{ result.task1_task|default:"—" }} |
+    Coherence: {{ result.task1_coherence|default:"—" }} |
+    Lexical: {{ result.task1_lexical|default:"—" }} |
+    Grammar: {{ result.task1_grammar|default:"—" }} |
+    <b>Band: {{ result.task1_band|default:"—" }}</b>
+  </div>
+</div>
+
+<!-- TASK 2 -->
+<div class="card" style="margin-top:15px;">
+  <div class="title" style="font-size:18px;">Task 2</div>
+
+  <div><b>Word count:</b> {{ user_test.task2_answer|wordcount }}</div>
+
+  <div class="answer-box">
+    {{ user_test.task2_answer|linebreaks }}
+  </div>
+
+  <div class="metric">
+    Task: {{ result.task2_task|default:"—" }} |
+    Coherence: {{ result.task2_coherence|default:"—" }} |
+    Lexical: {{ result.task2_lexical|default:"—" }} |
+    Grammar: {{ result.task2_grammar|default:"—" }} |
+    <b>Band: {{ result.task2_band|default:"—" }}</b>
+  </div>
+</div>
+
+<!-- FEEDBACK -->
+<div class="card" style="margin-top:15px;">
+  <div class="title" style="font-size:18px;">Feedback</div>
+
+  {% if result.feedback %}
+    <div class="answer-box" style="background:#f0fdf4;">
+      <div class="card mt-3">
+  <div class="card-body">
+
+    <h5>📝 Task 1 Feedback</h5>
+<p>{{ feedback_task1 }}</p>
+
+<hr>
+
+<h5>📝 Task 2 Feedback</h5>
+<p>{{ feedback_task2 }}</p>
+
+<hr>
+
+<h5>✅ Improvements</h5>
+<ul>
+  {% for item in improvements %}
+    <li>{{ item }}</li>
+  {% empty %}
+    <li>No improvements provided</li>
+  {% endfor %}
+</ul>
+
+  </div>
+</div>
+    </div>
+  {% else %}
+    <p style="color:gray;">No feedback yet</p>
+  {% endif %}
+</div>
+
+</div>
+
+</body>
+</html>

@@ -1,96 +1,107 @@
+/* BODY */
 body {
-    background: #0f172a;
-    color: white;
-    font-family: 'Segoe UI', sans-serif;
-}
-
-/* NAVBAR */
-.navbar {
-    background: rgba(15, 23, 42, 0.95);
-    backdrop-filter: blur(10px);
-    border-bottom: 1px solid rgba(255,255,255,0.1);
-}
-
-.navbar-brand {
-    font-weight: bold;
-    letter-spacing: 1px;
-    color: #38bdf8 !important;
-}
-
-.nav-link {
-    color: rgba(255,255,255,0.8) !important;
-    transition: 0.3s;
-}
-
-.nav-link:hover {
-    color: #38bdf8 !important;
-}
-
-/* BUTTON */
-.main-btn {
-    background: linear-gradient(135deg, #1e6091, #9c0b2f);
-    border: none;
-    color: white;
-    padding: 8px 18px;
-    border-radius: 8px;
-    transition: 0.3s;
-    text-decoration: none;
-}
-
-.main-btn:hover {
-    transform: translateY(-2px);
-    opacity: 0.9;
+    background: #f8fafc;
+    color: #1e293b;
 }
 
 /* CARD */
 .card-custom {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
+    background: #ffffff;
+    border: 1px solid #e5e7eb;
     border-radius: 12px;
     padding: 20px;
-    transition: 0.3s;
+    transition: 0.25s;
 }
 
 .card-custom:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    transform: translateY(-4px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.08);
 }
 
-/* SEARCH CONTAINER */
+/* TITLES */
+.card-custom h5 {
+    font-size: 18px;
+    color: #111827;
+}
+
+/* BUTTON */
+.main-btn {
+    background: #c8102e;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 8px;
+    text-decoration: none;
+    text-align: center;
+    transition: 0.25s;
+}
+
+.main-btn:hover {
+    background: #a50d26;
+    color: white;
+}
+
+/* SEARCH */
 .search-box {
     max-width: 500px;
     width: 100%;
 }
 
-/* INPUT STYLE */
 .search-input {
-    background: rgba(255,255,255,0.05);
-    border: 1px solid rgba(255,255,255,0.1);
-    color: white;
-    padding: 10px;
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    color: #1e293b;
 }
 
-/* REMOVE BOOTSTRAP WHITE */
 .search-input:focus {
-    background: rgba(255,255,255,0.08);
-    border-color: #38bdf8;
+    border-color: #c8102e;
     box-shadow: none;
-    color: white;
 }
 
-/* PLACEHOLDER */
 .search-input::placeholder {
-    color: rgba(255,255,255,0.5);
+    color: #94a3b8;
 }
 
-/* BUTTON */
 .search-btn {
-    background: linear-gradient(135deg, #1e6091, #9c0b2f);
+    background: #c8102e;
     color: white;
     border: none;
-    padding: 0 20px;
 }
 
 .search-btn:hover {
-    opacity: 0.9;
+    background: #a50d26;
+}
+
+/* TEXT */
+.text-muted {
+    color: #64748b !important;
+}
+
+/* BADGES */
+.badge {
+    border-radius: 6px;
+    padding: 5px 8px;
+    font-size: 12px;
+}
+
+.badge.bg-info {
+    background: #e0f2fe !important;
+    color: #0369a1;
+}
+
+/* PAGINATION */
+span.text-white {
+    color: #64748b !important;
+}
+
+/* CHART CARD */
+#scoreChart {
+    background: #ffffff;
+    border-radius: 10px;
+    padding: 10px;
+}
+
+/* OPTIONAL: make chart area cleaner */
+.card-custom canvas {
+    max-height: 250px;
 }

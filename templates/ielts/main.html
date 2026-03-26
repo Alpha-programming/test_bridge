@@ -1,0 +1,119 @@
+{% extends "ielts/ielts.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+.hero-full {
+  width: 100%;
+  height: 520px;
+  position: relative;
+  overflow: hidden;
+  border-radius:20px;
+}
+
+/* IMAGE */
+.hero-full img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+/* DARK OVERLAY */
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0,0,0,0.15);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+
+
+}
+
+/* TEXT */
+.hero-content {
+  color: white;
+  max-width: 800px;
+}
+
+.hero-content h1 {
+  font-size: 3rem;
+  font-weight: 900;
+  line-height: 1.2;
+}
+
+.hero-content span {
+  font-style: italic;
+  font-weight: 700;
+}
+
+/* BUTTONS */
+.hero-buttons {
+  margin-top: 25px;
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.hero-btn {
+  background: white;
+  color: black;
+  padding: 12px 24px;
+  border-radius: 6px;
+  font-weight: 700;
+  transition: 0.2s;
+}
+
+.hero-btn:hover {
+  background: #e5e7eb;
+}
+
+.hero-btn.red {
+  background: #c8102e;
+  color: white;
+}
+
+.hero-btn.red:hover {
+  background: #a50d26;
+}
+</style>
+
+<!-- HERO -->
+<div class="hero-full">
+
+  {% if content and content.image %}
+    <img src="{{ content.image.url }}">
+  {% else %}
+    <img src="{% static 'ielts/img/default.jpg' %}">
+  {% endif %}
+
+  <div class="hero-overlay">
+    <div class="hero-content">
+
+      <h1>
+        {{ content.title|default:"The world's most trusted English test" }}
+      </h1>
+
+      <p class="mt-3">
+        {{ content.subtitle|default:"Prepare with real practice tests and AI-powered evaluation." }}
+      </p>
+
+      <div class="hero-buttons">
+        <a href="{% url 'ielts:reading' %}" class="hero-btn">
+          Reading Practice →
+        </a>
+
+        <a href="{% url 'ielts:writing' %}" class="hero-btn red">
+          Writing AI →
+        </a>
+      </div>
+
+    </div>
+  </div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,143 @@
+{% extends "ielts/ielts.html" %}
+{% load static %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- 🔍 SEARCH -->
+    <form method="GET" class="mb-4 d-flex justify-content-center">
+        <div class="input-group search-box">
+            <input type="text" name="q" value="{{ query|default:'' }}"
+                   class="form-control search-input"
+                   placeholder="Search speaking tests...">
+            <button class="btn search-btn">Search</button>
+        </div>
+    </form>
+
+    <!-- 🎤 TESTS -->
+    <h3 class="mb-3">Speaking Tests</h3>
+
+    <div class="row">
+        {% for test in page_obj %}
+            <div class="col-md-4 mb-4">
+                <div class="card-custom p-3 h-100 d-flex flex-column justify-content-between">
+
+                    <div>
+                        <h5>{{ test.title }}</h5>
+                        <small class="text-muted">
+                            3 Parts (Part 1, 2, 3)
+                        </small>
+                    </div>
+
+                    <a href="{% url 'ielts:speaking_start' test.id %}"
+                       class="main-btn mt-3 text-center">
+                        Start
+                    </a>
+
+                </div>
+            </div>
+        {% empty %}
+            <p>No tests found</p>
+        {% endfor %}
+    </div>
+
+    <!-- 🔄 PAGINATION -->
+    <div class="d-flex justify-content-center mt-3 gap-3">
+        {% if page_obj.has_previous %}
+            <a href="?page={{ page_obj.previous_page_number }}" class="main-btn">Prev</a>
+        {% endif %}
+
+        <span>
+            Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+        </span>
+
+        {% if page_obj.has_next %}
+            <a href="?page={{ page_obj.next_page_number }}" class="main-btn">Next</a>
+        {% endif %}
+    </div>
+
+    <!-- 📊 RESULTS -->
+    <hr class="my-5">
+
+    <div class="card-custom p-4">
+        <div class="d-flex justify-content-between mb-3">
+            <h5>Your Speaking Results</h5>
+        </div>
+
+        {% for r in results %}
+            <div class="d-flex justify-content-between mb-3">
+
+                <div>
+                    <strong>{{ r.test.title }}</strong><br>
+                    <small>
+                        {% if r.completed_at %}
+                            Completed
+                        {% else %}
+                            In Progress
+                        {% endif %}
+                    </small>
+                </div>
+
+                <div class="d-flex gap-2">
+                    {% if r.completed_at %}
+                        <span class="badge bg-success">Finished</span>
+                    {% else %}
+                        <span class="badge bg-warning">Pending</span>
+                    {% endif %}
+
+                    <a href="{% url 'ielts:speaking_result' r.id %}"
+                       class="main-btn">
+                        View
+                    </a>
+                </div>
+
+            </div>
+        {% empty %}
+            <p>No submissions yet</p>
+        {% endfor %}
+    </div>
+
+    <!-- 📈 PROGRESS -->
+    <div class="card-custom mt-4 p-4">
+        <h5>Your Progress</h5>
+        <canvas id="scoreChart" height="100"></canvas>
+    </div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+const ctx = document.getElementById("scoreChart");
+
+if (ctx) {
+    const data = JSON.parse('{{ progress_data|default:"[]"|safe }}');
+
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: data.map((_, i) => `Test ${i+1}`),
+            datasets: [{
+                label: "Speaking Band",
+                data: data,
+                borderColor: "#c8102e",
+                backgroundColor: "rgba(200,16,46,0.1)",
+                fill: true,
+                tension: 0.4
+            }]
+        },
+        options: {
+            scales: {
+                y: {
+                    min: 0,
+                    max: 9,
+                    ticks: { stepSize: 1 }
+                }
+            }
+        }
+    });
+}
+</script>
+
+{% endblock %}

@@ -2,94 +2,171 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <title>IELTS Platform</title>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta charset="UTF-8">
+<title>IELTS Platform</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <!-- Bootstrap -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+<!-- Bootstrap -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 
-    <!-- Custom CSS -->
-    <link rel="stylesheet" href="{% static 'ielts/css/ielts.css' %}">
+<!-- Google Font -->
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
+
+<!-- Custom CSS -->
+<link rel="stylesheet" href="{% static 'ielts/css/ielts.css' %}">
+
+<style>
+:root{
+  --primary:#c8102e;
+  --primary-dark:#a50d26;
+  --bg:#f8fafc;
+  --text:#0f172a;
+  --border:#e2e8f0;
+}
+
+body{
+  font-family:'Inter',sans-serif;
+  background:var(--bg);
+  color:var(--text);
+
+  display:flex;
+  flex-direction:column;
+  min-height:100vh;
+}
+
+a {
+  text-decoration: none !important;
+  transition: 0.2s;
+}
+
+a:hover {
+  opacity: 0.85;
+}
+
+/* NAVBAR */
+.glass-nav{
+  position:sticky;
+  top:0;
+  z-index:1000;
+  background: #c8102e;
+  border-bottom:none;
+}
+
+/* brand */
+.brand{
+  font-weight:800;
+  font-size:1.3rem;
+  color:white !important;
+}
+
+/* links */
+.nav-link{
+  font-weight:600;
+  border-radius:999px;
+  padding:8px 14px !important;
+  color:white !important;
+  transition:0.2s;
+}
+
+/* hover */
+.nav-link:hover{
+  background: rgba(255,255,255,0.15);
+  color:white !important;
+}
+
+/* username */
+.navbar span{
+  color:white;
+}
+
+.btn-main{
+  background:var(--accent);
+  color:#fff;
+  border:none;
+  border-radius:999px;
+  padding:8px 14px;
+  font-weight:700;
+}
+
+.btn-main:hover{
+  background:#a50d26;
+}
+
+/* MAIN */
+main{
+  flex:1;
+  padding-top:20px;
+}
+
+/* FOOTER */
+footer{
+  margin-top:40px;
+  padding:30px 20px;
+  text-align:center;
+  color:white;
+  background:#1e3a8a;
+  border-top:none;
+}
+
+.logo{
+  width:50px;
+  border-radius:50%;
+  mix-blend-mode: multiply;
+}
+</style>
+
+{% block extra_css %}{% endblock %}
 </head>
 
 <body>
 
-<!-- 🔝 NAVBAR -->
-<nav class="navbar navbar-expand-lg px-4">
-    <div class="container-fluid">
+<!-- NAVBAR -->
+<div class="glass-nav">
+  <div class="container">
+    <nav class="navbar navbar-expand-lg">
 
-        <!-- LEFT SIDE -->
-        <ul class="navbar-nav me-auto align-items-center gap-3">
+      <a class="brand d-flex align-items-center gap-2" href="{% url 'ielts:home' %}">
 
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'ielts:home' %}">IELTS</a>
-            </li>
+        <img src="{% static 'ielts/img/logo.png' %}" class="logo">
 
-            <li class="nav-item">
-                <a class="nav-link" href="{% url 'ielts:reading' %}">Reading</a>
-            </li>
+        <span>IELTS Bridge</span>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">Listening</a>
-            </li>
+      </a>
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">Writing</a>
-            </li>
+      <div class="ms-auto d-flex align-items-center gap-2">
 
-            <li class="nav-item">
-                <a class="nav-link" href="#">Speaking</a>
-            </li>
+        <a href="{% url 'ielts:reading' %}" class="nav-link">Reading</a>
+        <a href="{% url 'ielts:listening' %}" class="nav-link">Listening</a>
+        <a href="{% url 'ielts:writing' %}" class="nav-link">Writing</a>
+        <a href="{% url 'ielts:speaking' %}" class="nav-link">Speaking</a>
 
-        </ul>
+        {% if user.is_authenticated %}
+          <span class="fw-bold">{{ user.username }}</span>
+          <a href="{% url 'logout' %}" class="btn btn-main btn-sm">Logout</a>
+        {% else %}
+          <a href="{% url 'login' %}" class="btn btn-outline-dark btn-sm">Login</a>
+          <a href="{% url 'register' %}" class="btn btn-main btn-sm">Register</a>
+        {% endif %}
 
-        <!-- RIGHT SIDE -->
-        <ul class="navbar-nav align-items-center gap-3">
+      </div>
+    </nav>
+  </div>
+</div>
 
-            {% if user.is_authenticated %}
-                <li class="nav-item">
-                    <span class="text-white">Hi, {{ user.username }}</span>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'logout' %}" class="btn btn-sm btn-danger">
-                        Logout
-                    </a>
-                </li>
-            {% else %}
-                <li class="nav-item">
-                    <a href="{% url 'login' %}" class="btn btn-sm btn-light">
-                        Login
-                    </a>
-                </li>
-                <li class="nav-item">
-                    <a href="{% url 'register' %}" class="btn btn-sm btn-success">
-                        Register
-                    </a>
-                </li>
-            {% endif %}
-
-        </ul>
-
-    </div>
-</nav>
-
-<!-- 📦 MAIN CONTENT -->
-<main class="content-wrapper">
-    {% block content %}
-    {% endblock %}
+<!-- CONTENT -->
+<main class="container">
+  {% block content %}
+  {% endblock %}
 </main>
 
 <!-- FOOTER -->
-<footer class="text-center text-white mt-5 mb-3" style="opacity: 0.6;">
-    <small>© TestBridge IELTS Platform</small>
+<footer>
+  © IELTS Bridge Platform
 </footer>
 
-<!-- Bootstrap JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
-<!-- Custom JS -->
-<script src="{% static 'ielts/js/ielts.js' %}"></script>
+{% block extra_js %}{% endblock %}
 
 </body>
 </html>
