@@ -1,0 +1,636 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ page_title|default:"TOPIK Listening" }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f6f8fc;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 24px;
+        }
+
+        .container {
+            width: min(1280px, 100%);
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a 65%, #2563eb);
+            color: white;
+            border-radius: 32px;
+            padding: 36px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .hero::before {
+            content: "";
+            position: absolute;
+            width: 280px;
+            height: 280px;
+            background: rgba(255,255,255,0.08);
+            border-radius: 50%;
+            top: -60px;
+            right: -70px;
+        }
+
+        .hero::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 50%;
+            left: -30px;
+            bottom: -60px;
+        }
+
+        .hero-badge {
+            position: relative;
+            z-index: 1;
+            display: inline-flex;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.16);
+            font-size: 12px;
+            font-weight: 700;
+            margin-bottom: 14px;
+        }
+
+        .hero h1 {
+            position: relative;
+            z-index: 1;
+            font-size: 42px;
+            line-height: 1.08;
+            font-weight: 800;
+            letter-spacing: -1px;
+            margin-bottom: 12px;
+        }
+
+        .hero p {
+            position: relative;
+            z-index: 1;
+            max-width: 760px;
+            color: rgba(255,255,255,0.86);
+            font-size: 15px;
+            margin-bottom: 22px;
+        }
+
+        .hero-stats {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .hero-stat {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 18px;
+            padding: 14px 16px;
+            min-width: 160px;
+        }
+
+        .hero-stat span {
+            display: block;
+            font-size: 12px;
+            color: rgba(255,255,255,0.74);
+            margin-bottom: 4px;
+        }
+
+        .hero-stat strong {
+            font-size: 18px;
+            font-weight: 800;
+            color: white;
+        }
+
+        .filter-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            margin-bottom: 24px;
+        }
+
+        .filter-form {
+            display: grid;
+            grid-template-columns: 1.4fr repeat(3, minmax(150px, 1fr)) auto;
+            gap: 14px;
+            align-items: end;
+        }
+
+        .filter-group {
+            display: flex;
+            flex-direction: column;
+            gap: 7px;
+        }
+
+        .filter-group label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .filter-group input,
+        .filter-group select {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 14px;
+            padding: 13px 14px;
+            font-size: 14px;
+            color: var(--text);
+            background: #f8fafc;
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .filter-group input:focus,
+        .filter-group select:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            background: white;
+        }
+
+        .filter-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 13px 18px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            border: none;
+            cursor: pointer;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+
+        .section-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+        }
+
+        .section-head h2 {
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--secondary);
+            letter-spacing: -0.7px;
+        }
+
+        .section-head p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .exam-grid {
+            display: grid;
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+            gap: 22px;
+        }
+
+        .exam-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 26px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            transition: 0.22s ease;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .exam-card:hover {
+            transform: translateY(-4px);
+        }
+
+        .badge-row {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .badge-blue {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .badge-green {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .badge-orange {
+            background: #ffedd5;
+            color: #c2410c;
+        }
+
+        .badge-gray {
+            background: #f1f5f9;
+            color: #475569;
+        }
+
+        .exam-card h3 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            line-height: 1.35;
+        }
+
+        .exam-desc {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 18px;
+            min-height: 64px;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 12px;
+            margin-bottom: 18px;
+        }
+
+        .meta-box {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+            padding: 14px;
+        }
+
+        .meta-box span {
+            display: block;
+            color: var(--muted);
+            font-size: 12px;
+            margin-bottom: 4px;
+        }
+
+        .meta-box strong {
+            color: var(--secondary);
+            font-size: 15px;
+            font-weight: 800;
+        }
+
+        .card-bottom {
+            margin-top: auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            flex-wrap: wrap;
+            padding-top: 4px;
+        }
+
+        .attempts {
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+        }
+
+        .empty-state {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            padding: 34px;
+            box-shadow: var(--shadow);
+            text-align: center;
+        }
+
+        .empty-state h3 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .empty-state p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .pagination-wrap {
+            margin-top: 28px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pagination {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            box-shadow: var(--shadow);
+            padding: 12px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .pagination a,
+        .pagination span {
+            padding: 10px 14px;
+            border-radius: 12px;
+            font-size: 14px;
+            font-weight: 700;
+        }
+
+        .pagination a {
+            color: var(--secondary);
+            text-decoration: none;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+        }
+
+        .pagination a:hover {
+            background: #eef4ff;
+            color: var(--primary);
+        }
+
+        .pagination .current {
+            background: var(--primary);
+            color: white;
+        }
+
+        @media (max-width: 1100px) {
+            .filter-form {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .exam-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero {
+                padding: 24px;
+            }
+
+            .hero h1 {
+                font-size: 32px;
+            }
+
+            .filter-form {
+                grid-template-columns: 1fr;
+            }
+
+            .exam-grid,
+            .meta-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .section-head h2 {
+                font-size: 24px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <section class="hero">
+        <div class="hero-badge">TOPIK Listening Zone</div>
+        <h1>{{ page_title|default:"TOPIK Listening" }}</h1>
+        <p>{{ page_subtitle|default:"Practice listening-only TOPIK exams with a clean and focused exam experience." }}</p>
+
+        <div class="hero-stats">
+            <div class="hero-stat">
+                <span>Total Listening Exams</span>
+                <strong>{{ page_obj.paginator.count }}</strong>
+            </div>
+            <div class="hero-stat">
+                <span>Filter by Level</span>
+                <strong>TOPIK I / II</strong>
+            </div>
+            <div class="hero-stat">
+                <span>Status Tracking</span>
+               <strong>
+                    {{ completed_count }} completed · {{ pending_count }} pending
+                </strong>
+            </div>
+        </div>
+    </section>
+
+    <section class="filter-card">
+        <form method="get" class="filter-form">
+            <div class="filter-group">
+                <label for="search">Search</label>
+                <input
+                    type="text"
+                    id="search"
+                    name="search"
+                    value="{{ search }}"
+                    placeholder="Search reading exams..."
+                >
+            </div>
+
+            <div class="filter-group">
+                <label for="level">Level</label>
+                <select name="level" id="level">
+                    <option value="">All Levels</option>
+                    <option value="TOPIK_I" {% if level == "TOPIK_I" %}selected{% endif %}>TOPIK I</option>
+                    <option value="TOPIK_II" {% if level == "TOPIK_II" %}selected{% endif %}>TOPIK II</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="status">Status</label>
+                <select name="status" id="status">
+                    <option value="">All</option>
+                    <option value="completed" {% if status == "completed" %}selected{% endif %}>Completed</option>
+                    <option value="not_completed" {% if status == "not_completed" %}selected{% endif %}>Not Completed</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="sort">Sort</label>
+                <select name="sort" id="sort">
+                    <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
+                    <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest</option>
+                    <option value="title" {% if sort == "title" %}selected{% endif %}>Title</option>
+                    <option value="popular" {% if sort == "popular" %}selected{% endif %}>Most Popular</option>
+                </select>
+            </div>
+
+            <div class="filter-actions">
+                <button type="submit" class="btn btn-primary">Apply</button>
+                <a href="" class="btn btn-outline">Reset</a>
+            </div>
+        </form>
+    </section>
+
+    <section>
+        <div class="section-head">
+            <div>
+                <h2>Listening Exams</h2>
+                <p>{{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }} found</p>
+            </div>
+        </div>
+
+        {% if page_obj %}
+            <div class="exam-grid">
+                {% for exam in page_obj %}
+                    <div class="exam-card">
+                        <div class="badge-row">
+                            <span class="badge badge-blue">{{ exam.get_level_display }}</span>
+                            <span class="badge badge-green">Reading Only</span>
+                            <span class="badge badge-gray">{{ exam.get_exam_type_display }}</span>
+                            {% if exam.paper_variant %}
+                                <span class="badge badge-orange">Variant {{ exam.paper_variant }}</span>
+                            {% endif %}
+                        </div>
+
+                        <h3>{{ exam.title }}</h3>
+
+                        <div class="exam-desc">
+                            {% if exam.description %}
+                                {{ exam.description|truncatechars:130 }}
+                            {% else %}
+                                Practice this TOPIK listening exam with a focused section-only format and clean exam flow.
+                            {% endif %}
+                        </div>
+
+                        <div class="meta-grid">
+                            <div class="meta-box">
+                                <span>Exam Number</span>
+                                <strong>{{ exam.exam_number|default:"-" }}</strong>
+                            </div>
+                            <div class="meta-box">
+                                <span>Duration</span>
+                                <strong>{{ exam.duration_minutes }} min</strong>
+                            </div>
+                            <div class="meta-box">
+                                <span>Total Questions</span>
+                                <strong>{{ exam.total_questions }}</strong>
+                            </div>
+                            <div class="meta-box">
+                                <span>Attempts</span>
+                                <strong>{{ exam.attempts_count }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="card-bottom">
+                            <div class="attempts">
+                                {% if request.user.is_authenticated %}
+                                    {% if exam.is_completed %}
+                                        Completed
+                                    {% else %}
+                                        Not completed
+                                    {% endif %}
+                                {% else %}
+                                    Login to track progress
+                                {% endif %}
+                            </div>
+
+                            <div style="display:flex; gap:10px; flex-wrap:wrap;">
+                                <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-outline">Details</a>
+                                <a href="{% url 'topik:start_topik_listening_exam' exam.slug %}" class="btn btn-primary">Start</a>
+                            </div>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>No listening exams found</h3>
+                <p>Try adjusting your search or filters.</p>
+            </div>
+        {% endif %}
+
+        {% if page_obj.paginator.num_pages > 1 %}
+            <div class="pagination-wrap">
+                <div class="pagination">
+                    {% if page_obj.has_previous %}
+                        <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&sort={{ sort }}">Previous</a>
+                    {% endif %}
+
+                    <span class="current">
+                        {{ page_obj.number }}
+                    </span>
+
+                    {% if page_obj.has_next %}
+                        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&sort={{ sort }}">Next</a>
+                    {% endif %}
+                </div>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+</body>
+</html>

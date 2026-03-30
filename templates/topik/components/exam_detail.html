@@ -1,0 +1,716 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exam.title }}</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f6f8fc;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 36px 18px 60px;
+        }
+
+        .container {
+            width: min(1180px, 100%);
+            margin: 0 auto;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        /* HERO */
+        .hero {
+            display: grid;
+            grid-template-columns: 1.2fr 0.8fr;
+            gap: 24px;
+            margin-bottom: 26px;
+        }
+
+        .hero-main {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #2563eb);
+            color: white;
+            border-radius: 34px;
+            padding: 38px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .hero-main::before {
+            content: "";
+            position: absolute;
+            width: 260px;
+            height: 260px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            top: -50px;
+            right: -60px;
+        }
+
+        .hero-main::after {
+            content: "";
+            position: absolute;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.06);
+            bottom: -60px;
+            left: -40px;
+        }
+
+        .hero-badge-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-bottom: 18px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-badge {
+            display: inline-block;
+            padding: 8px 14px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.16);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .hero-main h1 {
+            font-size: 42px;
+            line-height: 1.08;
+            letter-spacing: -1.2px;
+            font-weight: 800;
+            margin-bottom: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-desc {
+            color: rgba(255,255,255,0.88);
+            font-size: 15px;
+            max-width: 700px;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 14px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .hero-meta-box {
+            background: rgba(255,255,255,0.1);
+            border: 1px solid rgba(255,255,255,0.14);
+            border-radius: 18px;
+            padding: 14px;
+        }
+
+        .hero-meta-box span {
+            display: block;
+            color: rgba(255,255,255,0.75);
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .hero-meta-box strong {
+            font-size: 16px;
+            font-weight: 700;
+            color: white;
+        }
+
+        .hero-side {
+            display: grid;
+            gap: 20px;
+        }
+
+        .side-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        .side-card h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 14px;
+        }
+
+        .side-note {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 18px;
+        }
+
+        .check-list {
+            display: grid;
+            gap: 12px;
+        }
+
+        .check-item {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            padding: 12px 14px;
+            border-radius: 16px;
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+        }
+
+        .check-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 999px;
+            background: #eaf8f1;
+            color: var(--success);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 800;
+            flex-shrink: 0;
+            margin-top: 1px;
+        }
+
+        .check-item strong {
+            display: block;
+            font-size: 14px;
+            color: var(--secondary);
+            margin-bottom: 2px;
+        }
+
+        .check-item span {
+            font-size: 13px;
+            color: var(--muted);
+        }
+
+        /* MAIN CONTENT */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 1fr 340px;
+            gap: 24px;
+            align-items: start;
+        }
+
+        .main-panel,
+        .sticky-panel {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 28px;
+            box-shadow: var(--shadow);
+        }
+
+        .main-panel {
+            padding: 28px;
+        }
+
+        .sticky-panel {
+            padding: 24px;
+            position: sticky;
+            top: 24px;
+        }
+
+        .section-title {
+            font-size: 26px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+            letter-spacing: -0.6px;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 22px;
+        }
+
+        /* OVERVIEW */
+        .overview-box {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border: 1px solid #e6eefb;
+            border-radius: 22px;
+            padding: 22px;
+            margin-bottom: 26px;
+        }
+
+        .overview-box h2 {
+            font-size: 22px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            color: var(--secondary);
+        }
+
+        .overview-box p {
+            color: var(--muted);
+            font-size: 15px;
+        }
+
+        /* SECTION CARDS */
+        .sections-grid {
+            display: grid;
+            gap: 18px;
+        }
+
+        .section-card {
+            border: 1px solid var(--border);
+            background: #fff;
+            border-radius: 24px;
+            padding: 22px;
+            transition: 0.22s ease;
+        }
+
+        .section-card:hover {
+            transform: translateY(-2px);
+        }
+
+        .section-top {
+            display: flex;
+            align-items: start;
+            justify-content: space-between;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .section-left {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+        }
+
+        .section-icon {
+            width: 54px;
+            height: 54px;
+            border-radius: 18px;
+            background: #eaf1ff;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .section-card h3 {
+            font-size: 21px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+
+        .section-small {
+            color: var(--muted);
+            font-size: 13px;
+        }
+
+        .section-badge {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #eefbf6;
+            color: var(--success);
+            font-size: 12px;
+            font-weight: 700;
+            white-space: nowrap;
+        }
+
+        .section-desc {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+
+        .section-meta {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 12px;
+        }
+
+        .section-meta-box {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+            padding: 13px;
+        }
+
+        .section-meta-box span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .section-meta-box strong {
+            font-size: 14px;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        /* STICKY CTA */
+        .cta-title {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 10px;
+            letter-spacing: -0.5px;
+        }
+
+        .cta-text {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .summary-list {
+            display: grid;
+            gap: 12px;
+            margin-bottom: 22px;
+        }
+
+        .summary-item {
+            padding: 14px 16px;
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+        }
+
+        .summary-item span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .summary-item strong {
+            font-size: 15px;
+            color: var(--secondary);
+            font-weight: 700;
+        }
+
+        .start-btn {
+            width: 100%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 15px 18px;
+            background: var(--primary);
+            color: white;
+            border-radius: 16px;
+            font-size: 15px;
+            font-weight: 800;
+            transition: 0.2s ease;
+            box-shadow: 0 12px 24px rgba(37, 99, 235, 0.2);
+            margin-bottom: 12px;
+        }
+
+        .start-btn:hover {
+            background: var(--primary-dark);
+            transform: translateY(-1px);
+        }
+
+        .secondary-btn {
+            width: 100%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            padding: 14px 18px;
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 700;
+            transition: 0.2s ease;
+        }
+
+        .secondary-btn:hover {
+            background: #f8fafc;
+        }
+
+        .bottom-note {
+            margin-top: 16px;
+            font-size: 12px;
+            color: var(--muted);
+            text-align: center;
+        }
+
+        @media (max-width: 1100px) {
+            .hero,
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero-meta-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .sticky-panel {
+                position: static;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 20px 12px 40px;
+            }
+
+            .hero-main {
+                padding: 26px 20px;
+            }
+
+            .hero-main h1 {
+                font-size: 32px;
+            }
+
+            .hero-meta-grid,
+            .section-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .main-panel,
+            .sticky-panel {
+                padding: 20px;
+            }
+
+            .section-top {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+
+        <!-- HERO -->
+        <section class="hero">
+            <div class="hero-main">
+                <div class="hero-badge-row">
+                    <span class="hero-badge">{{ exam.get_level_display }}</span>
+                    <span class="hero-badge">{{ exam.get_exam_type_display }}</span>
+                    {% if exam.paper_variant %}
+                        <span class="hero-badge">Variant {{ exam.paper_variant }}</span>
+                    {% endif %}
+                    {% if exam.exam_number %}
+                        <span class="hero-badge">Exam {{ exam.exam_number }}</span>
+                    {% endif %}
+                </div>
+
+                <h1>{{ exam.title }}</h1>
+
+                <p class="hero-desc">
+                    {% if exam.description %}
+                        {{ exam.description }}
+                    {% else %}
+                        Get ready for a structured TOPIK exam experience with clearly organized sections, time-based practice, and an interface designed to help learners focus on real progress.
+                    {% endif %}
+                </p>
+
+                <div class="hero-meta-grid">
+                    <div class="hero-meta-box">
+                        <span>Level</span>
+                        <strong>{{ exam.get_level_display }}</strong>
+                    </div>
+                    <div class="hero-meta-box">
+                        <span>Duration</span>
+                        <strong>{{ exam.duration_minutes }} minutes</strong>
+                    </div>
+                    <div class="hero-meta-box">
+                        <span>Total Questions</span>
+                        <strong>{{ exam.total_questions }}</strong>
+                    </div>
+                    <div class="hero-meta-box">
+                        <span>Type</span>
+                        <strong>{{ exam.get_exam_type_display }}</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="hero-side">
+                <div class="side-card">
+                    <h3>Before You Start</h3>
+                    <div class="side-note">A quick overview to help you begin with confidence.</div>
+
+                    <div class="check-list">
+                        <div class="check-item">
+                            <div class="check-icon">✓</div>
+                            <div>
+                                <strong>Check your time</strong>
+                                <span>Be ready to finish within the official exam duration.</span>
+                            </div>
+                        </div>
+
+                        <div class="check-item">
+                            <div class="check-icon">✓</div>
+                            <div>
+                                <strong>Read instructions carefully</strong>
+                                <span>Each section may have its own format and response style.</span>
+                            </div>
+                        </div>
+
+                        <div class="check-item">
+                            <div class="check-icon">✓</div>
+                            <div>
+                                <strong>Stay focused</strong>
+                                <span>Practice as if it were a real TOPIK test session.</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MAIN CONTENT -->
+        <section class="content-grid">
+            <div class="main-panel">
+                <div class="overview-box">
+                    <h2>Exam Overview</h2>
+                    <p>
+                        This exam includes structured TOPIK sections with a clear time limit, total question count,
+                        and instructions designed to simulate real exam preparation. Review the section breakdown below,
+                        then begin when you are ready.
+                    </p>
+                </div>
+
+                <h2 class="section-title">Section Breakdown</h2>
+                <p class="section-subtitle">Each section is shown clearly so users can understand the full exam structure before starting.</p>
+
+                <div class="sections-grid">
+                    {% for section in exam.sections.all %}
+                        <div class="section-card">
+                            <div class="section-top">
+                                <div class="section-left">
+                                    <div class="section-icon">
+                                        {% if section.name == "reading" %}
+                                            📖
+                                        {% elif section.name == "listening" %}
+                                            🎧
+                                        {% elif section.name == "writing" %}
+                                            ✍️
+                                        {% else %}
+                                            📝
+                                        {% endif %}
+                                    </div>
+
+                                    <div>
+                                        <h3>{{ section.get_name_display }}</h3>
+                                        <div class="section-small">
+                                            {% if section.title %}
+                                                {{ section.title }}
+                                            {% else %}
+                                                Official section module
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="section-badge">Included</div>
+                            </div>
+
+                            <p class="section-desc">
+                                {% if section.instruction %}
+                                    {{ section.instruction }}
+                                {% else %}
+                                    This section is part of the exam and follows the standard TOPIK structure for skill-based evaluation.
+                                {% endif %}
+                            </p>
+
+                            <div class="section-meta">
+                                <div class="section-meta-box">
+                                    <span>Questions</span>
+                                    <strong>{{ section.total_questions }}</strong>
+                                </div>
+                                <div class="section-meta-box">
+                                    <span>Duration</span>
+                                    <strong>{{ section.duration_minutes }} min</strong>
+                                </div>
+                                <div class="section-meta-box">
+                                    <span>Order</span>
+                                    <strong>#{{ section.order }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    {% empty %}
+                        <div class="section-card">
+                            <h3>No sections added yet</h3>
+                            <p class="section-desc">This exam does not have any sections assigned yet.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <aside class="sticky-panel">
+                <h3 class="cta-title">Ready to begin?</h3>
+                <p class="cta-text">
+                    Start this exam now and move into the full TOPIK test flow with section-based practice and structured questions.
+                </p>
+
+                <div class="summary-list">
+                    <div class="summary-item">
+                        <span>Exam Title</span>
+                        <strong>{{ exam.title }}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Level</span>
+                        <strong>{{ exam.get_level_display }}</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Duration</span>
+                        <strong>{{ exam.duration_minutes }} minutes</strong>
+                    </div>
+                    <div class="summary-item">
+                        <span>Total Questions</span>
+                        <strong>{{ exam.total_questions }}</strong>
+                    </div>
+                </div>
+
+                <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="start-btn">Start Exam</a>
+                <a href="javascript:history.back()" class="secondary-btn">Go Back</a>
+
+                <div class="bottom-note">
+                    Make sure you are ready before starting the timed practice.
+                </div>
+            </aside>
+        </section>
+
+    </div>
+</body>
+</html>

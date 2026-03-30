@@ -1,0 +1,19 @@
+   <header class="navbar">
+        <div class="container nav-inner">
+            <a href="{% url 'topik:topik_home' %}" class="logo">TOPIK<span>Hub</span></a>
+
+            <nav class="nav-links">
+                <a href="{% url 'topik:topik_reading_list' %}">Reading</a>
+                <a href="{% url 'topik:topik_listening_list' %}">Listening</a>
+                <a href="#">Writing</a>
+                <a href="#">Speaking Practice</a>
+                <a href="{% url 'topik:topik_mock_list' %}">Mock Tests</a>
+                <a href="#">Results</a>
+            </nav>
+
+            <div class="nav-actions">
+                <a href="#" class="btn btn-outline">My Progress</a>
+                <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">Start Practice</a>
+            </div>
+        </div>
+    </header>

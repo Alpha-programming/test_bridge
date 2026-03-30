@@ -1,0 +1,1220 @@
+{% load topik_extras %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exam.title }} - Solve</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f6f8fc;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --shadow: 0 16px 36px rgba(15, 23, 42, 0.08);
+            --success: #16a34a;
+            --danger: #dc2626;
+            --warning: #d97706;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
+            color: var(--text);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            width: min(1350px, 100%);
+            margin: 0 auto;
+        }
+
+        .exam-header {
+            position: sticky;
+            top: 16px;
+            z-index: 100;
+            background: rgba(255,255,255,0.92);
+            backdrop-filter: blur(14px);
+            border: 1px solid rgba(226, 232, 240, 0.9);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 18px 22px;
+            margin-bottom: 24px;
+        }
+
+        .exam-header-inner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 18px;
+            flex-wrap: wrap;
+        }
+
+        .exam-title-wrap h1 {
+            font-size: 28px;
+            font-weight: 800;
+            letter-spacing: -0.7px;
+            color: var(--secondary);
+            margin-bottom: 6px;
+        }
+
+        .exam-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .meta-pill {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: #eef4ff;
+            color: var(--primary);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .header-actions {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .timer-box {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a);
+            color: white;
+            padding: 14px 18px;
+            border-radius: 18px;
+            min-width: 150px;
+            text-align: center;
+            transition: 0.25s ease;
+        }
+
+        .timer-box span {
+            display: block;
+            font-size: 12px;
+            opacity: 0.85;
+            margin-bottom: 2px;
+        }
+
+        .timer-box strong {
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+        }
+
+        .timer-box.warning {
+            background: linear-gradient(135deg, #92400e, #f59e0b);
+        }
+
+        .timer-box.danger {
+            background: linear-gradient(135deg, #991b1b, #ef4444);
+        }
+
+        .timer-box.flash {
+            animation: pulseTimer 1s infinite;
+        }
+
+        @keyframes pulseTimer {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.03); }
+            100% { transform: scale(1); }
+        }
+
+        .submit-btn-top {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 13px 18px;
+            border-radius: 16px;
+            background: var(--primary);
+            color: white;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .submit-btn-top:hover {
+            background: var(--primary-dark);
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            padding: 6px;
+            border-radius: 14px;
+        }
+
+        .view-btn {
+            border: none;
+            background: transparent;
+            padding: 10px 14px;
+            border-radius: 10px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+            cursor: pointer;
+            transition: 0.2s ease;
+        }
+
+        .view-btn:hover {
+            background: #eef4ff;
+            color: var(--primary);
+        }
+
+        .view-btn.active {
+            background: var(--primary);
+            color: white;
+        }
+
+        .section-block {
+            background: var(--white);
+            border-radius: 28px;
+            padding: 26px;
+            margin-bottom: 26px;
+            border: 1px solid var(--border);
+            box-shadow: var(--shadow);
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 18px;
+            flex-wrap: wrap;
+            margin-bottom: 18px;
+            padding-bottom: 18px;
+            border-bottom: 1px solid #edf2f7;
+        }
+
+        .section-title-wrap h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 6px;
+            letter-spacing: -0.6px;
+        }
+
+        .section-title-wrap p {
+            color: var(--muted);
+            font-size: 14px;
+            max-width: 700px;
+        }
+
+        .section-badge {
+            padding: 9px 14px;
+            border-radius: 999px;
+            background: #f8fafc;
+            border: 1px solid var(--border);
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        audio {
+            margin-top: 14px;
+            width: 100%;
+            max-width: 420px;
+            border-radius: 12px;
+        }
+
+        .material-block {
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 22px;
+            margin-top: 20px;
+            background: linear-gradient(180deg, #ffffff 0%, #fafcff 100%);
+        }
+
+        .material-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 16px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+
+        .material-info h3 {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 6px;
+        }
+
+        .material-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .material-pill {
+            padding: 7px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: #eef4ff;
+            color: var(--primary);
+        }
+
+        .material-content {
+            background: white;
+            border: 1px solid #edf2f7;
+            border-radius: 20px;
+            padding: 18px;
+            margin-bottom: 18px;
+        }
+
+        .material-content strong {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 14px;
+            color: var(--secondary);
+        }
+
+        .material-content p {
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.8;
+            white-space: pre-line;
+        }
+
+        .material-image,
+        .question-image,
+        .choice-image,
+        .writing-image {
+            max-width: 100%;
+            display: block;
+            margin-top: 12px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: white;
+        }
+
+        .material-image,
+        .writing-image {
+            max-height: 420px;
+            object-fit: contain;
+        }
+
+        .question-image {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            object-fit: contain;
+        }
+
+        .choice-image {
+            max-height: 140px;
+            object-fit: contain;
+        }
+
+        .questions-wrap.grid-view {
+            display: grid;
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .questions-wrap.row-view {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .question-block {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 20px;
+            transition: 0.2s ease;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .question-block:hover {
+            border-color: #cfe0ff;
+            transform: translateY(-2px);
+        }
+
+        .question-head {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 14px;
+            flex-wrap: wrap;
+            margin-bottom: 16px;
+        }
+
+        .question-head-left {
+            display: flex;
+            gap: 14px;
+            align-items: start;
+            flex: 1;
+        }
+
+        .question-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: #eaf1ff;
+            color: var(--primary);
+            font-size: 14px;
+            font-weight: 800;
+            flex-shrink: 0;
+        }
+
+        .question-text {
+            background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
+            border: 1px solid #e2e8f0;
+            border-left: 4px solid var(--primary);
+            border-radius: 14px;
+            padding: 14px 16px;
+            flex: 1;
+        }
+
+        .question-text h4 {
+            font-size: 17px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 6px;
+            letter-spacing: -0.2px;
+        }
+
+        .question-text p {
+            font-size: 16px;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .question-block:hover .question-text {
+            border-left: 4px solid #1d4ed8;
+            background: #f1f6ff;
+        }
+
+        .question-body {
+            display: grid;
+            grid-template-columns: 260px 1fr;
+            gap: 18px;
+            align-items: start;
+            margin-top: 6px;
+        }
+
+        .question-image-wrap {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 18px;
+            padding: 12px;
+        }
+
+        .question-answer-area {
+            display: flex;
+            flex-direction: column;
+            grid-column: 1 / -1;
+        }
+
+        .choices-wrap {
+            display: grid;
+            gap: 12px;
+            margin-top: 14px;
+        }
+
+        .choice {
+            border: 1px solid var(--border);
+            background: #fbfcff;
+            border-radius: 18px;
+            padding: 14px 16px;
+            transition: 0.2s ease;
+        }
+
+        .choice:hover {
+            border-color: #cfe0ff;
+            background: #f7faff;
+        }
+
+        .choice label {
+            display: flex;
+            align-items: start;
+            gap: 12px;
+            cursor: pointer;
+            width: 100%;
+        }
+
+        .choice input[type="radio"] {
+            margin-top: 4px;
+            transform: scale(1.1);
+            accent-color: var(--primary);
+            flex-shrink: 0;
+        }
+
+        .choice-content {
+            flex: 1;
+        }
+
+        .choice-label {
+            display: inline-block;
+            min-width: 28px;
+            font-weight: 800;
+            color: var(--primary);
+            margin-right: 6px;
+        }
+
+        .choice-text {
+            color: var(--text);
+            font-size: 15px;
+            width: 100%;
+        }
+
+        .short-answer-wrap input,
+        .writing-textarea {
+            width: 100%;
+            padding: 14px 16px;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            font-size: 15px;
+            color: var(--text);
+            outline: none;
+            transition: 0.2s ease;
+        }
+
+        .writing-textarea {
+            min-height: 240px;
+            resize: vertical;
+            line-height: 1.8;
+        }
+
+        .short-answer-wrap input:focus,
+        .writing-textarea:focus {
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+            background: white;
+        }
+
+        .writing-editor-footer {
+            margin-top: 10px;
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .writing-count,
+        .writing-save-status {
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .writing-save-status.saved {
+            color: var(--success);
+        }
+
+        .writing-grid {
+            display: grid;
+            gap: 18px;
+            margin-top: 10px;
+        }
+
+        .bottom-submit {
+            margin-top: 30px;
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 22px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 16px;
+            flex-wrap: wrap;
+        }
+
+        .bottom-submit-text h3 {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+
+        .bottom-submit-text p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .bottom-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .btn-secondary {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 13px 18px;
+            border-radius: 16px;
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+            font-size: 14px;
+            font-weight: 700;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .btn-secondary:hover {
+            background: #f8fafc;
+        }
+
+        @media (max-width: 1100px) {
+            .questions-wrap.grid-view {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 900px) {
+            .exam-header-inner,
+            .section-header,
+            .material-top,
+            .question-head,
+            .bottom-submit {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .question-head-left {
+                width: 100%;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 12px;
+            }
+
+            .question-body {
+                grid-template-columns: 1fr;
+            }
+
+            .exam-title-wrap h1 {
+                font-size: 22px;
+            }
+
+            .section-title-wrap h2 {
+                font-size: 24px;
+            }
+
+            .material-info h3 {
+                font-size: 19px;
+            }
+
+            .question-text h4 {
+                font-size: 17px;
+            }
+
+            .header-actions {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<form id="exam-form" method="post" action="{% url 'topik:submit_topik_exam' attempt.id %}">
+    {% csrf_token %}
+
+    <div class="container">
+
+        <div class="exam-header">
+            <div class="exam-header-inner">
+                <div class="exam-title-wrap">
+                    <h1>{{ exam.title }}</h1>
+                    <div class="exam-meta">
+                        <span class="meta-pill">{{ exam.get_level_display }}</span>
+                        <span class="meta-pill">{{ main_section.get_name_display }}</span>
+                        <span class="meta-pill">Section {{ section_index }} / {{ total_sections }}</span>
+                        <span class="meta-pill">{{ main_section.duration_minutes }} Minutes</span>
+                    </div>
+                </div>
+
+                <div class="header-actions">
+                    <div class="timer-box">
+                        <span>Time Remaining</span>
+                        <strong id="exam-timer" data-seconds="{{ remaining_seconds }}">00:00</strong>
+                    </div>
+
+                    {% if main_section.name != "writing" %}
+                    <div class="view-toggle">
+                        <button type="button" class="view-btn active" id="gridViewBtn">Grid</button>
+                        <button type="button" class="view-btn" id="rowViewBtn">Row</button>
+                    </div>
+                    {% endif %}
+
+                    {% if section_index < total_sections %}
+                        <a href="{% url 'topik:advance_topik_exam_section' attempt.id %}" class="submit-btn-top">
+                            Next Section
+                        </a>
+                    {% else %}
+                        <button class="submit-btn-top" type="submit">Submit Exam</button>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        {% for section in sections %}
+        <div class="section-block">
+            <div class="section-header">
+                <div class="section-title-wrap">
+                    <h2>{{ section.get_name_display }}</h2>
+                    <p>{{ section.instruction }}</p>
+
+                    {% if section.audio_file %}
+                        <audio controls>
+                            <source src="{{ section.audio_file.url }}">
+                            Your browser does not support audio.
+                        </audio>
+                    {% endif %}
+                </div>
+
+                <div class="section-badge">
+                    Section {{ section_index }}
+                </div>
+            </div>
+
+            {% if section.name == "writing" %}
+                <div class="writing-grid">
+                    {% for task in writing_tasks %}
+                        {% if task.is_active %}
+                            {% with saved_submission=saved_writing_submissions|get_item:task.id %}
+                            <div class="material-block">
+                                <div class="material-top">
+                                    <div class="material-info">
+                                        <h3>{{ task.title|default:"Writing Task" }}</h3>
+                                        <div class="material-meta">
+                                            <span class="material-pill">Task {{ task.task_number }}</span>
+                                            <span class="material-pill">{{ task.get_task_type_display }}</span>
+                                            <span class="material-pill">{{ task.score }} Points</span>
+                                            {% if task.min_words %}
+                                                <span class="material-pill">Min {{ task.min_words }}</span>
+                                            {% endif %}
+                                            {% if task.max_words %}
+                                                <span class="material-pill">Max {{ task.max_words }}</span>
+                                            {% endif %}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                {% if task.instruction %}
+                                    <div class="material-content">
+                                        <strong>Instruction</strong>
+                                        <p>{{ task.instruction }}</p>
+                                    </div>
+                                {% endif %}
+
+                                <div class="material-content">
+                                    <strong>Prompt</strong>
+                                    <p>{{ task.prompt }}</p>
+                                </div>
+
+                                {% if task.image %}
+                                    <img src="{{ task.image.url }}" alt="Writing Task Image" class="writing-image">
+                                {% endif %}
+
+                                <div class="question-answer-area">
+                                    {% if task.task_type == "gap_fill" %}
+                                        {% for blank in task.blanks.all %}
+                                            <div class="short-answer-wrap" style="margin-bottom:12px;">
+                                                <input
+                                                    type="text"
+                                                    class="writing-input"
+                                                    data-writing-task-id="{{ task.id }}"
+                                                    data-blank-id="{{ blank.id }}"
+                                                    placeholder="{{ blank.answer_label|default:'Write your answer here...' }}"
+                                                    value="{% if saved_submission %}{{ saved_submission.answer_text }}{% endif %}"
+                                                >
+                                            </div>
+                                        {% endfor %}
+                                        <div class="writing-editor-footer">
+                                            <span class="writing-save-status" id="save-status-{{ task.id }}">Autosave ready</span>
+                                        </div>
+                                    {% else %}
+                                        <textarea
+                                            class="writing-textarea"
+                                            data-writing-task-id="{{ task.id }}"
+                                            placeholder="Write your answer here..."
+                                        >{% if saved_submission %}{{ saved_submission.answer_text }}{% endif %}</textarea>
+
+                                        <div class="writing-editor-footer">
+                                            <span class="writing-count">
+                                                Word count:
+                                                <span id="word-count-{{ task.id }}">{% if saved_submission %}{{ saved_submission.word_count }}{% else %}0{% endif %}</span>
+                                            </span>
+                                            <span class="writing-save-status" id="save-status-{{ task.id }}">Autosave ready</span>
+                                        </div>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% endwith %}
+                        {% endif %}
+                    {% empty %}
+                        <div class="material-block">
+                            <p>No writing tasks in this section.</p>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                {% for material in section.materials.all %}
+                    {% if material.is_active %}
+                        <div class="material-block">
+                            <div class="material-top">
+                                <div class="material-info">
+                                    <h3>{{ material.title|default:"Material" }}</h3>
+                                    <div class="material-meta">
+                                        <span class="material-pill">{{ material.get_material_type_display }}</span>
+
+                                        {% if material.start_number and material.end_number %}
+                                            <span class="material-pill">Q{{ material.start_number }} - Q{{ material.end_number }}</span>
+                                        {% endif %}
+                                    </div>
+                                </div>
+                            </div>
+
+                            {% if material.instruction %}
+                                <div class="material-content">
+                                    <strong>Instruction</strong>
+                                    <p>{{ material.instruction }}</p>
+                                </div>
+                            {% endif %}
+
+                            {% if material.image %}
+                                <img src="{{ material.image.url }}" alt="Material Image" class="material-image">
+                            {% endif %}
+
+                            <div class="questions-wrap grid-view">
+                                {% for question in material.questions.all %}
+                                    {% if question.is_active %}
+                                        {% with saved_answer=saved_answers|get_item:question.id %}
+                                        <div class="question-block">
+                                            <div class="question-head">
+                                                <div class="question-head-left">
+                                                    <div class="question-number">{{ question.question_number }}</div>
+
+                                                    <div class="question-text">
+                                                        <h4>Question {{ question.question_number }}</h4>
+                                                        <p>{{ question.question_text }}</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="question-body">
+                                                {% if question.image %}
+                                                    <div class="question-image-wrap">
+                                                        <img src="{{ question.image.url }}" alt="Question Image" class="question-image">
+                                                    </div>
+                                                {% endif %}
+
+                                                <div class="question-answer-area">
+                                                    {% if question.question_type == "short_answer" %}
+                                                        <div class="short-answer-wrap">
+                                                            <input
+                                                                type="text"
+                                                                name="question_{{ question.id }}"
+                                                                data-question-id="{{ question.id }}"
+                                                                placeholder="Write your answer here..."
+                                                                value="{% if saved_answer %}{{ saved_answer.text_answer }}{% endif %}"
+                                                            >
+                                                        </div>
+                                                    {% else %}
+                                                        <div class="choices-wrap">
+                                                            {% for choice in question.choices.all %}
+                                                                <div class="choice">
+                                                                    <label>
+                                                                        <input
+                                                                            type="radio"
+                                                                            name="question_{{ question.id }}"
+                                                                            value="{{ choice.id }}"
+                                                                            data-question-id="{{ question.id }}"
+                                                                            {% if saved_answer and saved_answer.selected_choice_id == choice.id %}checked{% endif %}
+                                                                        >
+                                                                        <div class="choice-content">
+                                                                            <span class="choice-label">{{ choice.label }}</span>
+                                                                            <span class="choice-text">{{ choice.choice_text }}</span>
+
+                                                                            {% if choice.image %}
+                                                                                <img src="{{ choice.image.url }}" alt="Choice Image" class="choice-image">
+                                                                            {% endif %}
+                                                                        </div>
+                                                                    </label>
+                                                                </div>
+                                                            {% endfor %}
+                                                        </div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </div>
+                                        {% endwith %}
+                                    {% endif %}
+                                {% endfor %}
+                            </div>
+                        </div>
+                    {% endif %}
+                {% empty %}
+                    <div class="material-block">
+                        <p>No materials in this section.</p>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+        {% empty %}
+            <div class="section-block">
+                <p>No sections found.</p>
+            </div>
+        {% endfor %}
+
+        <div class="bottom-submit">
+            <div class="bottom-submit-text">
+                {% if section_index < total_sections %}
+                    <h3>Ready for the next section?</h3>
+                    <p>You can move forward now, or review this section before continuing.</p>
+                {% else %}
+                    <h3>Finished all questions?</h3>
+                    <p>Review your answers one more time before submitting the exam.</p>
+                {% endif %}
+            </div>
+            <div class="bottom-actions">
+                <a href="javascript:history.back()" class="btn-secondary">Go Back</a>
+
+                {% if section_index < total_sections %}
+                    <a href="{% url 'topik:advance_topik_exam_section' attempt.id %}" class="submit-btn-top">
+                        Next Section
+                    </a>
+                {% else %}
+                    <button class="submit-btn-top" type="submit">Submit Exam</button>
+                {% endif %}
+            </div>
+        </div>
+
+    </div>
+</form>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+    const timerEl = document.getElementById("exam-timer");
+    const attemptId = "{{ attempt.id }}";
+    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+    const isLastSection = "{{ section_index }}" === "{{ total_sections }}";
+
+    function postEvent(eventType, details = "") {
+        const formData = new FormData();
+        formData.append("event_type", eventType);
+        formData.append("details", details);
+
+        fetch(`/topik/attempt/${attemptId}/log-event/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+            body: formData
+        }).catch(err => console.log("event log failed", err));
+    }
+
+    function autosave(questionId, choiceId = "", textAnswer = "") {
+        const formData = new FormData();
+        formData.append("question_id", questionId);
+        formData.append("choice_id", choiceId);
+        formData.append("text_answer", textAnswer);
+
+        fetch(`/topik/attempt/${attemptId}/autosave/`, {
+            method: "POST",
+            headers: {
+                "X-CSRFToken": csrfToken
+            },
+            body: formData
+        }).catch(err => console.log("autosave failed", err));
+    }
+
+    function autosaveWriting(taskId, answerText, statusEl = null) {
+    const formData = new FormData();
+    formData.append("task_id", taskId);
+    formData.append("answer_text", answerText);
+
+    if (statusEl) {
+        statusEl.textContent = "Saving...";
+        statusEl.classList.remove("saved");
+    }
+
+    fetch(`/topik/attempt/${attemptId}/writing/autosave/`, {
+        method: "POST",
+        headers: {
+            "X-CSRFToken": csrfToken
+        },
+        body: formData
+    })
+    .then(async (res) => {
+        const contentType = res.headers.get("content-type") || "";
+
+        if (!contentType.includes("application/json")) {
+            const text = await res.text();
+            throw new Error(`Non-JSON response: ${res.status} ${text.slice(0, 200)}`);
+        }
+
+        const data = await res.json();
+
+        if (!res.ok || !data.success) {
+            throw new Error(data.message || `Request failed with status ${res.status}`);
+        }
+
+        if (statusEl) {
+            statusEl.textContent = "Saved";
+            statusEl.classList.add("saved");
+        }
+
+        if (data.word_count !== undefined) {
+            const counter = document.getElementById(`word-count-${taskId}`);
+            if (counter) {
+                counter.textContent = data.word_count;
+            }
+        }
+    })
+    .catch(err => {
+        console.error("writing autosave failed", err);
+        if (statusEl) {
+            statusEl.textContent = "Save failed";
+            statusEl.classList.remove("saved");
+        }
+    });
+}
+
+    function getWordCount(text) {
+        const trimmed = text.trim();
+        if (!trimmed) return 0;
+        return trimmed.split(/\s+/).length;
+    }
+
+    if (timerEl) {
+        let totalSeconds = parseInt(timerEl.dataset.seconds || "0", 10);
+
+        function formatTime(seconds) {
+            const hrs = Math.floor(seconds / 3600);
+            const mins = Math.floor((seconds % 3600) / 60);
+            const secs = seconds % 60;
+
+            if (hrs > 0) {
+                return `${String(hrs).padStart(2, "0")}:${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+            }
+            return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
+        }
+
+        function updateTimerUI() {
+            timerEl.textContent = formatTime(totalSeconds);
+            const timerBox = timerEl.closest(".timer-box");
+            if (!timerBox) return;
+
+            timerBox.classList.remove("warning", "danger", "flash");
+
+            if (totalSeconds <= 300) {
+                timerBox.classList.add("danger", "flash");
+            } else if (totalSeconds <= 600) {
+                timerBox.classList.add("warning");
+            }
+        }
+
+        updateTimerUI();
+
+        const interval = setInterval(() => {
+            if (totalSeconds <= 0) {
+                clearInterval(interval);
+                timerEl.textContent = "00:00";
+
+                if (isLastSection) {
+                    document.getElementById("exam-form").submit();
+                } else {
+                    window.location.href = "{% url 'topik:advance_topik_exam_section' attempt.id %}";
+                }
+                return;
+            }
+
+            totalSeconds -= 1;
+            updateTimerUI();
+        }, 1000);
+    }
+
+    const gridBtn = document.getElementById("gridViewBtn");
+    const rowBtn = document.getElementById("rowViewBtn");
+    const questionWraps = document.querySelectorAll(".questions-wrap");
+
+    function setView(mode) {
+        questionWraps.forEach(wrap => {
+            wrap.classList.remove("grid-view", "row-view");
+            wrap.classList.add(mode === "row" ? "row-view" : "grid-view");
+        });
+
+        if (gridBtn && rowBtn) {
+            gridBtn.classList.toggle("active", mode === "grid");
+            rowBtn.classList.toggle("active", mode === "row");
+        }
+
+        localStorage.setItem("topikQuestionView", mode);
+    }
+
+    if (gridBtn && rowBtn) {
+        gridBtn.addEventListener("click", () => setView("grid"));
+        rowBtn.addEventListener("click", () => setView("row"));
+
+        const savedView = localStorage.getItem("topikQuestionView") || "grid";
+        setView(savedView);
+    }
+
+    document.querySelectorAll('input[type="radio"]').forEach(input => {
+        input.addEventListener("change", function () {
+            const questionId = this.dataset.questionId;
+            autosave(questionId, this.value, "");
+        });
+    });
+
+    document.querySelectorAll('.short-answer-wrap input[data-question-id]').forEach(input => {
+        let timeout = null;
+        input.addEventListener("input", function () {
+            clearTimeout(timeout);
+            const questionId = this.dataset.questionId;
+            timeout = setTimeout(() => {
+                autosave(questionId, "", this.value);
+            }, 700);
+        });
+    });
+
+    document.querySelectorAll(".writing-textarea").forEach(textarea => {
+        let timeout = null;
+
+        textarea.addEventListener("input", function () {
+            clearTimeout(timeout);
+
+            const taskId = this.dataset.writingTaskId;
+            const value = this.value;
+            const statusEl = document.getElementById(`save-status-${taskId}`);
+            const counter = document.getElementById(`word-count-${taskId}`);
+
+            if (counter) {
+                counter.textContent = getWordCount(value);
+            }
+
+            timeout = setTimeout(() => {
+                autosaveWriting(taskId, value, statusEl);
+            }, 700);
+        });
+    });
+
+    document.querySelectorAll(".writing-input").forEach(input => {
+        let timeout = null;
+
+        input.addEventListener("input", function () {
+            clearTimeout(timeout);
+
+            const taskId = this.dataset.writingTaskId;
+            const statusEl = document.getElementById(`save-status-${taskId}`);
+
+            timeout = setTimeout(() => {
+                const sameTaskInputs = document.querySelectorAll(`.writing-input[data-writing-task-id="${taskId}"]`);
+                const combinedValue = Array.from(sameTaskInputs)
+                    .map(el => el.value.trim())
+                    .join(" || ");
+
+                autosaveWriting(taskId, combinedValue, statusEl);
+            }, 700);
+        });
+    });
+
+    document.addEventListener("visibilitychange", function () {
+        if (document.hidden) {
+            postEvent("tab_switch", "User switched tab or minimized window");
+            alert("Warning: You left the exam tab. This action has been logged.");
+        }
+    });
+
+    function enterFullscreen() {
+        const elem = document.documentElement;
+        if (!document.fullscreenElement) {
+            if (elem.requestFullscreen) {
+                elem.requestFullscreen().catch(() => {});
+            }
+        }
+    }
+
+    enterFullscreen();
+
+<!--    document.addEventListener("fullscreenchange", function () {-->
+<!--        if (!document.fullscreenElement) {-->
+<!--            postEvent("fullscreen_exit", "User exited fullscreen");-->
+<!--            alert("Warning: You exited fullscreen mode. This action has been logged.");-->
+<!--        }-->
+<!--    });-->
+
+<!--    document.addEventListener("contextmenu", function (e) {-->
+<!--        e.preventDefault();-->
+<!--        postEvent("right_click", "Right click blocked");-->
+<!--    });-->
+
+<!--    document.addEventListener("copy", function (e) {-->
+<!--        e.preventDefault();-->
+<!--        postEvent("copy_attempt", "Copy blocked");-->
+<!--    });-->
+
+<!--    document.addEventListener("paste", function (e) {-->
+<!--        e.preventDefault();-->
+<!--        postEvent("paste_attempt", "Paste blocked");-->
+<!--    });-->
+
+<!--    document.addEventListener("cut", function (e) {-->
+<!--        e.preventDefault();-->
+<!--        postEvent("key_block", "Cut blocked");-->
+<!--    });-->
+
+<!--    document.addEventListener("keydown", function (e) {-->
+<!--        const key = e.key.toLowerCase();-->
+
+<!--        if ((e.ctrlKey || e.metaKey) && ["c", "v", "a", "p", "s", "u"].includes(key)) {-->
+<!--            e.preventDefault();-->
+<!--            postEvent("key_block", `Blocked shortcut: ${key}`);-->
+<!--        }-->
+
+<!--        if (key === "f12") {-->
+<!--            e.preventDefault();-->
+<!--            postEvent("key_block", "Blocked F12");-->
+<!--        }-->
+<!--    });-->
+
+    window.addEventListener("beforeunload", function (e) {
+        e.preventDefault();
+        e.returnValue = "";
+    });
+});
+</script>
+
+</body>
+</html>

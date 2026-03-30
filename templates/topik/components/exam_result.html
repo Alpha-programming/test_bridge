@@ -1,0 +1,1028 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ exam.title }} - Result</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+   <style>
+    * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+    }
+
+    :root {
+        --bg: #f4f7fb;
+        --white: #ffffff;
+        --primary: #2563eb;
+        --primary-dark: #1d4ed8;
+        --secondary: #0f172a;
+        --text: #1e293b;
+        --muted: #64748b;
+        --border: #e2e8f0;
+        --success: #10b981;
+        --danger: #ef4444;
+        --warning: #f59e0b;
+        --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+        --soft-shadow: 0 8px 20px rgba(15, 23, 42, 0.05);
+        --info-bg: #eff6ff;
+        --writing-bg: #faf5ff;
+        --writing-border: #ddd6fe;
+    }
+
+    body {
+        font-family: 'Inter', sans-serif;
+        background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
+        color: var(--text);
+        line-height: 1.6;
+        padding: 24px;
+    }
+
+    .container {
+        width: min(1240px, 100%);
+        margin: 0 auto;
+    }
+
+    .hero {
+        background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #2563eb);
+        color: white;
+        border-radius: 30px;
+        padding: 36px;
+        margin-bottom: 26px;
+        box-shadow: var(--shadow);
+    }
+
+    .hero h1 {
+        font-size: 36px;
+        font-weight: 800;
+        margin-bottom: 10px;
+        letter-spacing: -0.8px;
+    }
+
+    .hero p {
+        color: rgba(255, 255, 255, 0.86);
+        max-width: 760px;
+        font-size: 15px;
+    }
+
+    .hero-meta {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        margin-top: 18px;
+    }
+
+    .hero-pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: rgba(255,255,255,0.12);
+        border: 1px solid rgba(255,255,255,0.16);
+        font-size: 12px;
+        font-weight: 700;
+    }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 18px;
+        margin-bottom: 26px;
+    }
+
+    .stat-card {
+        position: relative;
+        background: #ffffff;
+        border: 1px solid #e7edf5;
+        border-radius: 24px;
+        padding: 22px 24px;
+        box-shadow: var(--soft-shadow);
+        overflow: hidden;
+    }
+
+    .stat-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 4px;
+        background: linear-gradient(90deg, #2563eb, #60a5fa);
+    }
+
+    .stat-card span {
+        display: block;
+        color: var(--muted);
+        font-size: 13px;
+        font-weight: 600;
+        margin-bottom: 12px;
+    }
+
+    .stat-card strong {
+        display: block;
+        font-size: 40px;
+        line-height: 1;
+        font-weight: 800;
+        color: var(--secondary);
+        letter-spacing: -1px;
+    }
+
+    .panel {
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid #e7edf5;
+        border-radius: 28px;
+        padding: 28px;
+        margin-bottom: 24px;
+        box-shadow: var(--shadow);
+    }
+
+    .panel h2 {
+        font-size: 26px;
+        font-weight: 800;
+        margin-bottom: 8px;
+        color: var(--secondary);
+        letter-spacing: -0.5px;
+    }
+
+    .panel-subtitle {
+        color: var(--muted);
+        font-size: 14px;
+        margin-bottom: 22px;
+    }
+
+    .summary-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 16px;
+    }
+
+    .summary-box {
+        background: #ffffff;
+        border: 1px solid #e8eef6;
+        border-radius: 20px;
+        padding: 18px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.03);
+    }
+
+    .summary-box span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 8px;
+    }
+
+    .summary-box strong {
+        font-size: 18px;
+        color: var(--secondary);
+        font-weight: 800;
+        line-height: 1.4;
+    }
+
+    .flag-box {
+        margin-top: 18px;
+        padding: 15px 18px;
+        border-radius: 18px;
+        font-size: 14px;
+        font-weight: 700;
+    }
+
+    .flag-safe {
+        background: linear-gradient(180deg, #ecfdf5 0%, #e9fbf3 100%);
+        color: #047857;
+        border: 1px solid #a7f3d0;
+    }
+
+    .flag-warning {
+        background: linear-gradient(180deg, #fff7ed 0%, #ffedd5 100%);
+        color: #c2410c;
+        border: 1px solid #fdba74;
+        box-shadow: inset 4px 0 0 #f97316;
+    }
+
+    .section-group {
+        margin-top: 28px;
+    }
+
+    .section-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .section-title h3 {
+        font-size: 22px;
+        font-weight: 800;
+        color: var(--secondary);
+    }
+
+    .section-pill {
+        padding: 8px 12px;
+        border-radius: 999px;
+        background: var(--info-bg);
+        color: var(--primary);
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .answer-card,
+    .writing-card {
+        border: 1px solid var(--border);
+        border-radius: 22px;
+        padding: 20px;
+        margin-bottom: 16px;
+        background: white;
+        box-shadow: 0 6px 18px rgba(15, 23, 42, 0.03);
+    }
+
+    .writing-card {
+        background: linear-gradient(180deg, #ffffff 0%, #fcfaff 100%);
+        border-color: var(--writing-border);
+    }
+
+    .answer-top,
+    .writing-top {
+        display: flex;
+        justify-content: space-between;
+        gap: 14px;
+        flex-wrap: wrap;
+        margin-bottom: 12px;
+    }
+
+    .answer-top h4,
+    .writing-top h4 {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--secondary);
+    }
+
+    .status-badge {
+        padding: 8px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+    }
+
+    .status-correct {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .status-wrong {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .status-writing {
+        background: #f5f3ff;
+        color: #6d28d9;
+    }
+
+    .question-text,
+    .writing-prompt {
+        color: var(--text);
+        font-size: 15px;
+        margin-bottom: 14px;
+        white-space: pre-line;
+        line-height: 1.8;
+    }
+
+    .answer-meta,
+    .writing-meta {
+        display: grid;
+        gap: 12px;
+    }
+
+    .answer-row,
+    .writing-row {
+        padding: 14px 16px;
+        border-radius: 16px;
+        background: #f8fafc;
+        border: 1px solid #edf2f7;
+    }
+
+    .writing-row {
+        background: #faf5ff;
+        border-color: #ede9fe;
+    }
+
+    .answer-row span,
+    .writing-row span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        font-weight: 600;
+        margin-bottom: 6px;
+    }
+
+    .answer-row strong,
+    .writing-row strong {
+        font-size: 14px;
+        color: var(--secondary);
+    }
+
+    .long-answer-box {
+        margin-top: 6px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid var(--border);
+        color: var(--text);
+        white-space: pre-line;
+        line-height: 1.8;
+    }
+
+    .ai-box {
+        margin-top: 14px;
+        border-radius: 20px;
+        padding: 18px;
+        background: linear-gradient(180deg, #f8fafc 0%, #fcfdff 100%);
+        border: 1px solid #e2e8f0;
+    }
+
+    .ai-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 14px;
+    }
+
+    .ai-header h5 {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--secondary);
+        margin: 0;
+    }
+
+    .ai-type-pill {
+        padding: 7px 10px;
+        border-radius: 999px;
+        background: #eef2ff;
+        color: #4338ca;
+        font-size: 11px;
+        font-weight: 800;
+    }
+
+    .ai-grid {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 12px;
+        margin-bottom: 12px;
+    }
+
+    .ai-grid.compact {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .ai-mini {
+        padding: 12px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid var(--border);
+    }
+
+    .ai-mini span {
+        display: block;
+        color: var(--muted);
+        font-size: 12px;
+        margin-bottom: 4px;
+    }
+
+    .ai-mini strong {
+        font-size: 15px;
+        color: var(--secondary);
+    }
+
+    .ai-summary {
+        margin-top: 10px;
+        padding: 14px 16px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid var(--border);
+    }
+
+    .ai-summary strong {
+        display: block;
+        margin-bottom: 6px;
+        font-size: 13px;
+        color: var(--secondary);
+    }
+
+    .ai-summary p {
+        margin: 0;
+        font-size: 14px;
+        color: var(--text);
+        line-height: 1.7;
+    }
+
+    .ai-subsection {
+        margin-top: 14px;
+    }
+
+    .mini-section-title {
+        font-size: 13px;
+        font-weight: 800;
+        color: var(--secondary);
+        margin-bottom: 10px;
+    }
+
+    .blank-score-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .blank-score-card {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 12px;
+    }
+
+    .blank-score-top {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 8px;
+    }
+
+    .blank-score-top span {
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--secondary);
+    }
+
+    .blank-score-card strong {
+        display: block;
+        font-size: 18px;
+        margin-bottom: 6px;
+        color: var(--secondary);
+    }
+
+    .blank-score-card p {
+        margin: 0;
+        font-size: 13px;
+        color: var(--muted);
+        line-height: 1.6;
+    }
+
+    .mini-badge {
+        font-style: normal;
+        font-size: 10px;
+        font-weight: 800;
+        padding: 5px 8px;
+        border-radius: 999px;
+    }
+
+    .mini-badge.ok {
+        background: #ecfdf5;
+        color: #047857;
+    }
+
+    .mini-badge.no {
+        background: #fef2f2;
+        color: #b91c1c;
+    }
+
+    .ai-inline-stats {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 12px;
+    }
+
+    .inline-stat {
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid var(--border);
+        min-width: 180px;
+    }
+
+    .inline-stat span {
+        display: block;
+        font-size: 12px;
+        color: var(--muted);
+        margin-bottom: 4px;
+    }
+
+    .inline-stat strong {
+        font-size: 14px;
+        color: var(--secondary);
+    }
+
+    .feedback-columns {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        margin-top: 14px;
+    }
+
+    .feedback-col {
+        background: white;
+        border: 1px solid var(--border);
+        border-radius: 14px;
+        padding: 14px;
+    }
+
+    .feedback-col ul {
+        margin: 0;
+        padding-left: 18px;
+    }
+
+    .feedback-col li {
+        margin-bottom: 6px;
+        color: var(--text);
+        font-size: 14px;
+        line-height: 1.6;
+    }
+
+    .ai-note {
+        margin-top: 12px;
+        padding: 12px 14px;
+        border-radius: 14px;
+        background: white;
+        border: 1px solid var(--border);
+        font-size: 14px;
+        color: var(--text);
+    }
+
+    .error-note {
+        border-color: #fecaca;
+        background: #fff1f2;
+        color: #b91c1c;
+    }
+
+    .actions {
+        display: flex;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-top: 24px;
+    }
+
+    .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        padding: 13px 18px;
+        border-radius: 16px;
+        font-size: 14px;
+        font-weight: 800;
+        text-decoration: none;
+        border: none;
+        cursor: pointer;
+        transition: 0.2s ease;
+    }
+
+    .btn-primary {
+        background: var(--primary);
+        color: white;
+    }
+
+    .btn-primary:hover {
+        background: var(--primary-dark);
+    }
+
+    .btn-outline {
+        background: white;
+        color: var(--secondary);
+        border: 1px solid var(--border);
+    }
+
+    .btn-outline:hover {
+        background: #f8fafc;
+    }
+
+    .empty-note {
+        padding: 16px;
+        border-radius: 16px;
+        border: 1px dashed var(--border);
+        background: #f8fafc;
+        color: var(--muted);
+        font-size: 14px;
+    }
+
+    @media (max-width: 1100px) {
+        .stats-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        .summary-grid {
+            grid-template-columns: repeat(2, 1fr);
+        }
+    }
+
+    @media (max-width: 900px) {
+        .summary-grid,
+        .ai-grid,
+        .ai-grid.compact,
+        .feedback-columns,
+        .blank-score-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero h1 {
+            font-size: 28px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        body {
+            padding: 14px;
+        }
+
+        .stats-grid,
+        .summary-grid {
+            grid-template-columns: 1fr;
+        }
+
+        .hero {
+            padding: 24px;
+            border-radius: 24px;
+        }
+
+        .panel {
+            padding: 20px;
+            border-radius: 24px;
+        }
+
+        .stat-card strong {
+            font-size: 34px;
+        }
+    }
+</style>
+
+</head>
+<body>
+<div class="container">
+
+    <div class="hero">
+        <h1>{{ exam.title }} - Result</h1>
+        <p>Your exam attempt has been submitted successfully. Review your score, writing tasks, and objective answers below.</p>
+
+        <div class="hero-meta">
+            <span class="hero-pill">{{ exam.get_level_display }}</span>
+            <span class="hero-pill">{{ exam.get_exam_type_display }}</span>
+            <span class="hero-pill">{{ exam.duration_minutes }} Minutes</span>
+            <span class="hero-pill">{{ total_questions }} Objective Questions</span>
+            {% if writing_submissions %}
+                <span class="hero-pill">{{ writing_submissions|length }} Writing Task{{ writing_submissions|length|pluralize }}</span>
+            {% endif %}
+        </div>
+    </div>
+
+   <div class="stats-grid">
+    <div class="stat-card">
+        <span>Total Score</span>
+        <strong>{{ attempt.total_score }}</strong>
+    </div>
+
+    <div class="stat-card">
+        <span>Writing Score</span>
+        <strong>{{ attempt.writing_score }}</strong>
+    </div>
+
+    {% if writing_submissions %}
+    <div class="stat-card">
+        <span>Writing Tasks</span>
+        <strong>{{ writing_submissions|length }}</strong>
+    </div>
+    {% endif %}
+
+
+</div>
+
+    <div class="panel">
+        <h2>Attempt Summary</h2>
+        <p class="panel-subtitle">Overview of your exam attempt and monitoring status.</p>
+
+       <div class="summary-grid">
+    <div class="summary-box">
+        <span>Status</span>
+        <strong>{{ attempt.get_status_display }}</strong>
+    </div>
+
+    <div class="summary-box">
+        <span>Started At</span>
+        <strong>{{ attempt.started_at }}</strong>
+    </div>
+   <div class="summary-box">
+        <span>Submitted At</span>
+        <strong>{{ attempt.submitted_at }}</strong>
+    </div>
+    <div class="summary-box">
+        <span>Reading Score</span>
+        <strong>{{ attempt.reading_score }}</strong>
+    </div>
+    <div class="summary-box">
+        <span>Listening Score</span>
+        <strong>{{ attempt.listening_score }}</strong>
+    </div>
+         <div class="summary-box">
+        <span>Writing Score</span>
+        <strong>{{ attempt.writing_score }}</strong>
+    </div>
+
+    <div class="summary-box">
+        <span>Tab Switches</span>
+        <strong>{{ attempt.tab_switch_count }}</strong>
+    </div>
+    <div class="summary-box">
+        <span>Fullscreen Exits</span>
+        <strong>{{ attempt.fullscreen_exit_count }}</strong>
+    </div>
+    <div class="summary-box">
+        <span>Copy Attempts</span>
+        <strong>{{ attempt.copy_attempt_count }}</strong>
+    </div>
+
+</div>
+
+        {% if attempt.is_flagged %}
+            <div class="flag-box flag-warning">
+                This attempt was flagged for suspicious activity and may require review.
+            </div>
+        {% else %}
+            <div class="flag-box flag-safe">
+                No serious suspicious activity was flagged for this attempt.
+            </div>
+        {% endif %}
+    </div>
+
+    {% if writing_submissions %}
+    <div class="panel">
+        <h2>Writing Review</h2>
+        <p class="panel-subtitle">Your writing responses and evaluation details appear here.</p>
+
+        <div class="section-group">
+            <div class="section-title">
+                <h3>Writing</h3>
+                <span class="section-pill">{{ writing_submissions|length }} Task{{ writing_submissions|length|pluralize }}</span>
+            </div>
+
+            {% for submission in writing_submissions %}
+                <div class="writing-card">
+                    <div class="writing-top">
+                        <h4>Task {{ submission.task.task_number }}{% if submission.task.title %} - {{ submission.task.title }}{% endif %}</h4>
+                        <span class="status-badge status-writing">{{ submission.task.get_task_type_display }}</span>
+                    </div>
+
+                    {% if submission.task.prompt %}
+                        <div class="writing-prompt">{{ submission.task.prompt }}</div>
+                    {% endif %}
+
+                    <div class="writing-meta">
+                        <div class="writing-row">
+                            <span>Your Submission</span>
+                            <div class="long-answer-box">
+                                {% if submission.answer_text %}
+                                    {{ submission.answer_text }}
+                                {% else %}
+                                    No answer submitted
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="writing-row">
+                            <span>Word Count</span>
+                            <strong>{{ submission.word_count }}</strong>
+                        </div>
+
+                        <div class="writing-row">
+                            <span>Score Awarded</span>
+                            <strong>{{ submission.score_awarded|default_if_none:"Pending" }}</strong>
+                        </div>
+
+                       {% if submission.ai_score or submission.final_score or submission.ai_feedback %}
+                            <div class="ai-box">
+                                <div class="ai-header">
+                                    <h5>AI Evaluation</h5>
+                                    <span class="ai-type-pill">{{ submission.task.get_task_type_display }}</span>
+                                </div>
+
+                                <div class="ai-grid compact">
+                                    <div class="ai-mini">
+                                        <span>AI Score</span>
+                                        <strong>{{ submission.ai_score|default_if_none:"-" }}</strong>
+                                    </div>
+
+                                    <div class="ai-mini">
+                                        <span>Score Awarded</span>
+                                        <strong>{{ submission.score_awarded|default_if_none:"-" }}</strong>
+                                    </div>
+
+                                    <div class="ai-mini">
+                                        <span>Task Max</span>
+                                        <strong>{{ submission.task.score }}</strong>
+                                    </div>
+                                </div>
+
+                                {% if submission.ai_feedback %}
+                                    {% if submission.ai_feedback.feedback_summary %}
+                                        <div class="ai-summary">
+                                            <strong>Summary</strong>
+                                            <p>{{ submission.ai_feedback.feedback_summary }}</p>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if submission.ai_feedback.blank_scores %}
+                                        <div class="ai-subsection">
+                                            <div class="mini-section-title">Blank Review</div>
+                                            <div class="blank-score-grid">
+                                                {% for blank in submission.ai_feedback.blank_scores %}
+                                                    <div class="blank-score-card">
+                                                        <div class="blank-score-top">
+                                                            <span>Blank {{ blank.blank_order }}</span>
+                                                            {% if blank.is_acceptable %}
+                                                                <em class="mini-badge ok">Acceptable</em>
+                                                            {% else %}
+                                                                <em class="mini-badge no">Needs Fix</em>
+                                                            {% endif %}
+                                                        </div>
+                                                        <strong>{{ blank.score }}</strong>
+                                                        {% if blank.reason %}
+                                                            <p>{{ blank.reason }}</p>
+                                                        {% endif %}
+                                                    </div>
+                                                {% endfor %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if submission.ai_feedback.correct_blanks is not None %}
+                                        <div class="ai-inline-stats">
+                                            <div class="inline-stat">
+                                                <span>Correct blanks</span>
+                                                <strong>{{ submission.ai_feedback.correct_blanks }} / {{ submission.ai_feedback.total_blanks }}</strong>
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if submission.ai_feedback.grammar_score is not None or submission.ai_feedback.vocabulary_score is not None or submission.ai_feedback.coherence_score is not None or submission.ai_feedback.task_completion_score is not None %}
+                                        <div class="ai-subsection">
+                                            <div class="mini-section-title">Rubric Breakdown</div>
+                                            <div class="ai-grid compact">
+                                                {% if submission.ai_feedback.grammar_score is not None %}
+                                                    <div class="ai-mini">
+                                                        <span>Grammar</span>
+                                                        <strong>{{ submission.ai_feedback.grammar_score }}</strong>
+                                                    </div>
+                                                {% endif %}
+                                                {% if submission.ai_feedback.vocabulary_score is not None %}
+                                                    <div class="ai-mini">
+                                                        <span>Vocabulary</span>
+                                                        <strong>{{ submission.ai_feedback.vocabulary_score }}</strong>
+                                                    </div>
+                                                {% endif %}
+                                                {% if submission.ai_feedback.coherence_score is not None %}
+                                                    <div class="ai-mini">
+                                                        <span>Coherence</span>
+                                                        <strong>{{ submission.ai_feedback.coherence_score }}</strong>
+                                                    </div>
+                                                {% endif %}
+                                                {% if submission.ai_feedback.task_completion_score is not None %}
+                                                    <div class="ai-mini">
+                                                        <span>Task Completion</span>
+                                                        <strong>{{ submission.ai_feedback.task_completion_score }}</strong>
+                                                    </div>
+                                                {% endif %}
+                                            </div>
+                                        </div>
+                                    {% endif %}
+
+                                    {% if submission.ai_feedback.strengths or submission.ai_feedback.improvements %}
+                                        <div class="feedback-columns">
+                                            {% if submission.ai_feedback.strengths %}
+                                                <div class="feedback-col">
+                                                    <div class="mini-section-title">Strengths</div>
+                                                    <ul>
+                                                        {% for item in submission.ai_feedback.strengths %}
+                                                            <li>{{ item }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+
+                                            {% if submission.ai_feedback.improvements %}
+                                                <div class="feedback-col">
+                                                    <div class="mini-section-title">Improvements</div>
+                                                    <ul>
+                                                        {% for item in submission.ai_feedback.improvements %}
+                                                            <li>{{ item }}</li>
+                                                        {% endfor %}
+                                                    </ul>
+                                                </div>
+                                            {% endif %}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if submission.ai_feedback.comment %}
+                                        <div class="ai-note">
+                                            <strong>Comment:</strong> {{ submission.ai_feedback.comment }}
+                                        </div>
+                                    {% endif %}
+
+                                    {% if submission.ai_feedback.error %}
+                                        <div class="ai-note error-note">
+                                            <strong>Error:</strong> {{ submission.ai_feedback.error }}
+                                        </div>
+                                    {% endif %}
+                                {% else %}
+                                    <div class="ai-note">No AI feedback available yet.</div>
+                                {% endif %}
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="panel">
+        <h2>Objective Answer Review</h2>
+        <p class="panel-subtitle">Check what you answered and compare it with the correct answer.</p>
+
+        {% if grouped_answers %}
+            {% for section_name, section_answers in grouped_answers.items %}
+                <div class="section-group">
+                    <div class="section-title">
+                        <h3>{{ section_name }}</h3>
+                        <span class="section-pill">{{ section_answers|length }} Question{{ section_answers|length|pluralize }}</span>
+                    </div>
+
+                    {% for answer in section_answers %}
+                        <div class="answer-card">
+                            <div class="answer-top">
+                                <h4>Question {{ answer.question.question_number }}</h4>
+                                {% if answer.is_correct %}
+                                    <span class="status-badge status-correct">Correct</span>
+                                {% else %}
+                                    <span class="status-badge status-wrong">Wrong</span>
+                                {% endif %}
+                            </div>
+
+                            <div class="question-text">
+                                {{ answer.question.question_text }}
+                            </div>
+
+                            <div class="answer-meta">
+                                <div class="answer-row">
+                                    <span>Your Answer</span>
+                                    <strong>
+                                        {% if answer.selected_choice %}
+                                            {{ answer.selected_choice.label }} {{ answer.selected_choice.choice_text }}
+                                        {% elif answer.text_answer %}
+                                            {{ answer.text_answer }}
+                                        {% else %}
+                                            No answer
+                                        {% endif %}
+                                    </strong>
+                                </div>
+
+                                <div class="answer-row">
+                                    <span>Correct Answer</span>
+                                    <strong>
+                                        {% if answer.question.question_type == "short_answer" %}
+                                            {{ answer.question.correct_text_answer|default:"-" }}
+                                        {% else %}
+                                            {% for choice in answer.question.choices.all %}
+                                                {% if choice.is_correct %}
+                                                    {{ choice.label }} {{ choice.choice_text }}
+                                                {% endif %}
+                                            {% endfor %}
+                                        {% endif %}
+                                    </strong>
+                                </div>
+
+                                <div class="answer-row">
+                                    <span>Score Awarded</span>
+                                    <strong>{{ answer.score_awarded }}</strong>
+                                </div>
+                            </div>
+                        </div>
+                    {% endfor %}
+                </div>
+            {% endfor %}
+        {% else %}
+            <div class="empty-note">
+                No objective questions were answered in this attempt.
+            </div>
+        {% endif %}
+
+        <div class="actions">
+            <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-outline">Back to Exam</a>
+            <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="btn btn-primary">Retake Exam</a>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

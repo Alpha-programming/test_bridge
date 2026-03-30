@@ -1,0 +1,470 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Progress</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f4f7fb;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 18px 40px rgba(15, 23, 42, 0.08);
+            --soft-shadow: 0 10px 24px rgba(15, 23, 42, 0.05);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
+            color: var(--text);
+            padding: 24px;
+        }
+
+        .container {
+            width: min(1280px, 100%);
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #2563eb);
+            color: white;
+            border-radius: 30px;
+            padding: 34px;
+            margin-bottom: 26px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.8px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.85);
+            max-width: 720px;
+            font-size: 15px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .hero-pill {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 26px;
+        }
+
+        .stat-card {
+            position: relative;
+            background: var(--white);
+            border: 1px solid #e7edf5;
+            border-radius: 24px;
+            padding: 22px 24px;
+            box-shadow: var(--soft-shadow);
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+        }
+
+        .stat-card span {
+            display: block;
+            color: var(--muted);
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 10px;
+        }
+
+        .stat-card strong {
+            display: block;
+            font-size: 38px;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1;
+            letter-spacing: -1px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 22px;
+            margin-bottom: 24px;
+        }
+
+        .panel {
+            background: rgba(255,255,255,0.96);
+            border: 1px solid #e7edf5;
+            border-radius: 28px;
+            padding: 26px;
+            box-shadow: var(--shadow);
+        }
+
+        .panel h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .panel-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .chart-placeholder {
+            height: 320px;
+            border-radius: 22px;
+            border: 1px dashed #cbd5e1;
+            background: linear-gradient(180deg, #f8fbff 0%, #f1f6fd 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: var(--muted);
+            font-weight: 700;
+            font-size: 15px;
+        }
+
+        .mini-grid {
+            display: grid;
+            gap: 14px;
+        }
+
+        .mini-card {
+            background: #ffffff;
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 18px;
+        }
+
+        .mini-card .label {
+            color: var(--muted);
+            font-size: 12px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .mini-card .value {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e2e8f0;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            border-radius: 999px;
+        }
+
+        .fill-reading { width: 78%; background: linear-gradient(90deg, #2563eb, #60a5fa); }
+        .fill-listening { width: 64%; background: linear-gradient(90deg, #10b981, #34d399); }
+        .fill-writing { width: 52%; background: linear-gradient(90deg, #7c3aed, #a78bfa); }
+
+        .attempt-table-wrap {
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            text-align: left;
+            padding: 14px 12px;
+            border-bottom: 1px solid #edf2f7;
+            font-size: 14px;
+        }
+
+        th {
+            color: var(--muted);
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.04em;
+        }
+
+        td {
+            color: var(--text);
+            font-weight: 500;
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .badge-success {
+            background: #ecfdf5;
+            color: #047857;
+        }
+
+        .badge-warning {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .badge-info {
+            background: #eff6ff;
+            color: #1d4ed8;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 13px 18px;
+            border-radius: 16px;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: 0.2s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+
+        @media (max-width: 1100px) {
+            .stats-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 14px;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero {
+                padding: 24px;
+                border-radius: 24px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .panel {
+                padding: 20px;
+                border-radius: 22px;
+            }
+
+            .stat-card strong {
+                font-size: 32px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <div class="hero">
+        <h1>My Progress</h1>
+        <p>Track your TOPIK preparation journey across full mocks, reading, listening, and writing practice. Review your growth and focus on weaker areas.</p>
+        <div class="hero-meta">
+            <span class="hero-pill">Total Attempts: {{ total_attempts|default:"12" }}</span>
+            <span class="hero-pill">Completed Exams: {{ completed_attempts|default:"9" }}</span>
+            <span class="hero-pill">Average Score: {{ average_score|default:"74" }}</span>
+            <span class="hero-pill">Best Score: {{ best_score|default:"89" }}</span>
+        </div>
+    </div>
+
+    <div class="stats-grid">
+        <div class="stat-card">
+            <span>Average Score</span>
+            <strong>{{ average_score|default:"74" }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Best Score</span>
+            <strong>{{ best_score|default:"89" }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Completed Tests</span>
+            <strong>{{ completed_attempts|default:"9" }}</strong>
+        </div>
+        <div class="stat-card">
+            <span>Completion Rate</span>
+            <strong>{{ completion_rate|default:"82" }}%</strong>
+        </div>
+    </div>
+
+    <div class="layout">
+        <div class="panel">
+            <h2>Score Trend</h2>
+            <p class="panel-subtitle">See how your performance changes over time.</p>
+            <div class="chart-placeholder">
+                Chart.js / ApexCharts progress line chart here
+            </div>
+        </div>
+
+        <div class="panel">
+            <h2>Section Performance</h2>
+            <p class="panel-subtitle">Current progress by exam skill.</p>
+
+            <div class="mini-grid">
+                <div class="mini-card">
+                    <div class="label">Reading</div>
+                    <div class="value">{{ reading_avg|default:"78" }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-reading"></div>
+                    </div>
+                </div>
+
+                <div class="mini-card">
+                    <div class="label">Listening</div>
+                    <div class="value">{{ listening_avg|default:"64" }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-listening"></div>
+                    </div>
+                </div>
+
+                <div class="mini-card">
+                    <div class="label">Writing</div>
+                    <div class="value">{{ writing_avg|default:"52" }}</div>
+                    <div class="progress-bar">
+                        <div class="progress-fill fill-writing"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="actions">
+                <a href="#" class="btn btn-primary">Take Full Mock</a>
+                <a href="#" class="btn btn-outline">Practice Weak Area</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="panel">
+        <h2>Recent Attempts</h2>
+        <p class="panel-subtitle">Your latest completed TOPIK exams and practice sessions.</p>
+
+        <div class="attempt-table-wrap">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Exam</th>
+                        <th>Type</th>
+                        <th>Date</th>
+                        <th>Score</th>
+                        <th>Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>TOPIK II 91st Mock</td>
+                        <td><span class="badge badge-info">Full Mock</span></td>
+                        <td>2026-03-30</td>
+                        <td>89</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>TOPIK Writing 51–54</td>
+                        <td><span class="badge badge-info">Writing</span></td>
+                        <td>2026-03-29</td>
+                        <td>74</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>TOPIK Listening Practice</td>
+                        <td><span class="badge badge-info">Listening</span></td>
+                        <td>2026-03-27</td>
+                        <td>61</td>
+                        <td><span class="badge badge-success">Completed</span></td>
+                    </tr>
+                    <tr>
+                        <td>TOPIK Reading Set</td>
+                        <td><span class="badge badge-info">Reading</span></td>
+                        <td>2026-03-25</td>
+                        <td>80</td>
+                        <td><span class="badge badge-warning">In Progress</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</body>
+</html>

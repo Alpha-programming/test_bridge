@@ -31,6 +31,9 @@ urlpatterns = [
 
     # 📘 IELTS app
     path("ielts/", include("ielts.urls")),
+
+    # 📘 Topic app
+    path("topik/", include("topik.urls")),
 ]
 
 
