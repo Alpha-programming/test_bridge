@@ -5,6 +5,13 @@
 
 <div class="container mt-4">
 
+    <div class="card-custom p-3 mb-3 text-center">
+
+        <p>🧠 AI Used Today: {{ subscription.ai_used_today }}</p>
+        <p>📝 Tests Used Today: {{ subscription.tests_used_today }}</p>
+
+    </div>
+
     <!-- 🔍 SEARCH -->
     <form method="GET" class="mb-4 d-flex justify-content-center">
         <div class="input-group search-box">
@@ -27,12 +34,14 @@
                         <h5>{{ test.title }}</h5>
                         <small class="text-muted">{{ test.duration_minutes }} minutes</small>
                     </div>
-
-                    <a href="{% url 'ielts:writing_start' test.id %}"
-                       class="main-btn mt-3 text-center">
-                        Start
-                    </a>
-
+                    {% if subscription.tests_used_today >= 2 and subscription.plan == "FREE" %}
+                        <button class="main-btn" disabled>Limit Reached</button>
+                    {% else %}
+                        <a href="{% url 'ielts:writing_start' test.id %}"
+                           class="main-btn mt-3 text-center">
+                            Start
+                        </a>
+                    {% endif %}
                 </div>
             </div>
         {% empty %}

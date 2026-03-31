@@ -1,0 +1,125 @@
+{% extends "ielts/ielts.html" %}
+{% load static %}
+
+{% block content %}
+
+<style>
+.profile-card{
+    background:#fff;
+    border-radius:14px;
+    padding:20px;
+    box-shadow:0 5px 20px rgba(0,0,0,0.05);
+    margin-bottom:20px;
+}
+
+.stat{
+    text-align:center;
+}
+
+.stat h3{
+    font-weight:900;
+    margin-bottom:5px;
+}
+
+.plan-badge{
+    padding:6px 12px;
+    border-radius:8px;
+    font-weight:700;
+}
+
+.plan-free{ background:#e5e7eb; }
+.plan-pro{ background:#dbeafe; color:#1d4ed8; }
+.plan-premium{ background:#ede9fe; color:#6d28d9; }
+
+.btn-edit{
+    padding:10px 16px;
+    border-radius:10px;
+    background:#2563eb;
+    color:#fff;
+    text-decoration:none;
+    font-weight:700;
+}
+</style>
+
+<div class="container mt-4">
+
+    <!-- 👤 USER INFO -->
+    <div class="profile-card">
+
+        <h4>👤 Profile</h4>
+
+        <p><b>Username:</b> {{ request.user.username }}</p>
+        <p><b>Email:</b> {{ request.user.email }}</p>
+
+        <a href="{% url 'ielts:profile_edit' %}" class="btn-edit">
+            Edit Profile
+        </a>
+
+    </div>
+
+    <div class="card-custom p-3 mt-3">
+        <h5>📊 Usage Today</h5>
+
+        <p>AI Used: {{ subscription.ai_used_today }}</p>
+        <p>Tests Used: {{ subscription.tests_used_today }}</p>
+
+        </div>
+
+    <!-- 📊 STATS -->
+    <div class="profile-card">
+
+        <h4>📊 Your Performance</h4>
+
+        <div class="row">
+
+            <div class="col-md-3 stat">
+                <h3>{{ reading_avg_band }}</h3>
+                <small>Reading ({{ reading_avg_score }}/40)</small>
+            </div>
+
+            <div class="col-md-3 stat">
+                <h3>{{ listening_avg_band }}</h3>
+                <small>Listening ({{ listening_avg_score }}/40)</small>
+            </div>
+
+            <div class="col-md-3 stat">
+                <h3>{{ writing_avg }}</h3>
+                <small>Writing</small>
+            </div>
+
+            <div class="col-md-3 stat">
+                <h3>{{ speaking_avg }}</h3>
+                <small>Speaking</small>
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- 💳 SUBSCRIPTION -->
+    <div class="profile-card">
+
+        <h4>💳 Subscription</h4>
+
+        {% if subscription %}
+            <p>
+                Plan:
+                <span class="plan-badge plan-{{ subscription.plan|lower }}">
+                    {{ subscription.plan }}
+                </span>
+            </p>
+
+            <p>Requests Used: {{ subscription.requests_used }}</p>
+            <p>Tokens Used: {{ subscription.tokens_used }}</p>
+
+        {% else %}
+            <p>No active subscription</p>
+        {% endif %}
+
+        <a href="#" class="btn-edit">Upgrade Plan</a>
+
+    </div>
+
+</div>
+
+{% endblock %}

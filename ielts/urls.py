@@ -1,5 +1,6 @@
 from django.urls import path
 from . import views
+from django.contrib.auth import views as auth_views
 
 app_name = "ielts"
 
@@ -7,6 +8,11 @@ urlpatterns = [
 
     # 🏠 MAIN
     path('', views.home, name='home'),
+    path("profile/", views.profile_view, name="profile"),
+    path("profile/edit", views.edit_profile, name="profile_edit"),
+    path("password-change/", auth_views.PasswordChangeView.as_view(template_name="ielts/profile/password_change.html"), name="password_change"),
+    path("pricing/", views.pricing_view, name="pricing"),
+    path("upgrade/<str:plan>/", views.upgrade_plan, name="upgrade_plan"),
 
     # =========================
     # 📘 READING
@@ -18,6 +24,7 @@ urlpatterns = [
     path("reading/save-answer/", views.save_answer, name="reading_save_answer"),
     path("reading/submit/<int:user_test_id>/", views.submit_test, name="reading_submit"),
     path("reading/result/<int:user_test_id>/", views.result_view, name="reading_result"),
+    path("reading/overall-ai/", views.reading_overall_ai, name="reading_overall_ai"),
 
     # =========================
     # 🎧 LISTENING
@@ -29,6 +36,7 @@ urlpatterns = [
     path("listening/save-answer/", views.save_listening_answer, name="listening_save_answer"),
     path("listening/submit/<int:user_test_id>/", views.submit_listening, name="listening_submit"),
     path("listening/result/<int:user_test_id>/", views.listening_result, name="listening_result"),
+    path("listening/ai/", views.listening_overall_ai, name="listening_overall_ai"),
 
     # =========================
     # 🎤 Writing

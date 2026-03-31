@@ -3,9 +3,11 @@ from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.exceptions import ValidationError
 
-# =========================
-# 📘 READING TEST
-# =========================
+
+# =========================================================
+# 📘 READING MODELS
+# =========================================================
+
 class ReadingTest(models.Model):
     title = models.CharField(max_length=255)
     duration_minutes = models.PositiveIntegerField(default=60)
@@ -16,16 +18,8 @@ class ReadingTest(models.Model):
         return self.title
 
 
-# =========================
-# 📄 PASSAGE
-# =========================
 class Passage(models.Model):
-    test = models.ForeignKey(
-        ReadingTest,
-        on_delete=models.CASCADE,
-        related_name="passages"
-    )
-
+    test = models.ForeignKey(ReadingTest, on_delete=models.CASCADE, related_name="passages")
     title = models.CharField(max_length=255)
     subtitle = models.CharField(max_length=255, null=True, blank=True)
     content = models.TextField(null=True, blank=True)
@@ -38,14 +32,10 @@ class Passage(models.Model):
     def __str__(self):
         return f"{self.test.title} - Passage {self.order}"
 
-class Paragraph(models.Model):
-    passage = models.ForeignKey(
-        Passage,
-        on_delete=models.CASCADE,
-        related_name="paragraphs"
-    )
 
-    label = models.CharField(max_length=2,null=True, blank=True)  # A, B, C
+class Paragraph(models.Model):
+    passage = models.ForeignKey(Passage, on_delete=models.CASCADE, related_name="paragraphs")
+    label = models.CharField(max_length=2, null=True, blank=True)
     content = models.TextField(null=True, blank=True)
     order = models.PositiveIntegerField()
 
@@ -56,9 +46,6 @@ class Paragraph(models.Model):
         return f"{self.label}"
 
 
-# =========================
-# 📦 QUESTION GROUP
-# =========================
 class QuestionGroup(models.Model):
     GROUP_TYPES = [
         ("TFNG", "True False Not Given"),
@@ -81,22 +68,13 @@ class QuestionGroup(models.Model):
         ("LIST", "List Selection"),
     ]
 
-    passage = models.ForeignKey(
-        Passage,
-        on_delete=models.CASCADE,
-        related_name="groups"
-    )
-
+    passage = models.ForeignKey(Passage, on_delete=models.CASCADE, related_name="groups")
     title = models.CharField(max_length=255)
     instruction = models.TextField()
     group_type = models.CharField(max_length=50, choices=GROUP_TYPES)
     order = models.PositiveIntegerField()
 
-    diagram_image = models.ImageField(
-        upload_to="reading/diagrams/",
-        null=True,
-        blank=True
-    )
+    diagram_image = models.ImageField(upload_to="reading/diagrams/", null=True, blank=True)
 
     class Meta:
         ordering = ["order"]
@@ -105,16 +83,8 @@ class QuestionGroup(models.Model):
         return f"{self.title} ({self.group_type})"
 
 
-# =========================
-# ❓ QUESTION
-# =========================
 class Question(models.Model):
-    group = models.ForeignKey(
-        QuestionGroup,
-        on_delete=models.CASCADE,
-        related_name="questions"
-    )
-
+    group = models.ForeignKey(QuestionGroup, on_delete=models.CASCADE, related_name="questions")
     number = models.PositiveIntegerField()
     text = models.TextField(blank=True)
     correct_answer = models.TextField(blank=True, null=True)
@@ -126,59 +96,30 @@ class Question(models.Model):
         return f"Q{self.number}"
 
 
-# =========================
-# 🔘 OPTION (MCQ / MATCHING)
-# =========================
 class Option(models.Model):
-    question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-        related_name="options",
-        null=True,
-        blank=True
-    )
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="options", null=True, blank=True)
+    group = models.ForeignKey(QuestionGroup, on_delete=models.CASCADE, related_name="group_options", null=True, blank=True)
 
-    group = models.ForeignKey(
-        QuestionGroup,
-        on_delete=models.CASCADE,
-        related_name="group_options",
-        null=True,
-        blank=True
-    )
-
-    label = models.CharField(max_length=10)  # A, B, C, i, ii
-    text = models.CharField(max_length=255,null=True, blank=True)
+    label = models.CharField(max_length=10)
+    text = models.CharField(max_length=255, null=True, blank=True)
     is_correct = models.BooleanField(default=False)
 
     def __str__(self):
         return f"{self.label}. {self.text}"
 
 
-# =========================
-# 🧠 USER TEST ATTEMPT (SUMMARY)
-# =========================
 class UserReadingTest(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="reading_tests"
-    )
-
-    test = models.ForeignKey(
-        ReadingTest,
-        on_delete=models.CASCADE,
-        related_name="user_attempts"
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name="reading_tests")
+    test = models.ForeignKey(ReadingTest, on_delete=models.CASCADE, related_name="user_attempts")
 
     score = models.IntegerField(default=0)
-
     answers_json = models.JSONField(blank=True, null=True)
 
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
-    def __str__(self):
-        return f"{self.user.username} - {self.test.title}"
+    mistake_stats = models.TextField(blank=True, null=True)
+    accuracy = models.FloatField(default=0)
 
     class Meta:
         constraints = [
@@ -189,37 +130,18 @@ class UserReadingTest(models.Model):
             )
         ]
 
+    def __str__(self):
+        return f"{self.user.username} - {self.test.title}"
 
-# =========================
-# ✍️ USER ANSWER (CORE ENGINE)
-# =========================
+
 class UserAnswer(models.Model):
-    user = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE
-    )
-
-    user_test = models.ForeignKey(
-        UserReadingTest,
-        on_delete=models.CASCADE,
-        related_name="answers"
-    )
-
-    question = models.ForeignKey(
-        Question,
-        on_delete=models.CASCADE,
-        related_name="user_answers"
-    )
-
-    test = models.ForeignKey(
-        ReadingTest,
-        on_delete=models.CASCADE
-    )
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
+    user_test = models.ForeignKey(UserReadingTest, on_delete=models.CASCADE, related_name="answers")
+    question = models.ForeignKey(Question, on_delete=models.CASCADE, related_name="user_answers")
+    test = models.ForeignKey(ReadingTest, on_delete=models.CASCADE)
 
     answer = models.TextField()
-
     is_correct = models.BooleanField(default=False)
-
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -229,7 +151,23 @@ class UserAnswer(models.Model):
         return f"{self.user.username} - Q{self.question.number}"
 
 
-# 🎧 LISTENING TEST
+class ReadingAIReport(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="reading_ai")
+
+    total_tests = models.IntegerField(default=0)
+    avg_score = models.FloatField(default=0)
+    avg_accuracy = models.FloatField(default=0)
+
+    weak_types = models.JSONField(default=dict)
+    ai_response = models.JSONField(null=True, blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+
+# =========================================================
+# 🎧 LISTENING MODELS
+# =========================================================
+
 class ListeningTest(models.Model):
     title = models.CharField(max_length=255)
     audio = models.FileField(upload_to="listening/audio/")
@@ -239,13 +177,8 @@ class ListeningTest(models.Model):
         return self.title
 
 
-# 📦 SECTION (Part 1–4)
 class ListeningSection(models.Model):
-    test = models.ForeignKey(
-        ListeningTest,
-        on_delete=models.CASCADE,
-        related_name="sections"
-    )
+    test = models.ForeignKey(ListeningTest, on_delete=models.CASCADE, related_name="sections")
     title = models.CharField(max_length=255)
     order = models.PositiveIntegerField()
 
@@ -253,7 +186,6 @@ class ListeningSection(models.Model):
         ordering = ["order"]
 
 
-# 📦 GROUP (question types)
 class ListeningGroup(models.Model):
     GROUP_TYPES = [
         ("FORM", "Form Completion"),
@@ -263,31 +195,19 @@ class ListeningGroup(models.Model):
         ("MATCH", "Matching"),
     ]
 
-    section = models.ForeignKey(
-        ListeningSection,
-        on_delete=models.CASCADE,
-        related_name="groups"
-    )
+    section = models.ForeignKey(ListeningSection, on_delete=models.CASCADE, related_name="groups")
     instruction = models.TextField()
     group_type = models.CharField(max_length=50, choices=GROUP_TYPES)
     order = models.PositiveIntegerField()
-    image = models.ImageField(
-        upload_to="listening/diagrams/",
-        null=True,
-        blank=True
-    )
+
+    image = models.ImageField(upload_to="listening/diagrams/", null=True, blank=True)
 
     class Meta:
         ordering = ["order"]
 
 
-# ❓ QUESTION
 class ListeningQuestion(models.Model):
-    group = models.ForeignKey(
-        ListeningGroup,
-        on_delete=models.CASCADE,
-        related_name="questions"
-    )
+    group = models.ForeignKey(ListeningGroup, on_delete=models.CASCADE, related_name="questions")
     number = models.PositiveIntegerField()
     text = models.TextField(blank=True)
     correct_answer = models.TextField()
@@ -296,19 +216,13 @@ class ListeningQuestion(models.Model):
         ordering = ["number"]
 
 
-# 🔘 OPTIONS (MCQ)
 class ListeningOption(models.Model):
-    question = models.ForeignKey(
-        ListeningQuestion,
-        on_delete=models.CASCADE,
-        related_name="options"
-    )
+    question = models.ForeignKey(ListeningQuestion, on_delete=models.CASCADE, related_name="options")
     label = models.CharField(max_length=5)
     text = models.CharField(max_length=255)
     is_correct = models.BooleanField(default=False)
 
 
-# 🧠 USER TEST
 class UserListeningTest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     test = models.ForeignKey(ListeningTest, on_delete=models.CASCADE)
@@ -317,18 +231,17 @@ class UserListeningTest(models.Model):
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
 
+    mistake_stats = models.TextField(blank=True, null=True)
+    accuracy = models.FloatField(default=0)
+
     class Meta:
         unique_together = ("user", "test")
 
 
-# ✍️ ANSWERS
 class UserListeningAnswer(models.Model):
-    user_test = models.ForeignKey(
-        UserListeningTest,
-        on_delete=models.CASCADE,
-        related_name="answers"
-    )
+    user_test = models.ForeignKey(UserListeningTest, on_delete=models.CASCADE, related_name="answers")
     question = models.ForeignKey(ListeningQuestion, on_delete=models.CASCADE)
+
     answer = models.TextField()
     is_correct = models.BooleanField(default=False)
 
@@ -336,7 +249,26 @@ class UserListeningAnswer(models.Model):
         unique_together = ("user_test", "question")
 
 
-# 📘 WRITING TEST
+class ListeningAIReport(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="listening_ai")
+
+    total_tests = models.IntegerField(default=0)
+    avg_score = models.FloatField(default=0)
+    avg_accuracy = models.FloatField(default=0)
+
+    weak_types = models.JSONField(default=dict)
+    ai_response = models.JSONField(null=True, blank=True)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user.username} Listening AI"
+
+
+# =========================================================
+# ✍️ WRITING MODELS
+# =========================================================
+
 class WritingTest(models.Model):
     title = models.CharField(max_length=255)
     duration_minutes = models.PositiveIntegerField(default=60)
@@ -346,7 +278,6 @@ class WritingTest(models.Model):
         return self.title
 
 
-# 📝 TASK 1
 class WritingTask1(models.Model):
     test = models.OneToOneField(WritingTest, on_delete=models.CASCADE, related_name="task1")
     instruction = models.TextField()
@@ -356,7 +287,6 @@ class WritingTask1(models.Model):
         return f"{self.test.title} - Task 1"
 
 
-# 📝 TASK 2
 class WritingTask2(models.Model):
     test = models.OneToOneField(WritingTest, on_delete=models.CASCADE, related_name="task2")
     question = models.TextField()
@@ -365,7 +295,6 @@ class WritingTask2(models.Model):
         return f"{self.test.title} - Task 2"
 
 
-# 👤 USER ATTEMPT
 class UserWritingTest(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     test = models.ForeignKey(WritingTest, on_delete=models.CASCADE)
@@ -380,7 +309,6 @@ class UserWritingTest(models.Model):
         unique_together = ("user", "test")
 
 
-# 📊 RESULT (AI / TEACHER)
 class WritingResult(models.Model):
     STATUS_CHOICES = (
         ("submitted", "Submitted"),
@@ -389,29 +317,26 @@ class WritingResult(models.Model):
 
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     test = models.ForeignKey(WritingTest, on_delete=models.CASCADE, related_name="results")
-
     user_test = models.OneToOneField(UserWritingTest, on_delete=models.CASCADE, related_name="result")
 
     submitted_at = models.DateTimeField(auto_now_add=True)
 
-    # TASK 1
     task1_task = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     task1_coherence = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     task1_lexical = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     task1_grammar = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
 
-    # TASK 2
     task2_task = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     task2_coherence = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     task2_lexical = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     task2_grammar = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
 
-    # FINAL
     task1_band = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     task2_band = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     final_band = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
 
     feedback = models.TextField(null=True, blank=True)
+    advanced = models.TextField(blank=True, null=True)
 
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="submitted")
 
@@ -419,63 +344,15 @@ class WritingResult(models.Model):
         return f"{self.user.username} - {self.test.title}"
 
 
-class Subscription(models.Model):
-    PLAN_CHOICES = [
-        ("FREE", "Free"),
-        ("BASIC", "Basic"),
-        ("PRO", "Pro"),
-        ("PREMIUM", "Premium"),
-    ]
-
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default="FREE")
-
-    start_date = models.DateTimeField(auto_now_add=True)
-    end_date = models.DateTimeField(null=True, blank=True)
-
-    is_active = models.BooleanField(default=True)
-
-    # usage tracking
-    requests_used = models.IntegerField(default=0)
-    tokens_used = models.IntegerField(default=0)
-
-    # reset tracking
-    last_reset = models.DateTimeField(auto_now_add=True)
-
-    # 🔹 check expiration
-    def is_expired(self):
-        if self.plan == "FREE":
-            return False
-        return self.end_date and timezone.now() > self.end_date
-
-    # 🔹 reset usage every 30 days
-    def reset_usage_if_needed(self):
-        now = timezone.now()
-
-        if (now - self.last_reset).days >= 30:
-            self.requests_used = 0
-            self.tokens_used = 0
-            self.last_reset = now
-            self.save()
-
-    def __str__(self):
-        return f"{self.user.username} - {self.plan}"
-
-class HomePageContent(models.Model):
-    title = models.CharField(max_length=255, default="Boost your IELTS score 🚀")
-    subtitle = models.TextField(blank=True)
-    image = models.ImageField(upload_to="home/", null=True, blank=True)
-
-    is_active = models.BooleanField(default=True)
-
-    def __str__(self):
-        return "Homepage Content"
+# =========================================================
+# 🎤 SPEAKING MODELS
+# =========================================================
 
 class SpeakingTest(models.Model):
     title = models.CharField(max_length=255)
     duration_minutes = models.PositiveIntegerField(default=30)
     created_at = models.DateTimeField(auto_now_add=True)
+
 
 class SpeakingQuestion(models.Model):
     PART_CHOICES = (
@@ -484,12 +361,10 @@ class SpeakingQuestion(models.Model):
         (3, 'Part 3'),
     )
 
-    test = models.ForeignKey('SpeakingTest', on_delete=models.CASCADE, related_name="questions")
+    test = models.ForeignKey(SpeakingTest, on_delete=models.CASCADE, related_name="questions")
     part = models.IntegerField(choices=PART_CHOICES)
-
     question_text = models.TextField()
 
-    # Only for Part 2 (cue card)
     cue_points = models.TextField(blank=True, null=True)
     prep_time = models.IntegerField(blank=True, null=True)
     speak_time = models.IntegerField(blank=True, null=True)
@@ -497,12 +372,8 @@ class SpeakingQuestion(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def clean(self):
-        if self.part == 2:
-            if not self.cue_points:
-                raise ValidationError("Part 2 must have cue points")
-        else:
-            if self.cue_points or self.prep_time or self.speak_time:
-                raise ValidationError("Only Part 2 can have cue/timing fields")
+        if self.part == 2 and not self.cue_points:
+            raise ValidationError("Part 2 must have cue points")
 
     def save(self, *args, **kwargs):
         if self.part == 2:
@@ -515,22 +386,20 @@ class SpeakingQuestion(models.Model):
     def __str__(self):
         return f"Part {self.part}: {self.question_text[:50]}"
 
+
 class UserSpeakingTest(models.Model):
-    user = models.ForeignKey('auth.User', on_delete=models.CASCADE)
+    user = models.ForeignKey(User, on_delete=models.CASCADE)
     test = models.ForeignKey(SpeakingTest, on_delete=models.CASCADE)
 
     started_at = models.DateTimeField(auto_now_add=True)
     completed_at = models.DateTimeField(null=True, blank=True)
-
-    def __str__(self):
-        return f"{self.user} - {self.test}"
 
 
 class SpeakingAttempt(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
 
     test = models.ForeignKey(SpeakingTest, on_delete=models.CASCADE)
-    question = models.ForeignKey(SpeakingQuestion, on_delete=models.CASCADE)  # ✅ ADD THIS
+    question = models.ForeignKey(SpeakingQuestion, on_delete=models.CASCADE)
 
     audio = models.FileField(upload_to='speaking/')
     transcript = models.TextField(blank=True)
@@ -544,3 +413,68 @@ class SpeakingAttempt(models.Model):
     feedback = models.TextField(blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+
+# =========================================================
+# 💳 SUBSCRIPTION MODEL
+# =========================================================
+
+class Subscription(models.Model):
+    PLAN_CHOICES = [
+        ("FREE", "Free"),
+        ("STANDARD", "Standard"),
+        ("PRO", "Pro"),
+    ]
+
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default="FREE")
+
+    start_date = models.DateTimeField(null=True, blank=True)
+    end_date = models.DateTimeField(null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+
+    ai_used_today = models.IntegerField(default=0)
+    tests_used_today = models.IntegerField(default=0)
+
+    last_reset = models.DateField(auto_now_add=True)
+
+    def is_expired(self):
+        if self.plan == "FREE":
+            return False
+        return self.end_date and timezone.now() > self.end_date
+
+    def reset_daily_usage(self):
+        today = timezone.now().date()
+
+        if self.last_reset != today:
+            self.ai_used_today = 0
+            self.tests_used_today = 0
+            self.last_reset = today
+            self.save()
+
+    def get_limits(self):
+        return {
+            "FREE": {"ai": 1, "tests": 2},
+            "STANDARD": {"ai": 5, "tests": 10},
+            "PRO": {"ai": 100, "tests": 100},
+        }.get(self.plan, {"ai": 0, "tests": 0})
+
+    def __str__(self):
+        return f"{self.user.username} - {self.plan}"
+
+
+# =========================================================
+# 🏠 HOME PAGE
+# =========================================================
+
+class HomePageContent(models.Model):
+    title = models.CharField(max_length=255, default="Boost your IELTS score 🚀")
+    subtitle = models.TextField(blank=True)
+    image = models.ImageField(upload_to="home/", null=True, blank=True)
+
+    is_active = models.BooleanField(default=True)
+
+    def __str__(self):
+        return "Homepage Content"

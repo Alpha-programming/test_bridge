@@ -3,7 +3,54 @@
 
 {% block content %}
 
+<style>
+.ai-btn{
+    padding:12px 22px;
+    font-weight:800;
+    border-radius:12px;
+    border:2px solid #2563eb;
+    background:linear-gradient(135deg,#2563eb,#1d4ed8);
+    color:#fff;
+    transition:0.3s;
+}
+.ai-btn:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 25px rgba(37,99,235,0.3);
+}
+.ai-btn.loading{
+    background:#9ca3af;
+    border-color:#9ca3af;
+}
+
+.stat-box h3{
+    font-weight:900;
+    margin-bottom:5px;
+}
+
+.weak-tag{
+    display:inline-block;
+    padding:6px 10px;
+    background:#fee2e2;
+    color:#991b1b;
+    border-radius:8px;
+    margin:4px;
+    font-size:13px;
+}
+
+.ai-preview{
+    background:linear-gradient(135deg,#eef2ff,#f8fafc);
+    border-left:4px solid #2563eb;
+}
+</style>
+
 <div class="container mt-4">
+
+    <div class="card-custom p-3 mb-3 text-center">
+
+        <p>🧠 AI Used Today: {{ subscription.ai_used_today }}</p>
+        <p>📝 Tests Used Today: {{ subscription.tests_used_today }}</p>
+
+    </div>
 
     <!-- 🔍 SEARCH -->
     <form method="GET" class="mb-4 d-flex justify-content-center">
@@ -27,20 +74,23 @@
 
     <div class="row">
         {% for test in page_obj %}
-            <div class="col-md-4 mb-4">
-                <div class="card-custom p-3 h-100 d-flex flex-column justify-content-between test-card">
+        <div class="col-md-4 mb-4">
+            <div class="card-custom p-3 h-100 d-flex flex-column justify-content-between">
 
-                    <div>
-                        <h5 class="mb-2">{{ test.title }}</h5>
-                        <small class="text-muted">Audio • 40 Questions</small>
-                    </div>
-
+                <div>
+                    <h5>{{ test.title }}</h5>
+                    <small class="text-muted">Audio • 40 Questions</small>
+                </div>
+                {% if subscription.tests_used_today >= 2 and subscription.plan == "FREE" %}
+                    <button class="main-btn" disabled>Limit Reached</button>
+                {% else %}
                     <a href="{% url 'ielts:listening_start' test.id %}" class="main-btn mt-3 text-center">
                         Start Listening
                     </a>
+                {% endif %}
 
-                </div>
             </div>
+        </div>
         {% empty %}
             <p>No listening tests found</p>
         {% endfor %}
@@ -68,28 +118,25 @@
 
     <div class="card-custom p-4">
 
-        <div class="d-flex justify-content-between align-items-center mb-3">
-            <h5>Your Recent Listening Results</h5>
-            <a href="#" class="main-btn">View All</a>
-        </div>
+        <h5>Your Recent Listening Results</h5>
 
         {% for ut in user_tests %}
-            <div class="d-flex justify-content-between align-items-center mb-3">
+        <div class="d-flex justify-content-between align-items-center mb-3">
 
-                <div>
-                    <strong>{{ ut.test.title }}</strong><br>
-                    <small class="text-muted">Band {{ ut.band }}</small>
-                </div>
-
-                <div class="d-flex align-items-center gap-2">
-                    <span class="badge bg-info">Band {{ ut.band }}</span>
-
-                    <a href="{% url 'ielts:listening_result' ut.id %}" class="main-btn">
-                        View
-                    </a>
-                </div>
-
+            <div>
+                <strong>{{ ut.test.title }}</strong><br>
+                <small class="text-muted">Band {{ ut.band }}</small>
             </div>
+
+            <div class="d-flex align-items-center gap-2">
+                <span class="badge bg-info">Band {{ ut.band }}</span>
+
+                <a href="{% url 'ielts:listening_result' ut.id %}" class="main-btn">
+                    View
+                </a>
+            </div>
+
+        </div>
         {% empty %}
             <p>No attempts yet</p>
         {% endfor %}
@@ -97,11 +144,108 @@
     </div>
 
     <!-- 📈 PROGRESS -->
-    <hr class="my-5">
-
-    <div class="card-custom p-4">
-        <h5 class="mb-3">Your Listening Progress</h5>
+    <div class="card-custom mt-4 p-4">
+        <h5>Your Listening Progress</h5>
         <canvas id="scoreChart" height="100"></canvas>
+    </div>
+
+    <!-- 📊 ANALYTICS -->
+    <div class="card-custom p-4 mt-4">
+
+        <h5 class="mb-3">📊 Your Listening Stats</h5>
+
+        <div class="row text-center">
+
+            <div class="col-md-4 stat-box">
+                <h3>{{ total_tests }}</h3>
+                <small>Total Tests</small>
+            </div>
+
+            <div class="col-md-4 stat-box">
+                <h3>{{ avg_score }}</h3>
+                <small>Average Score</small>
+            </div>
+
+            <div class="col-md-4 stat-box">
+                <h3>{{ avg_accuracy }}%</h3>
+                <small>Accuracy</small>
+            </div>
+
+        </div>
+
+        <hr>
+
+        <h6>⚠️ Weak Areas</h6>
+
+        <div>
+        {% for k,v in weak_types.items %}
+            <span class="weak-tag">{{ k }} ({{ v }})</span>
+        {% empty %}
+            <p>No data yet</p>
+        {% endfor %}
+        </div>
+
+    </div>
+
+    <!-- 🤖 AI PREVIEW -->
+    {% if ai_preview %}
+    <div class="card-custom p-4 mt-4 ai-preview">
+
+        <div class="d-flex justify-content-between align-items-center">
+            <h5>🤖 Your Listening Coach</h5>
+            <button onclick="toggleAI()" class="btn btn-sm btn-outline-primary">
+                Show Details
+            </button>
+        </div>
+
+        <p><b>Level:</b> {{ ai_preview.level }}</p>
+
+        <div id="aiDetails" style="display:none; margin-top:15px;">
+
+            <h6>✅ Strengths</h6>
+            <ul>
+                {% for s in ai_preview.strengths %}
+                <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+
+            <h6>⚠️ Weaknesses</h6>
+            <ul>
+                {% for w in ai_preview.weaknesses %}
+                <li>{{ w }}</li>
+                {% endfor %}
+            </ul>
+
+            <h6>📈 Strategy</h6>
+            <ul>
+                {% for s in ai_preview.strategy %}
+                <li>{{ s }}</li>
+                {% endfor %}
+            </ul>
+
+            <h6>🎯 Focus Plan</h6>
+            <ul>
+                {% for f in ai_preview.focus_plan %}
+                <li>{{ f }}</li>
+                {% endfor %}
+            </ul>
+
+            <p><b>🔥 Motivation:</b> {{ ai_preview.motivation }}</p>
+
+        </div>
+
+    </div>
+    {% endif %}
+
+    <!-- 🧠 AI BUTTON -->
+    <div class="text-center mb-4">
+        {% if subscription.ai_used_today >= 1 and subscription.plan == "FREE" %}
+            <button class="ai-btn loading" disabled>No AI Left</button>
+        {% else %}
+            <button id="aiBtn" onclick="getAIReport()" class="ai-btn">
+                🧠 Get Full AI Listening Report
+            </button>
+        {% endif %}
     </div>
 
 </div>
@@ -110,54 +254,51 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
-    const ctx = document.getElementById("scoreChart");
+const ctx = document.getElementById("scoreChart");
 
-    if (ctx) {
-        const data = JSON.parse('{{ progress_data|safe }}');
+if (ctx) {
+    const data = JSON.parse('{{ progress_data|safe }}');
 
-        new Chart(ctx, {
-            type: "line",
-            data: {
-                labels: data.map((_, i) => `Test ${i + 1}`),
-                datasets: [{
-                    label: "Band Score",
-                    data: data,
-                    borderColor: "#c8102e",
-                    backgroundColor: "rgba(200,16,46,0.1)",
-                    fill: true,
-                    tension: 0.4,
-                    pointRadius: 4,
-                    pointBackgroundColor: "#c8102e",
-                    pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                plugins: {
-                    legend: {
-                        labels: {
-                            color: "#1e293b"
-                        }
-                    }
-                },
-                scales: {
-                    x: {
-                        ticks: { color: "#64748b" },
-                        grid: { color: "rgba(0,0,0,0.05)" }
-                    },
-                    y: {
-                        min: 0,
-                        max: 9,
-                        ticks: {
-                            stepSize: 1,
-                            color: "#64748b"
-                        },
-                        grid: { color: "rgba(0,0,0,0.05)" }
-                    }
-                }
+    new Chart(ctx, {
+        type: "line",
+        data: {
+            labels: data.map((_, i) => `Test ${i + 1}`),
+            datasets: [{
+                label: "Band Score",
+                data: data,
+                borderColor: "#c8102e",
+                backgroundColor: "rgba(200,16,46,0.1)",
+                fill: true,
+                tension: 0.4,
+                pointRadius: 4
+            }]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                y: { min: 0, max: 9 }
             }
-        });
-    }
+        }
+    });
+}
+
+// 🔥 AI BUTTON
+function getAIReport(){
+    const btn = document.getElementById("aiBtn");
+
+    btn.innerText = "⏳ Generating...";
+    btn.classList.add("loading");
+    btn.disabled = true;
+
+    window.location.href = "{% url 'ielts:listening_overall_ai' %}?refresh=1";
+}
+
+// 🔥 TOGGLE
+function toggleAI(){
+    const box = document.getElementById("aiDetails");
+
+    box.style.display = box.style.display === "none" ? "block" : "none";
+}
 </script>
 
 {% endblock %}

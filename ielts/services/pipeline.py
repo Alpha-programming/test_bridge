@@ -1,5 +1,5 @@
 from .speech import transcribe_audio
-from .evaluation import evaluate_speaking
+from .evaluation import evaluate_full_speaking
 import json
 
 def combine_scores(data, pronunciation_score):
@@ -21,7 +21,7 @@ def process_speaking(attempt):
     transcript = transcribe_audio(file_path)
 
     # 2. GPT
-    data = evaluate_speaking(transcript)
+    data = evaluate_full_speaking(transcript)
 
     # 3. PRONUNCIATION (temporary logic)
     pronunciation_score = 6.5

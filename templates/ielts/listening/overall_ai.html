@@ -1,0 +1,170 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>Listening AI Report</title>
+
+<style>
+body{
+  font-family:Arial;
+  background:#f5f7fb;
+}
+
+.wrap{
+  max-width:900px;
+  margin:auto;
+  padding:20px;
+}
+
+.card{
+  background:#fff;
+  padding:20px;
+  border-radius:12px;
+  margin-top:15px;
+  box-shadow:0 5px 20px rgba(0,0,0,0.05);
+}
+
+h2,h3,h4{
+  margin-bottom:10px;
+}
+
+/* 🔥 HEADER */
+.header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+}
+
+/* 🔘 BUTTONS */
+.btn{
+  padding:10px 14px;
+  border-radius:10px;
+  text-decoration:none;
+  font-weight:700;
+  display:inline-block;
+}
+
+.primary{
+  background:#2563eb;
+  color:#fff;
+}
+
+.secondary{
+  background:#e5e7eb;
+  color:#111;
+}
+
+/* 📌 STICKY HEADER */
+.actions{
+  position:sticky;
+  top:0;
+  background:#f5f7fb;
+  padding-bottom:10px;
+  z-index:10;
+}
+
+/* 🔥 LIST */
+ul{
+  padding-left:18px;
+}
+
+li{
+  margin-bottom:6px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="wrap">
+
+<!-- 🔝 HEADER -->
+<div class="actions">
+  <div class="header">
+
+    <h2>🎧 Listening AI Report</h2>
+
+    <div>
+      <a href="{% url 'ielts:listening' %}" class="btn secondary">⬅ Back</a>
+      <a href="{% url 'ielts:home' %}" class="btn primary">🏠 Home</a>
+    </div>
+
+  </div>
+</div>
+
+<!-- 📊 STATS -->
+<div class="card">
+  <h3>📊 Your Stats</h3>
+
+  <p><b>Total Tests:</b> {{ profile.total_tests }}</p>
+  <p><b>Average Score:</b> {{ profile.avg_score }}</p>
+  <p><b>Accuracy:</b> {{ profile.avg_accuracy }}%</p>
+</div>
+
+<!-- ⚠️ WEAK AREAS -->
+<div class="card">
+  <h3>⚠️ Weak Areas</h3>
+
+  <ul>
+  {% for k,v in profile.weak_types.items %}
+    <li><b>{{ k }}</b> → {{ v }} mistakes</li>
+  {% empty %}
+    <li>No mistakes 🎉</li>
+  {% endfor %}
+  </ul>
+</div>
+
+<!-- 🤖 AI COACH -->
+<div class="card">
+
+  <h3>🤖 AI Coach</h3>
+
+  <p><b>Estimated Level:</b> {{ ai.level }}</p>
+
+  <h4>✅ Strengths</h4>
+  <ul>
+    {% for s in ai.strengths %}
+      <li>{{ s }}</li>
+    {% empty %}
+      <li>No data</li>
+    {% endfor %}
+  </ul>
+
+  <h4>⚠️ Weaknesses</h4>
+  <ul>
+    {% for w in ai.weaknesses %}
+      <li>{{ w }}</li>
+    {% empty %}
+      <li>No data</li>
+    {% endfor %}
+  </ul>
+
+  <h4>📈 Strategy</h4>
+  <ul>
+    {% for s in ai.strategy %}
+      <li>{{ s }}</li>
+    {% empty %}
+      <li>No suggestions</li>
+    {% endfor %}
+  </ul>
+
+  <h4>🎯 Focus Plan</h4>
+  <ul>
+    {% for f in ai.focus_plan %}
+      <li>{{ f }}</li>
+    {% empty %}
+      <li>No plan available</li>
+    {% endfor %}
+  </ul>
+
+  <p><b>🔥 Motivation:</b> {{ ai.motivation }}</p>
+
+</div>
+
+</div>
+
+</body>
+</html>

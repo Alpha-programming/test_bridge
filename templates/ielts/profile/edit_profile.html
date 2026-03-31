@@ -1,0 +1,50 @@
+{% extends "ielts/ielts.html" %}
+
+{% block content %}
+
+<div class="container mt-5" style="max-width:600px;">
+
+    <div class="card-custom p-4">
+
+        <h4 class="mb-3">✏️ Edit Profile</h4>
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="mb-3">
+                <label>Username</label>
+                {{ form.username }}
+            </div>
+
+            <div class="mb-3">
+                <label>First Name</label>
+                {{ form.first_name }}
+            </div>
+
+            <div class="mb-3">
+                <label>Last Name</label>
+                {{ form.last_name }}
+            </div>
+
+            <div class="mb-3">
+                <label>Email</label>
+                {{ form.email }}
+            </div>
+
+            <button class="btn btn-primary w-100">
+                💾 Save Changes
+            </button>
+
+        </form>
+
+        <hr>
+
+        <a href="{% url 'ielts:password_change' %}" class="btn btn-outline-secondary w-100">
+            🔐 Change Password
+        </a>
+
+    </div>
+
+</div>
+
+{% endblock %}

@@ -3,73 +3,49 @@ import json
 
 client = OpenAI()
 
-def evaluate_speaking(transcript):
-    response = client.chat.completions.create(
-        model="gpt-5",
-        messages=[
-            {
-                "role": "system",
-                "content": "You are a strict IELTS speaking examiner."
-            },
-            {
-                "role": "user",
-                "content": f"""
-Evaluate this IELTS Speaking answer.
-
-Transcript:
-{transcript}
-
-Return ONLY JSON:
-
-{{
-  "fluency": number (0-9),
-  "lexical": number (0-9),
-  "grammar": number (0-9),
-  "overall": number (0-9),
-  "feedback": {{
-    "fluency": "...",
-    "lexical": "...",
-    "grammar": "...",
-    "improvements": ["...", "..."]
-  }}
-}}
-"""
-            }
-        ]
-    )
-
-    return json.loads(response.choices[0].message.content)
-
 def evaluate_full_speaking(text):
     response = client.chat.completions.create(
-        model="gpt-5",
+        model="gpt-4o-mini",
         messages=[
             {
                 "role": "system",
-                "content": "You are an IELTS speaking examiner."
+                "content": "You are an IELTS speaking examiner. Return ONLY valid JSON."
             },
             {
                 "role": "user",
                 "content": f"""
-Evaluate full IELTS speaking test:
+Evaluate IELTS Speaking test.
 
 {text}
 
-Return JSON:
+Return ONLY JSON:
+
 {{
  "fluency": 0-9,
  "lexical": 0-9,
  "grammar": 0-9,
  "pronunciation": 0-9,
- "overall": 0-9,
+
  "feedback": {{
-    "summary": "...",
-    "improvements": []
+    "fluency": "short feedback",
+    "lexical": "short feedback",
+    "grammar": "short feedback",
+    "pronunciation": "short feedback",
+    "summary": "overall summary",
+    "improvements": ["point1","point2","point3"]
  }}
 }}
 """
             }
-        ]
+        ],
+        max_tokens=700
     )
 
-    return json.loads(response.choices[0].message.content)
+    content = response.choices[0].message.content.strip()
+
+    # 🔥 CLEAN JSON
+    content = content.replace("```json", "").replace("```", "")
+
+    print("🔥 SPEAKING RAW:", content)
+
+    return json.loads(content)

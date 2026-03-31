@@ -1,0 +1,74 @@
+{% extends "ielts/ielts.html" %}
+
+{% block content %}
+
+<div class="container mt-5">
+
+<h2 class="text-center mb-5">💳 Choose Your Plan</h2>
+
+<div class="row">
+
+<!-- FREE -->
+<div class="col-md-4">
+<div class="card p-4 text-center">
+
+<h4>Free</h4>
+<h2>$0</h2>
+
+<p>2 tests/day</p>
+<p>1 AI/day</p>
+
+{% if subscription.plan == "FREE" %}
+<button class="btn btn-secondary">Current Plan</button>
+{% endif %}
+
+</div>
+</div>
+
+<!-- STANDARD -->
+<div class="col-md-4">
+<div class="card p-4 text-center border-primary">
+
+<h4>Standard</h4>
+<h2>$2.99</h2>
+
+<p>10 tests/day</p>
+<p>5 AI/day</p>
+
+{% if subscription.plan == "STANDARD" %}
+<button class="btn btn-secondary">Current</button>
+{% else %}
+<a href="{% url 'ielts:upgrade_plan' 'STANDARD' %}" class="btn btn-primary">
+Upgrade
+</a>
+{% endif %}
+
+</div>
+</div>
+
+<!-- PRO -->
+<div class="col-md-4">
+<div class="card p-4 text-center border-success">
+
+<h4>Pro</h4>
+<h2>$6.99</h2>
+
+<p>Unlimited tests</p>
+<p>Unlimited AI</p>
+
+{% if subscription.plan == "PRO" %}
+<button class="btn btn-secondary">Current</button>
+{% else %}
+<a href="{% url 'ielts:upgrade_plan' 'PRO' %}" class="btn btn-success">
+Go Pro
+</a>
+{% endif %}
+
+</div>
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

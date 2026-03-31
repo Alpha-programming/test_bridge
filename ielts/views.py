@@ -3,12 +3,12 @@ from django.contrib.auth.decorators import login_required
 from .models import (ReadingTest,UserReadingTest,Question,UserAnswer,
                      ListeningTest,UserListeningTest,UserListeningAnswer,ListeningQuestion,
                      WritingTest,UserWritingTest,WritingResult,HomePageContent,
-                     SpeakingTest,SpeakingAttempt,SpeakingQuestion,UserSpeakingTest)
+                     SpeakingTest,SpeakingAttempt,SpeakingQuestion,UserSpeakingTest,
+                     ReadingAIReport,ListeningAIReport,Subscription)
 from django.db.models import Q
 from django.http import JsonResponse
 from django.utils import timezone
 import json
-from .services.subscription import can_use_ai, increment_usage
 from .services.ai_selector import get_model_for_user
 from .services.ai_writing import evaluate_with_retry
 from django.core.paginator import Paginator
@@ -16,8 +16,27 @@ import re
 from .services.pipeline import process_speaking
 from .services.evaluation import evaluate_full_speaking
 from .services.speech import transcribe_audio
+from .services.reading_analytics import build_user_reading_profile
+from .services.ai_reading_overall import analyze_overall
+from datetime import timedelta
+from .services.listening_analytics import build_user_listening_profile
+from .services.ai_listening_overall import analyze_listening
+from django.db.models import Avg
+from .forms import ProfileForm
+from .services.subscription import (
+    can_use_ai,
+    can_start_test,
+    increment_ai,
+    increment_test,
+    prepare_subscription,
+    activate_plan
+)
+from django.http import HttpResponse
 
 LISTENING_REVIEW_SECONDS = 120
+
+def round_band(score):
+    return round(score * 2) / 2
 
 @login_required
 def home(request):
@@ -64,6 +83,30 @@ def check_answer(correct, user):
 
     return False
 
+def calculate_task_band(scores):
+    values = [
+        scores.get("task", 0),
+        scores.get("coherence", 0),
+        scores.get("lexical", 0),
+        scores.get("grammar", 0),
+    ]
+
+    avg = sum(values) / 4
+
+    # 🔥 FRIENDLIER ROUNDING (not too strict)
+    return round(avg * 2) / 2
+
+def calculate_final_band(t1, t2):
+    if not t1 or not t2:
+        return None
+
+    final = (t1 + (t2 * 2)) / 3
+
+    # friendly rounding
+    return round(final * 2) / 2
+
+from collections import Counter
+
 @login_required
 def reading_home(request):
     query = request.GET.get("q")
@@ -75,21 +118,20 @@ def reading_home(request):
 
     tests = tests.order_by("-created_at")
 
-    # ✅ PAGINATION (6 per page)
     paginator = Paginator(tests, 6)
     page_number = request.GET.get("page")
     page_obj = paginator.get_page(page_number)
 
-    # ✅ LAST 10 RESULTS
     user_tests = UserReadingTest.objects.filter(
         user=request.user,
         completed_at__isnull=False
     ).order_by("-completed_at")[:10]
 
-    # add band
+    # bands
     for ut in user_tests:
         ut.band = calculate_band(ut.score)
 
+    # 📊 PROGRESS
     progress_data = list(
         UserReadingTest.objects.filter(
             user=request.user,
@@ -99,15 +141,68 @@ def reading_home(request):
 
     progress_data = [calculate_band(s) for s in progress_data]
 
+    # 🔥 ANALYTICS (NO AI)
+    all_tests = UserReadingTest.objects.filter(
+        user=request.user,
+        completed_at__isnull=False
+    )
+
+    total_tests = all_tests.count()
+
+    avg_score = 0
+    avg_accuracy = 0
+    mistake_counter = Counter()
+
+    ai_preview = None
+
+    try:
+        report = ReadingAIReport.objects.get(user=request.user)
+        ai_preview = report.ai_response
+    except:
+        ai_preview = None
+
+    if total_tests > 0:
+        total_score = sum([t.score for t in all_tests if t.score])
+        avg_score = round(total_score / total_tests, 1)
+
+        total_accuracy = sum([t.accuracy for t in all_tests])
+        avg_accuracy = round(total_accuracy / total_tests, 1)
+
+        for t in all_tests:
+            if t.mistake_stats:
+                try:
+                    data = json.loads(t.mistake_stats)
+                    mistake_counter.update(data)
+                except:
+                    pass
+
+    sub = prepare_subscription(request.user)
+
     return render(request, "ielts/reading/reading_home.html", {
         "page_obj": page_obj,
         "user_tests": user_tests,
         "query": query,
-        "progress_data": json.dumps(progress_data)
+        "progress_data": json.dumps(progress_data),
+
+        # 🔥 analytics
+        "total_tests": total_tests,
+        "avg_score": avg_score,
+        "avg_accuracy": avg_accuracy,
+        "weak_types": dict(mistake_counter.most_common(3)),
+        "ai_preview": ai_preview,
+        "subscription": sub,
     })
 
 @login_required
 def start_test(request, test_id):
+
+    # 🔒 LIMIT CHECK
+    allowed, msg = can_start_test(request.user)
+    if not allowed:
+        return HttpResponse(msg)
+
+    increment_test(request.user)
+
     test = get_object_or_404(ReadingTest, id=test_id)
 
     user_test, created = UserReadingTest.objects.get_or_create(
@@ -115,14 +210,12 @@ def start_test(request, test_id):
         test=test,
     )
 
-    # 🔥 ALWAYS RESET START TIME
     user_test.started_at = timezone.now()
     user_test.completed_at = None
     user_test.score = 0
     user_test.answers_json = {}
     user_test.save()
 
-    # ❗ delete old answers
     user_test.answers.all().delete()
 
     return redirect("ielts:reading_solve", user_test.id)
@@ -177,6 +270,24 @@ def submit_test(request, user_test_id):
     answers = user_test.answers.all()
 
     score = answers.filter(is_correct=True).count()
+
+    from collections import Counter
+    import json
+
+    total = answers.count()
+    correct = score
+
+    mistakes = []
+
+    for ans in answers:
+        if not ans.is_correct:
+            mistakes.append(ans.question.group.group_type)
+
+    mistake_stats = Counter(mistakes)
+
+    # save data
+    user_test.mistake_stats = json.dumps(mistake_stats)
+    user_test.accuracy = round((correct / total) * 100, 1) if total else 0
 
     # JSON snapshot
     data = {}
@@ -245,6 +356,64 @@ def result_view(request, user_test_id):
         "right_rows": right_rows
     })
 
+
+@login_required
+def reading_overall_ai(request):
+    # 🔒 AI LIMIT
+    allowed, msg = can_use_ai(request.user)
+    if not allowed:
+        return HttpResponse(msg)
+
+    increment_ai(request.user)
+
+    tests = UserReadingTest.objects.filter(
+        user=request.user,
+        completed_at__isnull=False
+    )
+
+    profile = build_user_reading_profile(tests)
+
+    if not profile:
+        return render(request, "ielts/reading/overall_ai.html", {
+            "profile": {},
+            "ai": {}
+        })
+
+    # 🔥 CHECK FORCE REFRESH (from button)
+    force = request.GET.get("refresh") == "1"
+
+    # 🔥 GET OR CREATE REPORT
+    report, _ = ReadingAIReport.objects.get_or_create(user=request.user)
+
+    # 🔥 SMART CACHE LOGIC
+    need_update = (
+        force or  # 🔥 user clicked button
+        not report.ai_response or
+        report.updated_at < timezone.now() - timedelta(hours=12)
+    )
+
+    if need_update:
+        try:
+            ai = analyze_overall(profile)
+
+            # ✅ UPDATE REPORT
+            report.total_tests = profile.get("total_tests", 0)
+            report.avg_score = profile.get("avg_score", 0)
+            report.avg_accuracy = profile.get("avg_accuracy", 0)
+            report.weak_types = profile.get("weak_types", {})
+
+            report.ai_response = ai
+            report.updated_at = timezone.now()
+            report.save()
+
+        except Exception as e:
+            print("AI ERROR:", e)
+
+    return render(request, "ielts/reading/overall_ai.html", {
+        "profile": report,
+        "ai": report.ai_response
+    })
+
 @login_required
 def listening_home(request):
     query = request.GET.get("q")
@@ -281,15 +450,98 @@ def listening_home(request):
 
     progress_data = [calculate_band(s) for s in progress_data]
 
+    all_tests = UserListeningTest.objects.filter(
+        user=request.user,
+        completed_at__isnull=False
+    )
+
+    profile = build_user_listening_profile(all_tests)
+
+    ai_preview = None
+
+    try:
+        report = ListeningAIReport.objects.get(user=request.user)
+        ai_preview = report.ai_response
+    except:
+        pass
+
+    sub = prepare_subscription(request.user)
+
     return render(request, "ielts/listening/listening_home.html", {
         "page_obj": page_obj,
         "user_tests": user_tests,
         "progress_data": json.dumps(progress_data),
-        "query": query
+        "query": query,
+        "profile": profile,
+        "ai_preview": ai_preview,
+        "total_tests": profile.get("total_tests", 0),
+        "avg_score": profile.get("avg_score", 0),
+        "avg_accuracy": profile.get("avg_accuracy", 0),
+        "weak_types": profile.get("weak_types", {}),
+        "subscription": sub,
+    })
+
+@login_required
+def listening_overall_ai(request):
+    # 🔒 AI LIMIT
+    allowed, msg = can_use_ai(request.user)
+    if not allowed:
+        return HttpResponse(msg)
+
+    increment_ai(request.user)
+
+    tests = UserListeningTest.objects.filter(
+        user=request.user,
+        completed_at__isnull=False
+    )
+
+    profile = build_user_listening_profile(tests)
+
+    if not profile:
+        return render(request, "ielts/listening/overall_ai.html", {
+            "profile": {},
+            "ai": {}
+        })
+
+    force = request.GET.get("refresh") == "1"
+
+    report, _ = ListeningAIReport.objects.get_or_create(user=request.user)
+
+    need_update = (
+        force or
+        not report.ai_response
+    )
+
+    if need_update:
+        try:
+            ai = analyze_listening(profile)
+
+            report.total_tests = profile["total_tests"]
+            report.avg_score = profile["avg_score"]
+            report.avg_accuracy = profile["avg_accuracy"]
+            report.weak_types = profile["weak_types"]
+
+            report.ai_response = ai
+            report.save()
+
+        except:
+            pass
+
+    return render(request, "ielts/listening/overall_ai.html", {
+        "profile": report,
+        "ai": report.ai_response
     })
 
 @login_required
 def start_listening(request, test_id):
+
+    # 🔒 LIMIT CHECK
+    allowed, msg = can_start_test(request.user)
+    if not allowed:
+        return HttpResponse(msg)
+
+    increment_test(request.user)
+
     test = get_object_or_404(ListeningTest, id=test_id)
 
     user_test, _ = UserListeningTest.objects.get_or_create(
@@ -364,8 +616,23 @@ def submit_listening(request, user_test_id):
     answers = user_test.answers.all()
     score = answers.filter(is_correct=True).count()
 
+    total = answers.count()
+
+    mistakes = []
+
+    for ans in answers:
+        if not ans.is_correct:
+            mistakes.append(ans.question.group.group_type)
+
+    mistake_stats = Counter(mistakes)
+
+    # 🔥 SAVE ANALYTICS
     user_test.score = score
     user_test.completed_at = timezone.now()
+
+    user_test.mistake_stats = json.dumps(mistake_stats)
+    user_test.accuracy = round((score / total) * 100, 1) if total else 0
+
     user_test.save()
 
     return redirect("ielts:listening_result", user_test.id)
@@ -443,12 +710,14 @@ def writing_home(request):
 
     # 🔥 FIX HERE
     progress_data = [float(x) for x in progress_data]
+    sub = prepare_subscription(request.user)
 
     return render(request, "ielts/writing/writing_home.html", {
         "page_obj": page_obj,
         "results": results,
         "query": query,
-        "progress_data": json.dumps(progress_data)
+        "progress_data": json.dumps(progress_data),
+        "subscription": sub,
     })
 
 
@@ -511,10 +780,13 @@ def submit_writing(request, user_test_id):
     if not allowed:
         return JsonResponse({"error": message}, status=403)
 
-    # 🎯 SELECT MODEL BASED ON PLAN
-    model = get_model_for_user(request.user)
+    # AFTER SUCCESS
+    increment_ai(request.user)
 
-    if not model:
+    # 🎯 SELECT MODEL BASED ON PLAN
+    config = get_model_for_user(request.user)
+
+    if not config:
         return JsonResponse({"error": "Upgrade your plan to use AI"}, status=403)
 
     result, _ = WritingResult.objects.get_or_create(
@@ -527,7 +799,7 @@ def submit_writing(request, user_test_id):
     data, usage = evaluate_with_retry(
         user_test.task1_answer,
         user_test.task2_answer,
-        model
+        config
     )
 
     # ❌ AI failed
@@ -538,36 +810,36 @@ def submit_writing(request, user_test_id):
 
         return redirect("ielts:writing_result", result.id)
 
-    # ✅ SAVE TASK 1
-    result.task1_task = data["task1"]["task"]
-    result.task1_coherence = data["task1"]["coherence"]
-    result.task1_lexical = data["task1"]["lexical"]
-    result.task1_grammar = data["task1"]["grammar"]
-    result.task1_band = data["task1"]["band"]
+    task1 = data.get("task1", {})
+    task2 = data.get("task2", {})
 
-    # ✅ SAVE TASK 2
-    result.task2_task = data["task2"]["task"]
-    result.task2_coherence = data["task2"]["coherence"]
-    result.task2_lexical = data["task2"]["lexical"]
-    result.task2_grammar = data["task2"]["grammar"]
-    result.task2_band = data["task2"]["band"]
+    # save raw scores
+    result.task1_task = task1.get("task")
+    result.task1_coherence = task1.get("coherence")
+    result.task1_lexical = task1.get("lexical")
+    result.task1_grammar = task1.get("grammar")
 
-    # ✅ FINAL
-    result.final_band = data["final_band"]
-    result.feedback = data["feedback"]
+    result.task2_task = task2.get("task")
+    result.task2_coherence = task2.get("coherence")
+    result.task2_lexical = task2.get("lexical")
+    result.task2_grammar = task2.get("grammar")
+
+    # 🔥 calculate bands yourself
+    result.task1_band = calculate_task_band(task1)
+    result.task2_band = calculate_task_band(task2)
+
+    result.final_band = calculate_final_band(
+        result.task1_band,
+        result.task2_band
+    )
+    result.feedback = json.dumps(data.get("feedback", {}))
+
+    # ADVANCED
+    result.advanced = json.dumps(data.get("advanced", {}))
     result.status = "checked"
 
     result.save()
 
-    # 🔥 TRACK USAGE (TOKENS)
-    if usage:
-        try:
-            increment_usage(
-                request.user,
-                tokens=usage.total_tokens
-            )
-        except:
-            increment_usage(request.user)
 
     # ⏱ mark completed
     user_test.completed_at = timezone.now()
@@ -595,17 +867,41 @@ def writing_result(request, result_id):
             except:
                 feedback = {}
 
-    # safe extract
+    advanced = {}
+
+    if result.advanced:
+        try:
+            advanced = json.loads(result.advanced)
+        except:
+            advanced = {}
+
+
+
     feedback_task1 = feedback.get("task1", "")
     feedback_task2 = feedback.get("task2", "")
     improvements = feedback.get("improvements", [])
+
+    def to_percent(value):
+        if not value:
+            return 0
+        return round((value / 9) * 100)
 
     return render(request, "ielts/writing/result.html", {
         "result": result,
         "user_test": result.user_test,
         "feedback_task1": feedback_task1,
         "feedback_task2": feedback_task2,
-        "improvements": improvements
+        "improvements": improvements,
+        "advanced": advanced,
+        "t1_task_p": to_percent(result.task1_task),
+        "t1_coherence_p": to_percent(result.task1_coherence),
+        "t1_lexical_p": to_percent(result.task1_lexical),
+        "t1_grammar_p": to_percent(result.task1_grammar),
+
+        "t2_task_p": to_percent(result.task2_task),
+        "t2_coherence_p": to_percent(result.task2_coherence),
+        "t2_lexical_p": to_percent(result.task2_lexical),
+        "t2_grammar_p": to_percent(result.task2_grammar),
     })
 
 @login_required
@@ -627,11 +923,13 @@ def speaking_home(request):
         user=request.user,
         completed_at__isnull=False
     ).order_by("-completed_at")[:10]
+    sub = prepare_subscription(request.user)
 
     return render(request, "ielts/speaking/speaking_home.html", {
         "page_obj": page_obj,
         "results": user_tests,
         "query": query,
+        "subscription": sub,
     })
 
 @login_required
@@ -687,6 +985,13 @@ def upload_speaking_answer(request):
 
 @login_required
 def submit_speaking(request, user_test_id):
+    # 🔒 AI LIMIT
+    allowed, msg = can_use_ai(request.user)
+    if not allowed:
+        return HttpResponse(msg)
+
+    increment_ai(request.user)
+
     user_test = get_object_or_404(UserSpeakingTest, id=user_test_id)
 
     attempts = SpeakingAttempt.objects.filter(
@@ -714,8 +1019,20 @@ def submit_speaking(request, user_test_id):
         a.grammar_score = result["grammar"]
         a.vocabulary_score = result["lexical"]
         a.pronunciation_score = result["pronunciation"]
-        a.overall_band = result["overall"]
-        a.feedback = json.dumps(result["feedback"])
+        scores = [
+            result.get("fluency", 0),
+            result.get("grammar", 0),
+            result.get("lexical", 0),
+            result.get("pronunciation", 0),
+        ]
+
+        avg = sum(scores) / 4
+
+        # 🔥 friendly IELTS rounding
+        band = round(avg * 2) / 2
+
+        a.overall_band = band
+        a.feedback = json.dumps(result.get("feedback", {}))
         a.save()
 
     user_test.completed_at = timezone.now()
@@ -733,19 +1050,135 @@ def speaking_result(request, user_test_id):
         question__test=user_test.test
     ).select_related("question").order_by("created_at")
 
-    # ✅ Parse feedback JSON
+    # parse feedback
     for a in attempts:
         try:
             a.feedback_parsed = json.loads(a.feedback)
         except:
             a.feedback_parsed = {}
 
-    # ✅ Average band
-    bands = [a.overall_band for a in attempts if a.overall_band]
-    avg_band = round(sum(bands)/len(bands), 1) if bands else None
+    def avg(lst):
+        return round(sum(lst)/len(lst), 1) if lst else 0
+
+    fluency = [a.fluency_score for a in attempts if a.fluency_score]
+    grammar = [a.grammar_score for a in attempts if a.grammar_score]
+    lexical = [a.vocabulary_score for a in attempts if a.vocabulary_score]
+    pron = [a.pronunciation_score for a in attempts if a.pronunciation_score]
+
+    avg_scores = {
+        "fluency": avg(fluency),
+        "grammar": avg(grammar),
+        "lexical": avg(lexical),
+        "pron": avg(pron),
+    }
+
+    avg_band = round(
+        (avg_scores["fluency"] +
+         avg_scores["grammar"] +
+         avg_scores["lexical"] +
+         avg_scores["pron"]) / 4 * 2
+    ) / 2
+
+    def to_percent(v):
+        return round((v / 9) * 100) if v else 0
 
     return render(request, "ielts/speaking/result.html", {
         "attempts": attempts,
         "test": user_test.test,
-        "avg_band": avg_band
+        "avg_band": avg_band,
+        "avg_scores": avg_scores,
+
+        "fluency_p": to_percent(avg_scores["fluency"]),
+        "grammar_p": to_percent(avg_scores["grammar"]),
+        "lexical_p": to_percent(avg_scores["lexical"]),
+        "pron_p": to_percent(avg_scores["pron"]),
     })
+
+@login_required
+def profile_view(request):
+
+    user = request.user
+
+    # 📊 READING
+    reading_tests = UserReadingTest.objects.filter(
+        user=user,
+        completed_at__isnull=False
+    )
+    reading_scores = [t.score for t in reading_tests if t.score is not None]
+
+    reading_avg_score = round(sum(reading_scores) / len(reading_scores), 1) if reading_scores else 0
+
+    reading_bands = [calculate_band(s) for s in reading_scores]
+    reading_avg_band = round_band(sum(reading_bands) / len(reading_bands)) if reading_bands else 0
+
+    # 🎧 LISTENING
+    listening_tests = UserListeningTest.objects.filter(
+        user=user,
+        completed_at__isnull=False
+    )
+    listening_scores = [t.score for t in listening_tests if t.score is not None]
+
+    listening_avg_score = round(sum(listening_scores) / len(listening_scores), 1) if listening_scores else 0
+
+    listening_bands = [calculate_band(s) for s in listening_scores]
+    listening_avg_band = round_band(sum(listening_bands) / len(listening_bands)) if listening_bands else 0
+
+    # ✍️ WRITING
+    writing = WritingResult.objects.filter(
+        user=user,
+        final_band__isnull=False
+    )
+    writing_avg = writing.aggregate(avg=Avg("final_band"))["avg"] or 0
+
+    # 🎤 SPEAKING
+    speaking = SpeakingAttempt.objects.filter(user=user)
+    speaking_avg = speaking.aggregate(avg=Avg("overall_band"))["avg"] or 0
+
+    # 💳 SUBSCRIPTION
+    sub = Subscription.objects.filter(user=user).first()
+
+    return render(request, "ielts/profile/profile.html", {
+        "reading_avg_score": reading_avg_score,
+        "reading_avg_band": reading_avg_band,
+
+        "listening_avg_score": listening_avg_score,
+        "listening_avg_band": listening_avg_band,
+        "writing_avg": round(writing_avg, 1),
+        "speaking_avg": round(speaking_avg, 1),
+        "subscription": sub
+    })
+
+@login_required
+def edit_profile(request):
+
+    if request.method == "POST":
+        form = ProfileForm(request.POST, instance=request.user)
+
+        if form.is_valid():
+            form.save()
+            return redirect("ielts:profile")
+
+    else:
+        form = ProfileForm(instance=request.user)
+
+    return render(request, "ielts/profile/edit_profile.html", {
+        "form": form
+    })
+
+@login_required
+def pricing_view(request):
+    sub = prepare_subscription(request.user)
+
+    return render(request, "ielts/payment/pricing.html", {
+        "subscription": sub
+    })
+
+@login_required
+def upgrade_plan(request, plan):
+
+    if plan not in ["STANDARD", "PRO"]:
+        return redirect("ielts:pricing")
+
+    activate_plan(request.user, plan)
+
+    return redirect("ielts:profile")
