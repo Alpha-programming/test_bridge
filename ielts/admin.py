@@ -196,23 +196,6 @@ class SpeakingAttemptAdmin(admin.ModelAdmin):
     list_display = ["user", "test", "overall_band"]
 
 
-# =========================================================
-# 💳 SUBSCRIPTION ADMIN
-# =========================================================
-
-class SubscriptionAdmin(admin.ModelAdmin):
-    list_display = (
-        "user",
-        "plan",
-        "is_active",
-        "ai_used_today",
-        "tests_used_today",
-        "start_date",
-        "end_date",
-    )
-
-admin.site.register(Subscription, SubscriptionAdmin)
-
 
 # =========================================================
 # 🏠 HOME PAGE
@@ -221,3 +204,48 @@ admin.site.register(Subscription, SubscriptionAdmin)
 @admin.register(HomePageContent)
 class HomePageContentAdmin(admin.ModelAdmin):
     list_display = ["title", "is_active"]
+
+
+from django.contrib import admin
+from .models import Resource
+
+
+@admin.register(Resource)
+class ResourceAdmin(admin.ModelAdmin):
+
+    list_display = (
+        "title",
+        "type",
+        "author",
+        "source",
+        "year",
+        "preview_image",
+    )
+
+    list_filter = ("type", "year")
+
+    search_fields = ("title", "author", "source")
+
+    ordering = ("-year",)
+
+    readonly_fields = ("preview_image",)
+
+    fieldsets = (
+        ("📚 Basic Info", {
+            "fields": ("title", "type", "description")
+        }),
+        ("✍️ Author / Source", {
+            "fields": ("author", "source", "year")
+        }),
+        ("📁 Files", {
+            "fields": ("file", "image", "preview_image")
+        }),
+    )
+
+    def preview_image(self, obj):
+        if obj.image:
+            return f'<img src="{obj.image.url}" style="height:60px;border-radius:6px;" />'
+        return "No Image"
+
+    preview_image.allow_tags = True
+    preview_image.short_description = "Preview"

@@ -37,6 +37,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'accounts.apps.AccountsConfig',
     'ielts.apps.IeltsConfig',
     'topik.apps.TopikConfig'
 ]
@@ -140,3 +141,14 @@ import os
 from dotenv import load_dotenv
 
 load_dotenv()
+
+import os
+
+STRIPE_SECRET_KEY = os.getenv("STRIPE_SECRET_KEY")
+STRIPE_PUBLIC_KEY = os.getenv("STRIPE_PUBLIC_KEY")
+STRIPE_WEBHOOK_SECRET = os.getenv("STRIPE_WEBHOOK_SECRET")
+
+STRIPE_PRICES = {
+    "STANDARD": "price_1THaT5P5hqLyd7MRnYMGzhE1",
+    "PRO": "price_1THaWlP5hqLyd7MRv0HZBYGo",
+}

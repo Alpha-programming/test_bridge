@@ -13,6 +13,14 @@ urlpatterns = [
     path("password-change/", auth_views.PasswordChangeView.as_view(template_name="ielts/profile/password_change.html"), name="password_change"),
     path("pricing/", views.pricing_view, name="pricing"),
     path("upgrade/<str:plan>/", views.upgrade_plan, name="upgrade_plan"),
+    path("downgrade/", views.downgrade_plan, name="downgrade"),
+    path("checkout/<str:plan>/", views.create_checkout_session, name="checkout"),
+    path("payment-success/", views.payment_success, name="payment_success"),
+    path("webhook/", views.stripe_webhook, name="stripe_webhook"),
+    path("results/", views.results_view, name="results"),
+    path('books/', views.books, name='books'),
+    path('magazines/', views.magazines, name='magazines'),
+    path('newspapers/', views.newspapers, name='newspapers'),
 
     # =========================
     # 📘 READING

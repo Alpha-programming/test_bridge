@@ -16,10 +16,12 @@ def prepare_subscription(user):
     # reset daily usage
     sub.reset_daily_usage()
 
-    # check expiration
+    # 🔥 AUTO DOWNGRADE IF EXPIRED
     if sub.is_expired():
         sub.plan = "FREE"
         sub.is_active = False
+        sub.end_date = None
+        sub.stripe_subscription_id = None
         sub.save()
 
     return sub
@@ -64,11 +66,17 @@ def increment_test(user):
 
 # 🔹 ACTIVATE PLAN (FAKE PAYMENT FOR NOW)
 def activate_plan(user, plan):
-    sub = get_subscription(user)
+
+    sub, _ = Subscription.objects.get_or_create(user=user)
 
     sub.plan = plan
     sub.start_date = timezone.now()
     sub.end_date = timezone.now() + timedelta(days=30)
     sub.is_active = True
 
+    sub.ai_used_today = 0
+    sub.tests_used_today = 0
+
     sub.save()
+
+    return sub   # 🔥 IMPORTANT

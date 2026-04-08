@@ -1,0 +1,153 @@
+{% extends "ielts/ielts.html" %}
+
+{% block content %}
+
+<style>
+.plan-card{
+    border-radius:16px;
+    padding:25px;
+    text-align:center;
+    box-shadow:0 8px 25px rgba(0,0,0,0.08);
+    transition:0.3s;
+    background:#fff;
+}
+.plan-card:hover{
+    transform:translateY(-5px);
+}
+
+.plan-active{
+    border:2px solid #2563eb;
+}
+
+.price{
+    font-size:34px;
+    font-weight:900;
+    margin:10px 0;
+}
+
+.btn-buy{
+    border-radius:10px;
+    padding:10px 18px;
+    font-weight:700;
+    width:100%;
+}
+
+.badge-plan{
+    display:inline-block;
+    padding:5px 10px;
+    border-radius:8px;
+    font-size:12px;
+    font-weight:700;
+    margin-bottom:10px;
+}
+
+.badge-current{
+    background:#2563eb;
+    color:#fff;
+}
+
+.badge-free{
+    background:#e5e7eb;
+}
+
+.badge-pro{
+    background:#ede9fe;
+    color:#6d28d9;
+}
+</style>
+
+<div class="container mt-5">
+
+<h2 class="text-center mb-5">💳 Choose Your Plan</h2>
+
+{% if subscription %}
+<div class="text-center mb-4">
+    <p>
+        Current Plan:
+        <b>{{ subscription.plan }}</b>
+    </p>
+
+    {% if subscription.end_date %}
+    <p class="text-muted">
+        Expires on: {{ subscription.end_date|date:"M d, Y" }}
+    </p>
+    {% endif %}
+</div>
+{% endif %}
+
+<div class="row g-4">
+
+<!-- FREE -->
+<div class="col-md-4">
+<div class="plan-card {% if subscription.plan == 'FREE' %}plan-active{% endif %}">
+
+<span class="badge-plan badge-free">Starter</span>
+
+<h4>Free</h4>
+<div class="price">$0</div>
+
+<p>2 tests/day</p>
+<p>1 AI/day</p>
+
+{% if subscription.plan == "FREE" %}
+<button class="btn btn-secondary btn-buy">Current Plan</button>
+{% else %}
+<a href="{% url 'ielts:downgrade' %}" class="btn btn-outline-dark btn-buy">
+    Switch to Free
+</a>
+{% endif %}
+
+</div>
+</div>
+
+<!-- STANDARD -->
+<div class="col-md-4">
+<div class="plan-card {% if subscription.plan == 'STANDARD' %}plan-active{% endif %}">
+
+<span class="badge-plan badge-current">Popular</span>
+
+<h4>Standard</h4>
+<div class="price">$2.99</div>
+
+<p>10 tests/day</p>
+<p>5 AI/day</p>
+
+{% if subscription.plan == "STANDARD" %}
+<button class="btn btn-secondary btn-buy">Current Plan</button>
+{% else %}
+<a href="{% url 'ielts:checkout' 'STANDARD' %}" class="btn btn-primary btn-buy">
+    Upgrade
+</a>
+{% endif %}
+
+</div>
+</div>
+
+<!-- PRO -->
+<div class="col-md-4">
+<div class="plan-card {% if subscription.plan == 'PRO' %}plan-active{% endif %}">
+
+<span class="badge-plan badge-pro">Best Value</span>
+
+<h4>Pro</h4>
+<div class="price">$5.99</div>
+
+<p>Unlimited tests</p>
+<p>Unlimited AI</p>
+
+{% if subscription.plan == "PRO" %}
+<button class="btn btn-secondary btn-buy">Current Plan</button>
+{% else %}
+<a href="{% url 'ielts:checkout' 'PRO' %}" class="btn btn-success btn-buy">
+    Go Pro 🚀
+</a>
+{% endif %}
+
+</div>
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

@@ -122,6 +122,35 @@ body { user-select:none; }
     z-index:2147483647;
     color:white;
 }
+
+.nav-row {
+    display:flex;
+    gap:5px;
+    overflow-x:auto;
+    max-width:65%;
+}
+
+.nav-btn {
+    min-width:30px;
+    height:30px;
+    border:none;
+    border-radius:6px;
+    background:#e9ecef;
+    font-size:12px;
+}
+
+.nav-btn:hover {
+    background:#0d6efd;
+    color:white;
+}
+
+.bottom-bar {
+    height:60px;
+    display:flex;
+    align-items:center;
+    background:#fff;
+    border-top:1px solid #ddd;
+}
 </style>
 
 </head>
@@ -180,7 +209,7 @@ body { user-select:none; }
         <!-- ================= MCQ ================= -->
         {% if group.group_type == "MCQ" %}
             {% for q in group.questions.all %}
-            <div class="mb-3">
+            <div class="mb-3" id="q{{ q.id }}">
                 <b>{{ q.number }}. {{ q.text }}</b>
 
                 {% for opt in q.options.all %}
@@ -214,7 +243,7 @@ body { user-select:none; }
 
 <!-- ✅ QUESTIONS -->
 {% for q in group.questions.all %}
-<div class="mb-3">
+<div class="mb-3" id="q{{ q.id }}">
     <b>{{ q.number }}. {{ q.text }}</b>
 
     <select class="form-control mt-2"
@@ -236,7 +265,7 @@ body { user-select:none; }
         <!-- ================= OTHER TYPES ================= -->
         {% if group.group_type != "MCQ" and group.group_type != "MATCH" %}
             {% for q in group.questions.all %}
-            <div class="mb-3">
+            <div class="mb-3" id="q{{ q.id }}">
                 <b>{{ q.number }}. {{ q.text }}</b>
                 <input type="text" class="form-control"
                        onchange="saveAnswer({{ q.id }}, this.value)">
@@ -252,14 +281,36 @@ body { user-select:none; }
 </div>
 
 <!-- 🔻 NAV -->
-<div class="bottom-bar">
+<div class="bottom-bar justify-content-between px-3">
+
+    <!-- LEFT: PARTS -->
+    <div class="d-flex gap-2">
+        {% for section in sections %}
+            <button class="btn btn-sm btn-outline-danger section-btn"
+                    id="btn{{ section.order }}"
+                    onclick="switchSection({{ section.order }}, this)">
+                P{{ section.order }}
+            </button>
+        {% endfor %}
+    </div>
+
+    <!-- RIGHT: QUESTIONS -->
     {% for section in sections %}
-        <button class="btn btn-outline-danger section-btn"
-                id="btn{{ section.order }}"
-                onclick="switchSection({{ section.order }})">
-            Part {{ section.order }}
-        </button>
+    <div id="nav-section{{ section.order }}"
+         class="nav-row {% if not forloop.first %}hidden{% endif %}">
+
+        {% for group in section.groups.all %}
+            {% for q in group.questions.all %}
+                <button class="nav-btn"
+                        onclick="scrollToQuestion({{ q.id }})">
+                    {{ q.number }}
+                </button>
+            {% endfor %}
+        {% endfor %}
+
+    </div>
     {% endfor %}
+
 </div>
 </div>
 
@@ -284,19 +335,45 @@ function startTest(){
 }
 
 // SECTION SWITCH
-function switchSection(id){
+function switchSection(id, btn){
+
+    if(!started) return;
+
+    // show section
     document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
-
-    document.querySelectorAll('.section-btn').forEach(btn=>{
-        btn.classList.remove('btn-danger');
-        btn.classList.add('btn-outline-danger');
-    });
-
     document.getElementById('section'+id).classList.remove('hidden');
 
-    const active = document.getElementById('btn'+id);
-    active.classList.remove('btn-outline-danger');
-    active.classList.add('btn-danger');
+    // 🔥 show only that part questions
+    document.querySelectorAll('.nav-row').forEach(el => el.classList.add('hidden'));
+    document.getElementById('nav-section'+id).classList.remove('hidden');
+
+    // reset buttons
+    document.querySelectorAll('.section-btn').forEach(b=>{
+        b.classList.remove('btn-danger');
+        b.classList.add('btn-outline-danger');
+    });
+
+    // activate current
+    if(btn){
+        btn.classList.remove('btn-outline-danger');
+        btn.classList.add('btn-danger');
+    }
+
+    document.querySelector(".main").scrollTop = 0;
+}
+
+function scrollToQuestion(qid){
+    const container = document.querySelector(".main");
+    const el = document.getElementById("q"+qid);
+
+    if(el){
+        const top = el.offsetTop - container.offsetTop;
+
+        container.scrollTo({
+            top: top - 50,
+            behavior: "smooth"
+        });
+    }
 }
 
 // SAVE ANSWER
@@ -384,7 +461,8 @@ function changeFont(change){
 window.onload = ()=>{
     setTheme(localStorage.getItem("theme") || "light");
     document.body.style.fontSize = (localStorage.getItem("fontSize") || 16) + "px";
-    switchSection(1);
+    const firstBtn = document.getElementById("btn1");
+    switchSection(1, firstBtn);
 };
 
 // BLOCK

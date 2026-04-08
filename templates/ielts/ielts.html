@@ -175,6 +175,18 @@ footer{
           <a href="{% url 'ielts:speaking' %}" class="nav-link {% if 'speaking' in request.path %}active{% endif %}">Speaking</a>
         </div>
 
+        <li class="nav-item dropdown">
+          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+            📚 Resources
+          </a>
+
+          <ul class="dropdown-menu">
+            <li><a class="dropdown-item" href="{% url 'ielts:books' %}">Books</a></li>
+            <li><a class="dropdown-item" href="{% url 'ielts:magazines' %}">Magazines</a></li>
+            <li><a class="dropdown-item" href="{% url 'ielts:newspapers' %}">Newspapers</a></li>
+          </ul>
+        </li>
+
         <!-- RIGHT SIDE -->
         <div class="ms-auto mt-3 mt-lg-0">
 
@@ -194,7 +206,7 @@ footer{
               </li>
 
               <li>
-                <a class="dropdown-item" href="#">
+                <a class="dropdown-item" href="{% url 'ielts:results' %}">
                   📊My Results
                 </a>
               </li>

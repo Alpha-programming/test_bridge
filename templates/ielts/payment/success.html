@@ -1,0 +1,20 @@
+{% extends "ielts/ielts.html" %}
+
+{% block content %}
+
+<div class="container text-center mt-5">
+
+    <h2>🎉 Payment Successful!</h2>
+    <p>Your subscription is now active.</p>
+
+    <hr>
+
+    <p><b>Email:</b> {{ session.customer_email }}</p>
+
+    <a href="{% url 'ielts:profile' %}" class="btn btn-success mt-3">
+        Go to Profile 🚀
+    </a>
+
+</div>
+
+{% endblock %}

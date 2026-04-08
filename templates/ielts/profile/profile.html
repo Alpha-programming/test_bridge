@@ -27,9 +27,17 @@
     font-weight:700;
 }
 
-.plan-free{ background:#e5e7eb; }
-.plan-pro{ background:#dbeafe; color:#1d4ed8; }
-.plan-premium{ background:#ede9fe; color:#6d28d9; }
+.plan-free { background:#e5e7eb; }
+
+.plan-standard {
+    background:#dbeafe;
+    color:#1d4ed8;
+}
+
+.plan-pro {
+    background:#ede9fe;
+    color:#6d28d9;
+}
 
 .btn-edit{
     padding:10px 16px;
@@ -109,14 +117,31 @@
                 </span>
             </p>
 
-            <p>Requests Used: {{ subscription.requests_used }}</p>
-            <p>Tokens Used: {{ subscription.tokens_used }}</p>
+            <p>AI Used Today: {{ subscription.ai_used_today }}</p>
+            <p>Tests Used Today: {{ subscription.tests_used_today }}</p>
+
+            <p>
+                Status:
+                {% if subscription.is_active %}
+                    ✅ Active
+                {% else %}
+                    ❌ Expired
+                {% endif %}
+            </p>
+
+            {% if subscription.end_date %}
+                <p>Expires on: {{ subscription.end_date|date:"M d, Y" }}</p>
+            {% else %}
+                <p>Plan: Unlimited (Free or lifetime)</p>
+            {% endif %}
 
         {% else %}
             <p>No active subscription</p>
         {% endif %}
 
-        <a href="#" class="btn-edit">Upgrade Plan</a>
+        <a href="{% url 'ielts:pricing' %}" class="btn-edit">
+            Upgrade Plan 🚀
+        </a>
 
     </div>
 

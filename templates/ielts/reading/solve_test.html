@@ -129,6 +129,13 @@ body {
 </head>
 <body>
 <!-- 🚀 START SCREEN -->
+
+<form id="autoSubmitForm"
+      method="POST"
+      action="{% url 'ielts:reading_submit' user_test.id %}">
+    {% csrf_token %}
+</form>
+
 <div id="startOverlay" class="overlay">
     <h3 class="mb-3">Are you ready?</h3>
     <p>You will have {{ test.duration_minutes }} minutes to complete this test.</p>
@@ -211,7 +218,7 @@ body {
                     <!-- ================= TFNG / YESNO ================= -->
                     {% if group.group_type == "TFNG" or group.group_type == "YESNO" %}
                         {% for q in group.questions.all %}
-                        <div class="question">
+                        <div class="question" id="q{{ q.id }}">
 
                             <div class="mb-2">
                                 <b>{{ q.number }}. {{ q.text }}</b>
@@ -249,7 +256,7 @@ body {
                     <!-- ================= MCQ SINGLE ================= -->
                     {% if group.group_type == "MCQ_SINGLE" %}
                         {% for q in group.questions.all %}
-                        <div class="question">
+                        <div class="question" id="q{{ q.id }}">
                             <b>{{ q.number }}. {{ q.text }}</b>
 
                             {% for opt in q.options.all %}
@@ -270,7 +277,7 @@ body {
                     <!-- ================= MCQ MULTI ================= -->
                     {% if group.group_type == "MCQ_MULTI" %}
                         {% for q in group.questions.all %}
-                        <div class="question">
+                        <div class="question" id="q{{ q.id }}">
                             <b>{{ q.number }}. {{ q.text }}</b>
 
                             {% for opt in q.options.all %}
@@ -299,7 +306,7 @@ body {
                     </div>
 
                     {% for q in group.questions.all %}
-                    <div class="question">
+                    <div class="question" id="q{{ q.id }}">
                         <b>{{ q.number }}. {{ q.text }}</b>
 
                         <select class="form-control mt-2"
@@ -316,7 +323,7 @@ body {
                     <!-- ================= SUMMARY / NOTE / TABLE ================= -->
                     {% if group.group_type == "SUMMARY_NO_BANK" or group.group_type == "NOTE" or group.group_type == "TABLE" %}
                         {% for q in group.questions.all %}
-                        <div class="question">
+                        <div class="question" id="q{{ q.id }}">
                             <b>{{ q.number }}</b>
                             <input type="text"
                                    class="form-control"
@@ -334,7 +341,7 @@ body {
                     </div>
 
                     {% for q in group.questions.all %}
-                    <div class="question">
+                    <div class="question" id="q{{ q.id }}">
                         <b>{{ q.number }}</b>
 
                         <select class="form-control"
@@ -351,7 +358,7 @@ body {
                     <!-- ================= SHORT ANSWER ================= -->
                     {% if group.group_type == "SHORT" %}
                         {% for q in group.questions.all %}
-                        <div class="question">
+                        <div class="question" id="q{{ q.id }}">
                             <b>{{ q.number }}. {{ q.text }}</b>
                             <input type="text"
                                    class="form-control"
@@ -371,23 +378,62 @@ body {
     </div>
 
     <!-- 🔻 BOTTOM NAV -->
-    <div class="bottom-bar">
+    <div class="bottom-bar justify-content-between px-3">
+
+    <!-- 🔹 LEFT: PASSAGE SWITCH -->
+    <div class="d-flex gap-2">
         {% for p in passages %}
-            <button class="btn btn-outline-danger"
-                    onclick="switchPassage({{ p.order }})">
+            <button class="btn btn-sm btn-outline-danger passage-btn"
+                    onclick="switchPassage({{ p.order }}, this)">
                 Passage {{ p.order }}
             </button>
         {% endfor %}
     </div>
+
+    <!-- 🔹 RIGHT: QUESTION NAV -->
+    {% for p in passages %}
+    <div id="nav-passage{{ p.order }}"
+         class="nav-row {% if not forloop.first %}hidden{% endif %}">
+
+        {% for group in p.groups.all %}
+            {% for q in group.questions.all %}
+                <button class="nav-btn"
+                        onclick="scrollToQuestion({{ q.id }})">
+                    {{ q.number }}
+                </button>
+            {% endfor %}
+        {% endfor %}
+
+    </div>
+    {% endfor %}
+
+</div>
 </div>
 <script>
 // PASSAGE SWITCH
-function switchPassage(id) {
+function switchPassage(id, btn) {
+    // hide all passages & questions
     document.querySelectorAll('.passage-block').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.question-block').forEach(el => el.classList.add('hidden'));
 
+    // show selected
     document.getElementById('passage'+id).classList.remove('hidden');
     document.getElementById('questions'+id).classList.remove('hidden');
+
+    // 🔥 switch question nav
+    document.querySelectorAll('.nav-row').forEach(el => el.classList.add('hidden'));
+    document.getElementById('nav-passage'+id).classList.remove('hidden');
+
+    // highlight active passage
+    document.querySelectorAll('.passage-btn').forEach(b => b.classList.remove('active'));
+    if(btn) btn.classList.add('active');
+}
+function scrollToQuestion(qid){
+    const el = document.getElementById("q"+qid);
+
+    if(el){
+        el.scrollIntoView({ behavior:"smooth", block:"center" });
+    }
 }
 
 // SAVE ANSWER
@@ -438,9 +484,15 @@ function timer() {
     const remain = duration - (now - startTime);
 
     if(remain <= 0){
-        window.location.href = "{% url 'ielts:reading_submit' user_test.id %}";
-        return;
-    }
+
+    clearInterval(timerInterval);
+
+    alert("⏰ Time is up! Your test will be submitted.");
+
+    document.getElementById("autoSubmitForm").submit();
+
+    return;
+}
 
     const m = Math.floor(remain/60);
     const s = remain%60;

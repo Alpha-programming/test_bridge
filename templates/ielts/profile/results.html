@@ -1,0 +1,144 @@
+{% extends "ielts/ielts.html" %}
+
+{% block content %}
+
+<div class="container mt-4">
+
+    <!-- 🔥 PAGE TITLE -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold">📊 My Results</h2>
+    </div>
+
+    <!-- 🔥 MODERN TABS -->
+<div class="d-flex gap-2 flex-wrap mb-4">
+
+    <button id="tab-reading" class="tab-btn active" onclick="showTab('reading', this)">
+        📘 Reading
+    </button>
+
+    <button id="tab-listening" class="tab-btn" onclick="showTab('listening', this)">
+        🎧 Listening
+    </button>
+
+    <button id="tab-writing" class="tab-btn" onclick="showTab('writing', this)">
+        ✍️ Writing
+    </button>
+
+    <button id="tab-speaking" class="tab-btn" onclick="showTab('speaking', this)">
+        🎤 Speaking
+    </button>
+
+</div>
+
+    <!-- ========================= -->
+    <!-- 📘 READING -->
+    <!-- ========================= -->
+    <div id="reading" class="tab-content">
+        <div class="row">
+            {% for r in reading_results %}
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm border-0 rounded-4 p-3">
+                    <h5 class="fw-bold">Reading Test</h5>
+                    <p class="mb-1">Score: <strong>{{ r.score }}</strong></p>
+                    <p class="mb-1">Accuracy: {{ r.accuracy }}%</p>
+                    <small class="text-muted">{{ r.completed_at }}</small>
+
+                    <a href="{% url 'ielts:reading_result' r.id %}" class="btn btn-primary btn-sm mt-2">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No reading results yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- 🎧 LISTENING -->
+    <!-- ========================= -->
+    <div id="listening" class="tab-content" style="display:none;">
+        <div class="row">
+            {% for r in listening_results %}
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm border-0 rounded-4 p-3">
+                    <h5 class="fw-bold">Listening Test</h5>
+                    <p class="mb-1">Score: <strong>{{ r.score }}</strong></p>
+                    <p class="mb-1">Accuracy: {{ r.accuracy }}%</p>
+                    <small class="text-muted">{{ r.completed_at }}</small>
+
+                    <a href="{% url 'ielts:listening_result' r.id %}" class="btn btn-success btn-sm mt-2">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No listening results yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- ✍️ WRITING -->
+    <!-- ========================= -->
+    <div id="writing" class="tab-content" style="display:none;">
+        <div class="row">
+            {% for r in writing_results %}
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm border-0 rounded-4 p-3">
+                    <h5 class="fw-bold">Writing Test</h5>
+                    <p class="mb-1">Band: <strong>{{ r.final_band }}</strong></p>
+                    <small class="text-muted">{{ r.submitted_at }}</small>
+
+                    <a href="{% url 'ielts:writing_result' r.id %}" class="btn btn-warning btn-sm mt-2">
+                        View Details
+                    </a>
+                </div>
+            </div>
+            {% empty %}
+            <p>No writing results yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- ========================= -->
+    <!-- 🎤 SPEAKING -->
+    <!-- ========================= -->
+    <div id="speaking" class="tab-content" style="display:none;">
+        <div class="row">
+            {% for r in speaking_results %}
+            <div class="col-md-4 mb-3">
+                <div class="card shadow-sm border-0 rounded-4 p-3">
+                    <h5 class="fw-bold">Speaking Test</h5>
+                    <p class="mb-1">Band: <strong>{{ r.overall_band }}</strong></p>
+                    <small class="text-muted">{{ r.created_at }}</small>
+                </div>
+            </div>
+            {% empty %}
+            <p>No speaking results yet.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+</div>
+
+<!-- ========================= -->
+<!-- 🔥 TAB SWITCH SCRIPT -->
+<!-- ========================= -->
+<script>
+function showTab(tab) {
+    document.querySelectorAll(".tab-content").forEach(el => {
+        el.style.display = "none";
+    });
+
+    document.querySelectorAll(".nav-link").forEach(btn => {
+        btn.classList.remove("active");
+    });
+
+    document.getElementById(tab).style.display = "block";
+
+    event.target.classList.add("active");
+}
+</script>
+
+{% endblock %}

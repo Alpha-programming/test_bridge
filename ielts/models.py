@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.core.exceptions import ValidationError
+from accounts.models import Subscription
 
 
 # =========================================================
@@ -419,50 +420,7 @@ class SpeakingAttempt(models.Model):
 # 💳 SUBSCRIPTION MODEL
 # =========================================================
 
-class Subscription(models.Model):
-    PLAN_CHOICES = [
-        ("FREE", "Free"),
-        ("STANDARD", "Standard"),
-        ("PRO", "Pro"),
-    ]
 
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
-
-    plan = models.CharField(max_length=20, choices=PLAN_CHOICES, default="FREE")
-
-    start_date = models.DateTimeField(null=True, blank=True)
-    end_date = models.DateTimeField(null=True, blank=True)
-
-    is_active = models.BooleanField(default=True)
-
-    ai_used_today = models.IntegerField(default=0)
-    tests_used_today = models.IntegerField(default=0)
-
-    last_reset = models.DateField(auto_now_add=True)
-
-    def is_expired(self):
-        if self.plan == "FREE":
-            return False
-        return self.end_date and timezone.now() > self.end_date
-
-    def reset_daily_usage(self):
-        today = timezone.now().date()
-
-        if self.last_reset != today:
-            self.ai_used_today = 0
-            self.tests_used_today = 0
-            self.last_reset = today
-            self.save()
-
-    def get_limits(self):
-        return {
-            "FREE": {"ai": 1, "tests": 2},
-            "STANDARD": {"ai": 5, "tests": 10},
-            "PRO": {"ai": 100, "tests": 100},
-        }.get(self.plan, {"ai": 0, "tests": 0})
-
-    def __str__(self):
-        return f"{self.user.username} - {self.plan}"
 
 
 # =========================================================
@@ -478,3 +436,24 @@ class HomePageContent(models.Model):
 
     def __str__(self):
         return "Homepage Content"
+
+class Resource(models.Model):
+    TYPE_CHOICES = (
+        ('book', 'Book'),
+        ('magazine', 'Magazine'),
+        ('newspaper', 'Newspaper'),
+    )
+
+    title = models.CharField(max_length=255)
+    description = models.TextField()
+    author = models.CharField(max_length=255, blank=True)
+    source = models.CharField(max_length=255, blank=True)
+    year = models.IntegerField()
+
+    file = models.FileField(upload_to='resources/')
+    image = models.ImageField(upload_to='resources/images/')
+
+    type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+
+    def __str__(self):
+        return self.title
