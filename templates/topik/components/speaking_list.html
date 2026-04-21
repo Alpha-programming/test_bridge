@@ -1,0 +1,510 @@
+{% extends 'topik/topik.html' %}
+{% load static %}
+{% block main %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>말하기 시험</title>
+
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="{% static 'topic/css/main.css'%}" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f4f7fb;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
+            color: var(--text);
+            line-height: 1.6;
+
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        .container {
+            width: min(1280px, 100%);
+            margin: 0 auto;
+
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a 65%, #2563eb);
+            color: white;
+            border-radius: 30px;
+            padding: 34px;
+            margin: 26px 0px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero h1 {
+            font-size: 36px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.8px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.86);
+            max-width: 760px;
+            font-size: 15px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 18px;
+        }
+
+        .hero-pill {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .toolbar {
+            display: grid;
+            grid-template-columns: 1fr auto;
+            gap: 14px;
+            margin-bottom: 24px;
+        }
+
+        .toolbar-card {
+            background: rgba(255,255,255,0.98);
+            border: 1px solid #e7edf5;
+            border-radius: 20px;
+            padding: 14px 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .toolbar label {
+            display: block;
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+            margin-bottom: 8px;
+        }
+
+        .toolbar input {
+            width: 100%;
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 12px 14px;
+            font-size: 14px;
+            background: white;
+            outline: none;
+        }
+
+        .toolbar input:focus {
+            border-color: var(--primary);
+        }
+
+        .toolbar-actions {
+            display: flex;
+            align-items: end;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            border-radius: 14px;
+            padding: 12px 18px;
+            font-weight: 700;
+            font-size: 14px;
+            cursor: pointer;
+            transition: 0.25s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.2);
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            position: relative;
+            background: white;
+            border: 1px solid #e7edf5;
+            border-radius: 24px;
+            padding: 22px 24px;
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            inset: 0 auto auto 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+        }
+
+        .summary-card span {
+            display: block;
+            font-size: 13px;
+            color: var(--muted);
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+
+        .summary-card strong {
+            display: block;
+            font-size: 34px;
+            line-height: 1;
+            font-weight: 800;
+            color: var(--secondary);
+            letter-spacing: -1px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: end;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .section-header h2 {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--secondary);
+            letter-spacing: -0.5px;
+        }
+
+        .section-header p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .test-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .test-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            transition: 0.25s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+
+        .test-card:hover {
+            transform: translateY(-4px);
+            border-color: #cfe0ff;
+        }
+
+        .card-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            gap: 12px;
+        }
+
+        .tag-row {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .tag-test {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag-active {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .test-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1.3;
+        }
+
+        .test-description {
+            color: var(--text);
+            font-size: 15px;
+            line-height: 1.8;
+            min-height: 92px;
+        }
+
+        .test-meta {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .meta-box {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .meta-box span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+        }
+
+        .meta-box strong {
+            color: var(--secondary);
+            font-size: 14px;
+            font-weight: 800;
+        }
+
+        .test-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 12px;
+            margin-top: auto;
+        }
+
+        .credit-note {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--muted);
+        }
+
+        .empty-state {
+            background: white;
+            border: 1px dashed #cbd5e1;
+            border-radius: 24px;
+            padding: 34px;
+            text-align: center;
+            color: var(--muted);
+            box-shadow: var(--shadow);
+        }
+
+        .empty-state h3 {
+            color: var(--secondary);
+            font-size: 22px;
+            margin-bottom: 8px;
+        }
+
+        @media (max-width: 1100px) {
+            .summary-grid,
+            .test-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero {
+                padding: 24px;
+                border-radius: 24px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .toolbar,
+            .summary-grid,
+            .test-grid,
+            .test-meta {
+                grid-template-columns: 1fr;
+            }
+
+            .section-header,
+            .card-top,
+            .test-footer {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+
+            .summary-card strong {
+                font-size: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <section class="hero">
+        <h1>말하기 시험</h1>
+        <p>
+            전체 모의 말하기 시험을 통해 한국어 말하기를 연습해 보세요. 각 시험은 여러 파트의 구조화된 말하기 과제로 구성되어 있습니다.
+            답변을 제출하면 AI 기반 피드백을 받을 수 있습니다.
+        </p>
+
+        <div class="hero-meta">
+            <span class="hero-pill">남은 크레딧: {{ credits_left|default:0 }}</span>
+            <span class="hero-pill">남은 AI 평가 횟수: {{ ai_left|default:0 }}</span>
+            <span class="hero-pill">전체 시험 1회 = 크레딧 1개</span>
+            <span class="hero-pill">파트 1 + 파트 2 + 파트 3</span>
+            <span class="hero-pill">한국어 말하기 연습실</span>
+        </div>
+    </section>
+
+    <form method="get" class="toolbar">
+        <div class="toolbar-card">
+            <label for="search">시험 검색</label>
+            <input
+                type="text"
+                id="search"
+                name="search"
+                placeholder="제목 또는 설명으로 검색..."
+                value="{{ search|default:'' }}"
+            >
+        </div>
+
+        <div class="toolbar-actions">
+            <button type="submit" class="btn btn-primary" style="width:100%;">검색</button>
+        </div>
+    </form>
+
+    <section class="summary-grid">
+        <div class="summary-card">
+            <span>전체 시험 수</span>
+            <strong>{{ total_tests|default:0 }}</strong>
+        </div>
+
+        <div class="summary-card">
+            <span>파트 1 문제 수</span>
+            <strong>{{ part1_count|default:0 }}</strong>
+        </div>
+        <div class="summary-card">
+            <span>파트 2 문제 수</span>
+            <strong>{{ part2_count|default:0 }}</strong>
+        </div>
+          <div class="summary-card">
+            <span>파트 3 문제 수</span>
+            <strong>{{ part3_count|default:0 }}</strong>
+        </div>
+    </section>
+
+    <section>
+        <div class="section-header">
+            <div>
+                <h2>이용 가능한 말하기 시험</h2>
+                <p>시험을 선택하고 전체 말하기 시험 흐름을 시작하세요.</p>
+            </div>
+        </div>
+
+        {% if tests %}
+            <div class="test-grid">
+                {% for test in tests %}
+                    <div class="test-card">
+                        <div class="card-top">
+                            <div class="tag-row">
+                                <span class="tag tag-test">모의고사</span>
+                                {% if test.is_active %}
+                                    <span class="tag tag-active">활성화</span>
+                                {% endif %}
+                            </div>
+                        </div>
+
+                        <div class="test-title">
+                            {{ test.title }}
+                        </div>
+
+                        <div class="test-description">
+                            {{ test.description|default:"이 시험은 한국어 말하기 연습을 위한 구조화된 말하기 과제로 구성되어 있습니다."|truncatechars:180 }}
+                        </div>
+
+                        <div class="test-meta">
+                            <div class="meta-box">
+                                <span>문항 수</span>
+                                <strong>{{ test.question_count }}</strong>
+                            </div>
+                            <div class="meta-box">
+                                <span>생성일</span>
+                                <strong>{{ test.created_at|date:"Y-m-d" }}</strong>
+                            </div>
+                        </div>
+
+                        <div class="test-footer">
+                            <div class="credit-note">전체 시험 1회당 크레딧 1개 사용</div>
+                            <form method="post" action="{% url 'topik:start_speaking_test' test.id %}">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary">시험 시작</button>
+                            </form>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <h3>말하기 시험이 없습니다</h3>
+                <p>다른 검색어를 사용하거나 관리자 페이지에서 새로운 말하기 시험을 추가해 보세요.</p>
+            </div>
+        {% endif %}
+    </section>
+
+</div>
+</body>
+</html>
+{% endblock main %}

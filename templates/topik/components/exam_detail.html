@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -8,6 +9,7 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
+        /* (The CSS remains unchanged as requested to maintain the original design) */
         * {
             margin: 0;
             padding: 0;
@@ -49,7 +51,6 @@
             color: inherit;
         }
 
-        /* HERO */
         .hero {
             display: grid;
             grid-template-columns: 1.2fr 0.8fr;
@@ -223,7 +224,6 @@
             color: var(--muted);
         }
 
-        /* MAIN CONTENT */
         .content-grid {
             display: grid;
             grid-template-columns: 1fr 340px;
@@ -263,7 +263,6 @@
             margin-bottom: 22px;
         }
 
-        /* OVERVIEW */
         .overview-box {
             background: linear-gradient(180deg, #ffffff 0%, #f8fbff 100%);
             border: 1px solid #e6eefb;
@@ -284,7 +283,6 @@
             font-size: 15px;
         }
 
-        /* SECTION CARDS */
         .sections-grid {
             display: grid;
             gap: 18px;
@@ -384,7 +382,6 @@
             font-weight: 700;
         }
 
-        /* STICKY CTA */
         .cta-title {
             font-size: 22px;
             font-weight: 800;
@@ -517,20 +514,20 @@
         }
     </style>
 </head>
+
 <body>
     <div class="container">
 
-        <!-- HERO -->
         <section class="hero">
             <div class="hero-main">
                 <div class="hero-badge-row">
                     <span class="hero-badge">{{ exam.get_level_display }}</span>
                     <span class="hero-badge">{{ exam.get_exam_type_display }}</span>
                     {% if exam.paper_variant %}
-                        <span class="hero-badge">Variant {{ exam.paper_variant }}</span>
+                        <span class="hero-badge">변형 {{ exam.paper_variant }}</span>
                     {% endif %}
                     {% if exam.exam_number %}
-                        <span class="hero-badge">Exam {{ exam.exam_number }}</span>
+                        <span class="hero-badge">{{ exam.exam_number }}회 시험</span>
                     {% endif %}
                 </div>
 
@@ -540,25 +537,25 @@
                     {% if exam.description %}
                         {{ exam.description }}
                     {% else %}
-                        Get ready for a structured TOPIK exam experience with clearly organized sections, time-based practice, and an interface designed to help learners focus on real progress.
+                        체계적인 TOPIK 시험 환경을 준비하세요. 명확하게 구성된 섹션, 시간 제한 연습, 그리고 학습자가 실력 향상에 집중할 수 있도록 설계된 인터페이스를 경험해 보세요.
                     {% endif %}
                 </p>
 
                 <div class="hero-meta-grid">
                     <div class="hero-meta-box">
-                        <span>Level</span>
+                        <span>등급</span>
                         <strong>{{ exam.get_level_display }}</strong>
                     </div>
                     <div class="hero-meta-box">
-                        <span>Duration</span>
-                        <strong>{{ exam.duration_minutes }} minutes</strong>
+                        <span>시험 시간</span>
+                        <strong>{{ exam.duration_minutes }}분</strong>
                     </div>
                     <div class="hero-meta-box">
-                        <span>Total Questions</span>
+                        <span>총 문항</span>
                         <strong>{{ exam.total_questions }}</strong>
                     </div>
                     <div class="hero-meta-box">
-                        <span>Type</span>
+                        <span>유형</span>
                         <strong>{{ exam.get_exam_type_display }}</strong>
                     </div>
                 </div>
@@ -566,31 +563,31 @@
 
             <div class="hero-side">
                 <div class="side-card">
-                    <h3>Before You Start</h3>
-                    <div class="side-note">A quick overview to help you begin with confidence.</div>
+                    <h3>시작 전 안내</h3>
+                    <div class="side-note">시작 전 꼭 확인해야 할 사항입니다.</div>
 
                     <div class="check-list">
                         <div class="check-item">
                             <div class="check-icon">✓</div>
                             <div>
-                                <strong>Check your time</strong>
-                                <span>Be ready to finish within the official exam duration.</span>
+                                <strong>시험 시간 확인</strong>
+                                <span>정해진 시험 시간 내에 마칠 수 있도록 준비하세요.</span>
                             </div>
                         </div>
 
                         <div class="check-item">
                             <div class="check-icon">✓</div>
                             <div>
-                                <strong>Read instructions carefully</strong>
-                                <span>Each section may have its own format and response style.</span>
+                                <strong>주의사항 숙지</strong>
+                                <span>각 섹션별 형식과 응시 방법을 미리 확인하세요.</span>
                             </div>
                         </div>
 
                         <div class="check-item">
                             <div class="check-icon">✓</div>
                             <div>
-                                <strong>Stay focused</strong>
-                                <span>Practice as if it were a real TOPIK test session.</span>
+                                <strong>집중력 유지</strong>
+                                <span>실제 TOPIK 시험과 동일한 마음가짐으로 연습하세요.</span>
                             </div>
                         </div>
                     </div>
@@ -598,20 +595,18 @@
             </div>
         </section>
 
-        <!-- MAIN CONTENT -->
         <section class="content-grid">
             <div class="main-panel">
                 <div class="overview-box">
-                    <h2>Exam Overview</h2>
+                    <h2>시험 개요</h2>
                     <p>
-                        This exam includes structured TOPIK sections with a clear time limit, total question count,
-                        and instructions designed to simulate real exam preparation. Review the section breakdown below,
-                        then begin when you are ready.
+                        이 시험은 정해진 시간 내에 실전과 유사한 연습을 할 수 있도록 체계적으로 구성되어 있습니다.
+                        아래의 섹션별 구성을 확인하고 준비가 되면 시험을 시작하세요.
                     </p>
                 </div>
 
-                <h2 class="section-title">Section Breakdown</h2>
-                <p class="section-subtitle">Each section is shown clearly so users can understand the full exam structure before starting.</p>
+                <h2 class="section-title">섹션 구성</h2>
+                <p class="section-subtitle">사용자가 시험 시작 전 전체 구조를 파악할 수 있도록 각 섹션의 상세 정보를 제공합니다.</p>
 
                 <div class="sections-grid">
                     {% for section in exam.sections.all %}
@@ -636,81 +631,82 @@
                                             {% if section.title %}
                                                 {{ section.title }}
                                             {% else %}
-                                                Official section module
+                                                공식 섹션 모듈
                                             {% endif %}
                                         </div>
                                     </div>
                                 </div>
 
-                                <div class="section-badge">Included</div>
+                                <div class="section-badge">포함됨</div>
                             </div>
 
                             <p class="section-desc">
                                 {% if section.instruction %}
                                     {{ section.instruction }}
                                 {% else %}
-                                    This section is part of the exam and follows the standard TOPIK structure for skill-based evaluation.
+                                    이 섹션은 TOPIK 시험의 표준 구조를 따르는 필수 영역입니다.
                                 {% endif %}
                             </p>
 
                             <div class="section-meta">
                                 <div class="section-meta-box">
-                                    <span>Questions</span>
+                                    <span>문항</span>
                                     <strong>{{ section.total_questions }}</strong>
                                 </div>
                                 <div class="section-meta-box">
-                                    <span>Duration</span>
-                                    <strong>{{ section.duration_minutes }} min</strong>
+                                    <span>시간</span>
+                                    <strong>{{ section.duration_minutes }}분</strong>
                                 </div>
                                 <div class="section-meta-box">
-                                    <span>Order</span>
-                                    <strong>#{{ section.order }}</strong>
+                                    <span>순서</span>
+                                    <strong>{{ section.order }}번</strong>
                                 </div>
                             </div>
                         </div>
                     {% empty %}
                         <div class="section-card">
-                            <h3>No sections added yet</h3>
-                            <p class="section-desc">This exam does not have any sections assigned yet.</p>
+                            <h3>섹션 없음</h3>
+                            <p class="section-desc">아직 추가된 섹션이 없습니다.</p>
                         </div>
                     {% endfor %}
                 </div>
             </div>
 
             <aside class="sticky-panel">
-                <h3 class="cta-title">Ready to begin?</h3>
+                <h3 class="cta-title">시험을 시작할 준비가 되셨나요?</h3>
                 <p class="cta-text">
-                    Start this exam now and move into the full TOPIK test flow with section-based practice and structured questions.
+                    지금 시험을 시작하여 실전과 동일한 환경에서 연습해 보세요.
                 </p>
 
                 <div class="summary-list">
                     <div class="summary-item">
-                        <span>Exam Title</span>
+                        <span>시험명</span>
                         <strong>{{ exam.title }}</strong>
                     </div>
                     <div class="summary-item">
-                        <span>Level</span>
+                        <span>등급</span>
                         <strong>{{ exam.get_level_display }}</strong>
                     </div>
                     <div class="summary-item">
-                        <span>Duration</span>
-                        <strong>{{ exam.duration_minutes }} minutes</strong>
+                        <span>시험 시간</span>
+                        <strong>{{ exam.duration_minutes }}분</strong>
                     </div>
                     <div class="summary-item">
-                        <span>Total Questions</span>
+                        <span>총 문항</span>
                         <strong>{{ exam.total_questions }}</strong>
                     </div>
                 </div>
 
-                <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="start-btn">Start Exam</a>
-                <a href="javascript:history.back()" class="secondary-btn">Go Back</a>
+                <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="start-btn">시험 시작하기</a>
+                <a href="javascript:history.back()" class="secondary-btn">뒤로 가기</a>
 
                 <div class="bottom-note">
-                    Make sure you are ready before starting the timed practice.
+                    시험 시작 전 모든 준비가 완료되었는지 확인하세요.
                 </div>
             </aside>
         </section>
 
     </div>
 </body>
+
 </html>

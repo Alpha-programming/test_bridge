@@ -1,17 +1,47 @@
- <footer class="footer">
-        <div class="container footer-inner">
-            <div>
-                <strong>TOPIKHub</strong><br>
-                <span>Modern Korean exam preparation platform.</span>
-            </div>
+<footer class="footer">
+    <div class="container footer-inner">
 
+        <!-- LEFT -->
+        <div class="footer-col">
+            <h3 class="footer-logo">TOPIK<span>Hub</span></h3>
+            <p class="footer-desc">
+                TOPIK 시험 대비를 위한 통합 학습 플랫폼입니다.<br>
+                체계적인 학습과 실전 연습으로 목표 점수를 달성하세요.
+            </p>
+        </div>
+
+        <!-- CENTER -->
+        <div class="footer-col">
+            <h4 class="footer-title">학습</h4>
             <div class="footer-links">
-                <a href="#">Home</a>
-                <a href="#">Reading</a>
-                <a href="#">Listening</a>
-                <a href="#">Writing</a>
-                <a href="#">Speaking Practice</a>
-                <a href="#">Mock Tests</a>
+                <a href="{% url 'topik:topik_home' %}">홈</a>
+                <a href="{% url 'topik:topik_reading_list' %}">읽기</a>
+                <a href="{% url 'topik:topik_listening_list' %}">듣기</a>
+                <a href="{% url 'topik:topik_writing_list' %}">쓰기</a>
+                <a href="{% url 'topik:topik_mock_list' %}">모의고사</a>
             </div>
         </div>
-    </footer>
+
+        <!-- RIGHT -->
+        <div class="footer-col">
+            <h4 class="footer-title">정보</h4>
+            <div class="footer-links">
+                <a href="{% url 'topik:topik_progress' %}">학습 현황</a>
+                <a href="#">문의하기</a>
+                <a href="#">이용약관</a>
+                <a href="#">개인정보처리방침</a>
+            </div>
+
+            <div class="footer-meta">
+                <span>제작자</span><br>
+                <strong>Asadbek · Ahadbek</strong>
+            </div>
+        </div>
+
+
+    </div>
+           <div class="footer-bottom">
+        © 2026 TOPIKHub. All rights reserved.
+    </div>
+
+</footer>

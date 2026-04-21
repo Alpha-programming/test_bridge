@@ -1,9 +1,12 @@
+{% extends 'topik/topik.html' %}
+{% load static%}
+{% block main %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOPIK Reading</title>
+    <title>TOPIK 읽기</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
@@ -539,8 +542,6 @@
 </head>
 <body>
 
-
-
 <section class="hero">
     <div class="container">
         <div class="hero-grid">
@@ -555,41 +556,41 @@
                     <div class="filters">
 
                         <div class="filter-item">
-                            <label for="level">Level</label>
+                            <label for="level">난이도</label>
                             <select name="level" id="level">
-                                <option value="">All Levels</option>
+                                <option value="">전체 난이도</option>
                                 <option value="TOPIK_I" {% if level == "TOPIK_I" %}selected{% endif %}>TOPIK I</option>
                                 <option value="TOPIK_II" {% if level == "TOPIK_II" %}selected{% endif %}>TOPIK II</option>
                             </select>
                         </div>
 
                         <div class="filter-item">
-                            <label for="status">Status</label>
+                            <label for="status">상태</label>
                             <select name="status" id="status">
-                                <option value="">All</option>
-                                <option value="completed" {% if status == "completed" %}selected{% endif %}>Completed</option>
-                                <option value="not_completed" {% if status == "not_completed" %}selected{% endif %}>Not Completed</option>
+                                <option value="">전체</option>
+                                <option value="completed" {% if status == "completed" %}selected{% endif %}>완료</option>
+                                <option value="not_completed" {% if status == "not_completed" %}selected{% endif %}>미완료</option>
                             </select>
                         </div>
 
                         <div class="filter-item">
-                            <label for="type">Type</label>
+                            <label for="type">유형</label>
                             <select name="type" id="type">
-                                <option value="">All Types</option>
-                                <option value="full" {% if type == "full" %}selected{% endif %}>Full Test</option>
-                                <option value="grouped" {% if type == "grouped" %}selected{% endif %}>Grouped Passage</option>
-                                <option value="image" {% if type == "image" %}selected{% endif %}>Image Questions</option>
-                                <option value="mini" {% if type == "mini" %}selected{% endif %}>Mini Drill</option>
+                                <option value="">전체 유형</option>
+                                <option value="full" {% if type == "full" %}selected{% endif %}>전체 시험</option>
+                                <option value="grouped" {% if type == "grouped" %}selected{% endif %}>묶음 지문</option>
+                                <option value="image" {% if type == "image" %}selected{% endif %}>이미지 문제</option>
+                                <option value="mini" {% if type == "mini" %}selected{% endif %}>미니 연습</option>
                             </select>
                         </div>
 
                         <div class="filter-item">
-                            <label for="sort">Sort</label>
+                            <label for="sort">정렬</label>
                             <select name="sort" id="sort">
-                                <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
-                                <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest</option>
-                                <option value="title" {% if sort == "title" %}selected{% endif %}>Title</option>
-                                <option value="popular" {% if sort == "popular" %}selected{% endif %}>Most Popular</option>
+                                <option value="newest" {% if sort == "newest" %}selected{% endif %}>최신순</option>
+                                <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>오래된순</option>
+                                <option value="title" {% if sort == "title" %}selected{% endif %}>제목순</option>
+                                <option value="popular" {% if sort == "popular" %}selected{% endif %}>인기순</option>
                             </select>
                         </div>
 
@@ -599,14 +600,14 @@
                         <input
                             type="text"
                             name="search"
-                            placeholder="Search reading tests..."
+                            placeholder="읽기 시험 검색..."
                             value="{{ search }}"
                         >
                     </div>
 
                     <div class="filter-actions">
-                        <button type="submit" class="btn btn-primary">Apply Filters</button>
-                        <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-outline">Reset</a>
+                        <button type="submit" class="btn btn-primary">필터 적용</button>
+                        <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-outline">초기화</a>
                     </div>
                 </form>
             </div>
@@ -618,8 +619,8 @@
     <div class="container">
         <div class="section-header">
             <div>
-                <h2>Full Mock Tests</h2>
-                <p>{{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }} found</p>
+                <h2>전체 모의고사</h2>
+                <p>{{ page_obj.paginator.count }}개의 결과가 있습니다</p>
             </div>
         </div>
 
@@ -636,38 +637,38 @@
                         {% if exam.description %}
                             {{ exam.description|truncatechars:120 }}
                         {% else %}
-                            Practice this TOPIK reading exam with structured questions and section-based study flow.
+                            구조화된 문제 구성과 영역별 학습 흐름으로 TOPIK 읽기 시험을 연습해 보세요.
                         {% endif %}
                     </p>
 
                     <div class="meta-grid">
                         <div class="meta-box">
-                            <span>Exam Number</span>
+                            <span>시험 번호</span>
                             <strong>{{ exam.exam_number|default:"-" }}</strong>
                         </div>
                         <div class="meta-box">
-                            <span>Duration</span>
-                            <strong>{{ exam.duration_minutes }} min</strong>
+                            <span>시험 시간</span>
+                            <strong>{{ exam.duration_minutes }}분</strong>
                         </div>
                         <div class="meta-box">
-                            <span>Total Questions</span>
+                            <span>총 문항 수</span>
                             <strong>{{ exam.total_questions }}</strong>
                         </div>
                         <div class="meta-box">
-                            <span>Variant</span>
+                            <span>버전</span>
                             <strong>{{ exam.paper_variant|default:"-" }}</strong>
                         </div>
                     </div>
 
                     <div class="card-actions">
-                        <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-primary">View Exam</a>
-                       <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="btn">Start</a>
+                        <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-primary">시험 보기</a>
+                        <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="btn">시작하기</a>
                     </div>
                 </div>
             {% empty %}
                 <div class="panel">
-                    <h3>No reading tests found</h3>
-                    <p class="muted">Try changing the filters or search keyword.</p>
+                    <h3>읽기 시험이 없습니다</h3>
+                    <p class="muted">필터 조건이나 검색어를 변경해 보세요.</p>
                 </div>
             {% endfor %}
         </div>
@@ -678,15 +679,15 @@
                 <div class="pagination">
 
                     {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&type={{ type }}&sort={{ sort }}">Previous</a>
+                        <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&type={{ type }}&sort={{ sort }}">이전</a>
                     {% endif %}
 
                     <span class="current-page">
-                        Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
+                        {{ page_obj.number }} / {{ page_obj.paginator.num_pages }} 페이지
                     </span>
 
                     {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&type={{ type }}&sort={{ sort }}">Next</a>
+                        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&type={{ type }}&sort={{ sort }}">다음</a>
                     {% endif %}
                 </div>
             </div>
@@ -696,3 +697,5 @@
 
 </body>
 </html>
+
+{% endblock main %}

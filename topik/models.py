@@ -1,5 +1,6 @@
 
 from django.conf import settings
+from django.contrib.auth.models import User
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.text import slugify
@@ -237,6 +238,7 @@ class ExamAttempt(TimeStampedModel):
         IN_PROGRESS = "in_progress", "In Progress"
         SUBMITTED = "submitted", "Submitted"
         EXPIRED = "expired", "Expired"
+        EVALUATED = "EVALUATED", "Evaluated"
 
     current_section = models.ForeignKey(
         "ExamSection",
@@ -263,7 +265,9 @@ class ExamAttempt(TimeStampedModel):
     copy_attempt_count = models.PositiveIntegerField(default=0)
     paste_attempt_count = models.PositiveIntegerField(default=0)
     right_click_count = models.PositiveIntegerField(default=0)
-
+    ai_evaluated = models.BooleanField(default=False)
+    ai_feedback = models.TextField(blank=True)
+    ai_evaluated_at = models.DateTimeField(null=True, blank=True)
     is_flagged = models.BooleanField(default=False)
 
     class Meta:
@@ -514,3 +518,184 @@ class WritingSubmission(TimeStampedModel):
         else:
             self.word_count = 0
         super().save(*args, **kwargs)
+
+
+class UserProgressInsight(models.Model):
+    user = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="topik_progress_insight",
+    )
+    summary = models.TextField(blank=True)
+    focus_area = models.CharField(max_length=100, blank=True)
+    advice_items = models.JSONField(default=list, blank=True)
+
+    based_on_attempt_count = models.PositiveIntegerField(default=0)
+
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return f"{self.user} Progress Insight"
+
+
+
+class SpeakingQuestion(models.Model):
+    PART_CHOICES = [
+        ("PART1", "Part 1"),
+        ("PART2", "Part 2"),
+        ("PART3", "Part 3"),
+    ]
+
+    TYPE_CHOICES = [
+        ("SHORT", "Short Answer"),
+        ("TOPIC", "Topic Card"),
+        ("OPINION", "Opinion"),
+        ("PICTURE", "Picture Description"),
+        ("ROLEPLAY", "Role Play"),
+    ]
+
+    DIFFICULTY_CHOICES = [
+        ("BEGINNER", "Beginner"),
+        ("INTERMEDIATE", "Intermediate"),
+        ("ADVANCED", "Advanced"),
+    ]
+
+    part = models.CharField(max_length=20, choices=PART_CHOICES)
+    question_type = models.CharField(max_length=20, choices=TYPE_CHOICES)
+    difficulty = models.CharField(
+        max_length=20,
+        choices=DIFFICULTY_CHOICES,
+        default="BEGINNER"
+    )
+
+    title = models.CharField(max_length=255, blank=True)
+    prompt = models.TextField()
+    follow_up_questions = models.JSONField(default=list, blank=True)
+
+    prep_time = models.PositiveIntegerField(default=30)
+    speak_time = models.PositiveIntegerField(default=60)
+
+    sample_answer = models.TextField(blank=True)
+    tags = models.JSONField(default=list, blank=True)
+
+    is_active = models.BooleanField(default=True)
+    order = models.PositiveIntegerField(default=0)
+
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["part", "order", "id"]
+
+    def __str__(self):
+        return self.title or self.prompt[:60]
+
+
+class SpeakingTest(models.Model):
+    title = models.CharField(max_length=255)
+    description = models.TextField(blank=True)
+    is_active = models.BooleanField(default=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["id"]
+
+    def __str__(self):
+        return self.title
+
+
+class SpeakingTestQuestion(models.Model):
+    test = models.ForeignKey(
+        "SpeakingTest",
+        on_delete=models.CASCADE,
+        related_name="test_questions"
+    )
+    question = models.ForeignKey(
+        "SpeakingQuestion",
+        on_delete=models.CASCADE,
+        related_name="test_links"
+    )
+    order = models.PositiveIntegerField(default=0)
+
+    class Meta:
+        ordering = ["order", "id"]
+        unique_together = ("test", "question")
+
+    def __str__(self):
+        return f"{self.test.title} - {self.question.title or self.question.prompt[:30]}"
+
+
+class SpeakingAttempt(models.Model):
+    class Status:
+        IN_PROGRESS = "IN_PROGRESS"
+        SUBMITTED = "SUBMITTED"
+        EVALUATED = "EVALUATED"
+
+    STATUS_CHOICES = [
+        (Status.IN_PROGRESS, "In Progress"),
+        (Status.SUBMITTED, "Submitted"),
+        (Status.EVALUATED, "Evaluated"),
+    ]
+
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="speaking_attempts"
+    )
+    test = models.ForeignKey(
+        "SpeakingTest",
+        on_delete=models.CASCADE,
+        related_name="attempts"
+    )
+    status = models.CharField(
+        max_length=20,
+        choices=STATUS_CHOICES,
+        default=Status.IN_PROGRESS
+    )
+
+    started_at = models.DateTimeField(auto_now_add=True)
+    submitted_at = models.DateTimeField(null=True, blank=True)
+    evaluated_at = models.DateTimeField(null=True, blank=True)
+
+    overall_score = models.FloatField(null=True, blank=True)
+    ai_feedback = models.JSONField(default=dict, blank=True,null=True)
+
+    class Meta:
+        ordering = ["-started_at"]
+
+    def __str__(self):
+        return f"{self.user} - {self.test.title}"
+
+class SpeakingAnswer(models.Model):
+    attempt = models.ForeignKey(
+        "SpeakingAttempt",
+        on_delete=models.CASCADE,
+        related_name="answers"
+    )
+    question = models.ForeignKey(
+        "SpeakingQuestion",
+        on_delete=models.CASCADE,
+        related_name="answers"
+    )
+    audio_file = models.FileField(
+        upload_to="speaking_answers/",
+        null=True,
+        blank=True
+    )
+
+    transcript = models.TextField(blank=True)
+    ai_score = models.FloatField(null=True, blank=True)
+    ai_feedback = models.JSONField(default=dict, blank=True,null=True)
+
+    grammar_score = models.FloatField(null=True, blank=True)
+    fluency_score = models.FloatField(null=True, blank=True)
+    vocabulary_score = models.FloatField(null=True, blank=True)
+    pronunciation_score = models.FloatField(null=True, blank=True)
+    task_completion_score = models.FloatField(null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ["created_at"]
+        unique_together = ("attempt", "question")
+
+    def __str__(self):
+        return f"Answer - {self.question.title or self.question.prompt[:30]}"

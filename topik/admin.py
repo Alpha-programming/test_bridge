@@ -1,10 +1,31 @@
 from django.contrib import admin
+from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 
-from .models import *
+from .models import (
+    TopikExam,
+    ExamSection,
+    ExamMaterial,
+    ExamQuestion,
+    QuestionChoice,
+    ExamAttempt,
+    ExamAnswer,
+    ExamEventLog,
+    WritingTask,
+    WritingTaskBlank,
+    WritingSubmission,
+    UserProgressInsight,
+    SpeakingQuestion,
+    SpeakingTest,
+    SpeakingTestQuestion,
+    SpeakingAttempt,
+    SpeakingAnswer,
+)
 
 
-
+# =========================
+# QUESTION CHOICES
+# =========================
 class QuestionChoiceInlineFormSet(BaseInlineFormSet):
     def clean(self):
         super().clean()
@@ -59,6 +80,9 @@ class QuestionChoiceInline(admin.TabularInline):
     ordering = ("order",)
 
 
+# =========================
+# TOPIK EXAM
+# =========================
 class ExamQuestionInline(admin.TabularInline):
     model = ExamQuestion
     extra = 0
@@ -103,17 +127,11 @@ class TopikExamAdmin(admin.ModelAdmin):
         "is_active",
         "created_at",
     )
-    list_filter = (
-        "level",
-        "exam_type",
-        "exam_mode",
-        "is_active",
-    )
+    list_filter = ("level", "exam_type", "exam_mode", "is_active")
     search_fields = (
         "title",
         "title_ko",
         "description",
-        "exam_mode",
         "paper_variant",
         "slug",
     )
@@ -143,10 +161,7 @@ class TopikExamAdmin(admin.ModelAdmin):
             )
         }),
         ("Timestamps", {
-            "fields": (
-                "created_at",
-                "updated_at",
-            ),
+            "fields": ("created_at", "updated_at"),
             "classes": ("collapse",),
         }),
     )
@@ -164,63 +179,32 @@ class ExamSectionAdmin(admin.ModelAdmin):
         "has_audio",
         "is_active",
     )
-    list_filter = (
-        "name",
-        "exam__level",
-        "exam__exam_type",
-        "is_active",
-    )
-    search_fields = (
-        "title",
-        "instruction",
-        "exam__title",
-        "exam__title_ko",
-    )
-    list_editable = (
-        "order",
-        "total_questions",
-        "duration_minutes",
-        "is_active",
-    )
+    list_filter = ("name", "exam__level", "exam__exam_type", "is_active")
+    search_fields = ("title", "instruction", "exam__title", "exam__title_ko")
+    list_editable = ("order", "total_questions", "duration_minutes", "is_active")
     ordering = ("exam", "order")
     inlines = [ExamMaterialInline]
     readonly_fields = ("created_at", "updated_at")
 
     fieldsets = (
         ("Relation", {
-            "fields": (
-                "exam",
-                "name",
-                "title",
-            )
+            "fields": ("exam", "name", "title")
         }),
         ("Section Content", {
-            "fields": (
-                "instruction",
-                "audio_file",
-            )
+            "fields": ("instruction", "audio_file")
         }),
         ("Section Settings", {
-            "fields": (
-                "order",
-                "total_questions",
-                "duration_minutes",
-                "is_active",
-            )
+            "fields": ("order", "total_questions", "duration_minutes", "is_active")
         }),
         ("Timestamps", {
-            "fields": (
-                "created_at",
-                "updated_at",
-            ),
+            "fields": ("created_at", "updated_at"),
             "classes": ("collapse",),
         }),
     )
 
+    @admin.display(boolean=True, description="Audio")
     def has_audio(self, obj):
         return bool(obj.audio_file)
-    has_audio.short_description = "Audio"
-    has_audio.boolean = True
 
 
 @admin.register(ExamMaterial)
@@ -251,19 +235,14 @@ class ExamMaterialAdmin(admin.ModelAdmin):
         "section__exam__title",
         "section__exam__title_ko",
     )
-    list_editable = (
-        "order",
-        "is_active",
-    )
+    list_editable = ("order", "is_active")
     ordering = ("section", "order")
     inlines = [ExamQuestionInline]
     readonly_fields = ("created_at", "updated_at")
 
     fieldsets = (
         ("Relation", {
-            "fields": (
-                "section",
-            )
+            "fields": ("section",)
         }),
         ("Content", {
             "fields": (
@@ -276,37 +255,28 @@ class ExamMaterialAdmin(admin.ModelAdmin):
             )
         }),
         ("Question Range", {
-            "fields": (
-                "start_number",
-                "end_number",
-            )
+            "fields": ("start_number", "end_number")
         }),
         ("Display", {
-            "fields": (
-                "order",
-                "is_active",
-            )
+            "fields": ("order", "is_active")
         }),
         ("Timestamps", {
-            "fields": (
-                "created_at",
-                "updated_at",
-            ),
+            "fields": ("created_at", "updated_at"),
             "classes": ("collapse",),
         }),
     )
 
+    @admin.display(description="Title")
     def title_or_fallback(self, obj):
         return obj.title or f"Material {obj.order}"
-    title_or_fallback.short_description = "Title"
 
+    @admin.display(description="Q Range")
     def question_range(self, obj):
         if obj.start_number and obj.end_number:
             return f"{obj.start_number}-{obj.end_number}"
         if obj.start_number:
             return str(obj.start_number)
         return "-"
-    question_range.short_description = "Q Range"
 
 
 @admin.register(ExamQuestion)
@@ -337,20 +307,14 @@ class ExamQuestionAdmin(admin.ModelAdmin):
         "material__content_text",
         "material__section__exam__title",
     )
-    list_editable = (
-        "score",
-        "difficulty",
-        "is_active",
-    )
+    list_editable = ("score", "difficulty", "is_active")
     ordering = ("question_number", "order")
     inlines = [QuestionChoiceInline]
     readonly_fields = ("created_at", "updated_at")
 
     fieldsets = (
         ("Relation", {
-            "fields": (
-                "material",
-            )
+            "fields": ("material",)
         }),
         ("Question", {
             "fields": (
@@ -371,25 +335,22 @@ class ExamQuestionAdmin(admin.ModelAdmin):
             )
         }),
         ("Timestamps", {
-            "fields": (
-                "created_at",
-                "updated_at",
-            ),
+            "fields": ("created_at", "updated_at"),
             "classes": ("collapse",),
         }),
     )
 
+    @admin.display(description="Question")
     def short_question_text(self, obj):
         return obj.question_text[:80] if obj.question_text else "-"
-    short_question_text.short_description = "Question"
 
+    @admin.display(description="Exam")
     def exam_title(self, obj):
         return obj.material.section.exam.title
-    exam_title.short_description = "Exam"
 
+    @admin.display(description="Section")
     def section_name(self, obj):
         return obj.material.section.get_name_display()
-    section_name.short_description = "Section"
 
     def save_model(self, request, obj, form, change):
         if (
@@ -422,25 +383,25 @@ class QuestionChoiceAdmin(admin.ModelAdmin):
         "question__question_text",
         "question__material__section__exam__title",
     )
-    list_editable = (
-        "is_correct",
-        "order",
-    )
+    list_editable = ("is_correct", "order")
     ordering = ("question__question_number", "order")
 
+    @admin.display(description="Q No")
     def question_number(self, obj):
         return obj.question.question_number
-    question_number.short_description = "Q No"
 
+    @admin.display(description="Exam")
     def exam_title(self, obj):
         return obj.question.material.section.exam.title
-    exam_title.short_description = "Exam"
 
+    @admin.display(description="Choice")
     def short_choice_text(self, obj):
         return obj.choice_text[:60] if obj.choice_text else "[Image Choice]"
-    short_choice_text.short_description = "Choice"
 
 
+# =========================
+# EXAM ATTEMPT / ANSWERS
+# =========================
 @admin.register(ExamAttempt)
 class ExamAttemptAdmin(admin.ModelAdmin):
     list_display = (
@@ -448,32 +409,30 @@ class ExamAttemptAdmin(admin.ModelAdmin):
         "user",
         "exam",
         "status",
-        "current_section_started_at",
+        "current_section",
         "total_score",
         "listening_score",
         "reading_score",
-        "tab_switch_count",
-        "fullscreen_exit_count",
+        "writing_score",
+        "ai_evaluated",
         "is_flagged",
         "started_at",
         "submitted_at",
     )
     list_filter = (
         "status",
+        "ai_evaluated",
         "is_flagged",
         "exam__level",
         "exam__exam_type",
     )
-    search_fields = (
-        "user__username",
-        "user__email",
-        "exam__title",
-    )
+    search_fields = ("user__username", "user__email", "exam__title")
     readonly_fields = (
         "started_at",
         "submitted_at",
         "created_at",
         "updated_at",
+        "ai_evaluated_at",
     )
     ordering = ("-started_at",)
 
@@ -481,9 +440,10 @@ class ExamAttemptAdmin(admin.ModelAdmin):
         ("Relation", {
             "fields": (
                 "user",
-                "current_section_started_at",
                 "exam",
                 "status",
+                "current_section",
+                "current_section_started_at",
                 "is_flagged",
             )
         }),
@@ -492,6 +452,14 @@ class ExamAttemptAdmin(admin.ModelAdmin):
                 "total_score",
                 "listening_score",
                 "reading_score",
+                "writing_score",
+            )
+        }),
+        ("AI Evaluation", {
+            "fields": (
+                "ai_evaluated",
+                "ai_feedback",
+                "ai_evaluated_at",
             )
         }),
         ("Monitoring", {
@@ -512,36 +480,26 @@ class ExamAttemptAdmin(admin.ModelAdmin):
             )
         }),
     )
+
+
 @admin.register(ExamEventLog)
 class ExamEventLogAdmin(admin.ModelAdmin):
-    list_display = (
-        "id",
-        "attempt",
-        "event_type",
-        "short_details",
-        "created_at",
-    )
-    list_filter = (
-        "event_type",
-        "created_at",
-        "attempt__exam__level",
-        "attempt__is_flagged",
-    )
+    list_display = ("id", "attempt", "event_type", "short_details", "created_at")
+    list_filter = ("event_type", "created_at", "attempt__exam__level", "attempt__is_flagged")
     search_fields = (
         "attempt__user__username",
         "attempt__user__email",
         "attempt__exam__title",
         "details",
     )
-    readonly_fields = (
-        "created_at",
-        "updated_at",
-    )
+    readonly_fields = ("created_at", "updated_at")
     ordering = ("-created_at",)
 
+    @admin.display(description="Details")
     def short_details(self, obj):
         return obj.details[:80] if obj.details else "-"
-    short_details.short_description = "Details"
+
+
 @admin.register(ExamAnswer)
 class ExamAnswerAdmin(admin.ModelAdmin):
     list_display = (
@@ -565,25 +523,28 @@ class ExamAnswerAdmin(admin.ModelAdmin):
         "question__question_text",
         "text_answer",
     )
-    readonly_fields = (
-        "created_at",
-        "updated_at",
-    )
+    readonly_fields = ("created_at", "updated_at")
     ordering = ("attempt", "question__question_number")
 
+    @admin.display(description="Q No")
     def question_number(self, obj):
         return obj.question.question_number
-    question_number.short_description = "Q No"
 
+    @admin.display(description="Section")
     def section_name(self, obj):
         return obj.question.material.section.get_name_display()
-    section_name.short_description = "Section"
 
+
+# =========================
+# WRITING
+# =========================
 class WritingTaskBlankInline(admin.TabularInline):
     model = WritingTaskBlank
     extra = 0
-    fields = ("blank_order", "answer_label", "correct_answer")
+    fields = ("blank_order", "answer_label", "correct_answer", "scoring_note")
     ordering = ("blank_order",)
+
+
 @admin.register(WritingTask)
 class WritingTaskAdmin(admin.ModelAdmin):
     list_display = (
@@ -612,52 +573,32 @@ class WritingTaskAdmin(admin.ModelAdmin):
         "section__exam__title",
         "section__exam__title_ko",
     )
-    list_editable = (
-        "score",
-        "order",
-        "is_active",
-    )
+    list_editable = ("score", "order", "is_active")
     ordering = ("task_number", "order")
     inlines = [WritingTaskBlankInline]
     readonly_fields = ("created_at", "updated_at")
 
     fieldsets = (
         ("Relation", {
-            "fields": (
-                "section",
-                "task_number",
-                "task_type",
-                "order",
-            )
+            "fields": ("section", "task_number", "task_type", "order")
         }),
         ("Content", {
-            "fields": (
-                "title",
-                "instruction",
-                "prompt",
-                "image",
-            )
+            "fields": ("title", "instruction", "prompt", "image")
         }),
         ("Task Settings", {
-            "fields": (
-                "min_words",
-                "max_words",
-                "score",
-                "is_active",
-            )
+            "fields": ("min_words", "max_words", "score", "is_active")
         }),
         ("Timestamps", {
-            "fields": (
-                "created_at",
-                "updated_at",
-            ),
+            "fields": ("created_at", "updated_at"),
             "classes": ("collapse",),
         }),
     )
 
+    @admin.display(description="Title")
     def title_or_fallback(self, obj):
         return obj.title or f"Writing Task {obj.task_number}"
-    title_or_fallback.short_description = "Title"
+
+
 @admin.register(WritingTaskBlank)
 class WritingTaskBlankAdmin(admin.ModelAdmin):
     list_display = (
@@ -666,7 +607,7 @@ class WritingTaskBlankAdmin(admin.ModelAdmin):
         "blank_order",
         "answer_label",
         "correct_answer",
-        "scoring_note"
+        "scoring_note",
     )
     list_filter = (
         "task__task_type",
@@ -676,12 +617,13 @@ class WritingTaskBlankAdmin(admin.ModelAdmin):
     search_fields = (
         "answer_label",
         "correct_answer",
-
         "task__title",
         "task__prompt",
         "task__section__exam__title",
     )
     ordering = ("task__task_number", "blank_order")
+
+
 @admin.register(WritingSubmission)
 class WritingSubmissionAdmin(admin.ModelAdmin):
     list_display = (
@@ -709,25 +651,15 @@ class WritingSubmissionAdmin(admin.ModelAdmin):
         "task__prompt",
         "answer_text",
     )
-    readonly_fields = (
-        "word_count",
-        "created_at",
-        "updated_at",
-    )
+    readonly_fields = ("word_count", "created_at", "updated_at")
     ordering = ("attempt", "task__task_number")
 
     fieldsets = (
         ("Relation", {
-            "fields": (
-                "attempt",
-                "task",
-            )
+            "fields": ("attempt", "task")
         }),
         ("Submission", {
-            "fields": (
-                "answer_text",
-                "word_count",
-            )
+            "fields": ("answer_text", "word_count")
         }),
         ("Scoring", {
             "fields": (
@@ -739,18 +671,220 @@ class WritingSubmissionAdmin(admin.ModelAdmin):
             )
         }),
         ("Timestamps", {
-            "fields": (
-                "created_at",
-                "updated_at",
-            ),
+            "fields": ("created_at", "updated_at"),
             "classes": ("collapse",),
         }),
     )
 
+    @admin.display(description="Task No")
     def task_number(self, obj):
         return obj.task.task_number
-    task_number.short_description = "Task No"
 
+    @admin.display(description="Task Type")
     def task_type(self, obj):
         return obj.task.get_task_type_display()
-    task_type.short_description = "Task Type"
+
+
+@admin.register(UserProgressInsight)
+class UserProgressInsightAdmin(admin.ModelAdmin):
+    list_display = ("user", "focus_area", "based_on_attempt_count", "updated_at")
+    search_fields = ("user__username", "user__email", "focus_area")
+    readonly_fields = ("updated_at",)
+    list_filter = ("focus_area", "updated_at")
+
+
+# =========================
+# SPEAKING
+# =========================
+class SpeakingTestQuestionInline(admin.TabularInline):
+    model = SpeakingTestQuestion
+    extra = 1
+    autocomplete_fields = ["question"]
+    ordering = ["order"]
+
+
+@admin.register(SpeakingQuestion)
+class SpeakingQuestionAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "short_title",
+        "part",
+        "question_type",
+        "difficulty",
+        "prep_time",
+        "speak_time",
+        "is_active",
+        "order",
+        "created_at",
+    )
+    list_filter = ("part", "question_type", "difficulty", "is_active", "created_at")
+    search_fields = ("title", "prompt")
+    list_editable = ("is_active", "order", "prep_time", "speak_time")
+    ordering = ("part", "order", "id")
+
+    fieldsets = (
+        ("Basic Info", {
+            "fields": ("part", "question_type", "difficulty", "is_active", "order")
+        }),
+        ("Question Content", {
+            "fields": ("title", "prompt", "follow_up_questions")
+        }),
+        ("Timing", {
+            "fields": ("prep_time", "speak_time")
+        }),
+        ("Extra", {
+            "fields": ("sample_answer", "tags")
+        }),
+    )
+
+    @admin.display(description="Title / Prompt")
+    def short_title(self, obj):
+        return obj.title or obj.prompt[:50]
+
+
+@admin.register(SpeakingTest)
+class SpeakingTestAdmin(admin.ModelAdmin):
+    list_display = ("id", "title", "is_active", "question_count", "created_at")
+    list_filter = ("is_active", "created_at")
+    search_fields = ("title", "description")
+    list_editable = ("is_active",)
+    inlines = [SpeakingTestQuestionInline]
+
+    fieldsets = (
+        ("Test Info", {
+            "fields": ("title", "description", "is_active")
+        }),
+    )
+
+    @admin.display(description="Questions")
+    def question_count(self, obj):
+        return obj.test_questions.count()
+
+
+@admin.register(SpeakingTestQuestion)
+class SpeakingTestQuestionAdmin(admin.ModelAdmin):
+    list_display = ("id", "test", "question", "order")
+    list_filter = ("test", "question__part", "question__question_type")
+    search_fields = ("test__title", "question__title", "question__prompt")
+    list_editable = ("order",)
+    autocomplete_fields = ["test", "question"]
+    ordering = ("test", "order", "id")
+
+
+class SpeakingAnswerInline(admin.TabularInline):
+    model = SpeakingAnswer
+    extra = 0
+    can_delete = False
+    readonly_fields = (
+        "question",
+        "audio_file",
+        "transcript",
+        "ai_score",
+        "grammar_score",
+        "fluency_score",
+        "vocabulary_score",
+        "pronunciation_score",
+        "task_completion_score",
+        "ai_feedback",
+        "created_at",
+    )
+    fields = (
+        "question",
+        "audio_file",
+        "transcript",
+        "ai_score",
+        "grammar_score",
+        "fluency_score",
+        "vocabulary_score",
+        "pronunciation_score",
+        "task_completion_score",
+        "ai_feedback",
+        "created_at",
+    )
+
+
+@admin.register(SpeakingAttempt)
+class SpeakingAttemptAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "user",
+        "test",
+        "status",
+        "overall_score",
+        "started_at",
+        "submitted_at",
+        "evaluated_at",
+    )
+    list_filter = ("status", "test", "started_at", "submitted_at", "evaluated_at")
+    search_fields = ("user__username", "user__email", "test__title")
+    readonly_fields = (
+        "started_at",
+        "submitted_at",
+        "evaluated_at",
+        "overall_score",
+        "ai_feedback",
+    )
+    autocomplete_fields = ["user", "test"]
+    inlines = [SpeakingAnswerInline]
+    ordering = ("-started_at",)
+
+    fieldsets = (
+        ("Basic Info", {
+            "fields": ("user", "test", "status")
+        }),
+        ("Evaluation", {
+            "fields": ("overall_score", "ai_feedback")
+        }),
+        ("Timing", {
+            "fields": ("started_at", "submitted_at", "evaluated_at")
+        }),
+    )
+
+
+@admin.register(SpeakingAnswer)
+class SpeakingAnswerAdmin(admin.ModelAdmin):
+    list_display = (
+        "id",
+        "attempt",
+        "question",
+        "ai_score",
+        "grammar_score",
+        "fluency_score",
+        "vocabulary_score",
+        "pronunciation_score",
+        "task_completion_score",
+        "created_at",
+    )
+    list_filter = ("question__part", "question__question_type", "created_at")
+    search_fields = (
+        "question__title",
+        "question__prompt",
+        "attempt__user__username",
+        "attempt__test__title",
+        "transcript",
+    )
+    readonly_fields = ("created_at",)
+    autocomplete_fields = ["attempt", "question"]
+
+    fieldsets = (
+        ("Basic Info", {
+            "fields": ("attempt", "question", "audio_file")
+        }),
+        ("Transcript", {
+            "fields": ("transcript",)
+        }),
+        ("AI Evaluation", {
+            "fields": (
+                "ai_score",
+                "grammar_score",
+                "fluency_score",
+                "vocabulary_score",
+                "pronunciation_score",
+                "task_completion_score",
+                "ai_feedback",
+            )
+        }),
+        ("Time", {
+            "fields": ("created_at",)
+        }),
+    )

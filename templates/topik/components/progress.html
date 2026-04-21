@@ -1,11 +1,13 @@
+{% extends 'topik/topik.html' %}
+{% load static %}
+{% block main %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>My Progress</title>
+    <title>나의 학습 현황</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
     <style>
         * {
             margin: 0;
@@ -33,7 +35,7 @@
             font-family: 'Inter', sans-serif;
             background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
             color: var(--text);
-            padding: 24px;
+
         }
 
         .container {
@@ -48,6 +50,7 @@
             padding: 34px;
             margin-bottom: 26px;
             box-shadow: var(--shadow);
+            margin:30px 0px;
         }
 
         .hero h1 {
@@ -151,19 +154,6 @@
             margin-bottom: 20px;
         }
 
-        .chart-placeholder {
-            height: 320px;
-            border-radius: 22px;
-            border: 1px dashed #cbd5e1;
-            background: linear-gradient(180deg, #f8fbff 0%, #f1f6fd 100%);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--muted);
-            font-weight: 700;
-            font-size: 15px;
-        }
-
         .mini-grid {
             display: grid;
             gap: 14px;
@@ -202,10 +192,6 @@
             height: 100%;
             border-radius: 999px;
         }
-
-        .fill-reading { width: 78%; background: linear-gradient(90deg, #2563eb, #60a5fa); }
-        .fill-listening { width: 64%; background: linear-gradient(90deg, #10b981, #34d399); }
-        .fill-writing { width: 52%; background: linear-gradient(90deg, #7c3aed, #a78bfa); }
 
         .attempt-table-wrap {
             overflow-x: auto;
@@ -298,6 +284,35 @@
             background: #f8fafc;
         }
 
+        .insight-box {
+            background: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .insight-box p {
+            margin-bottom: 12px;
+            line-height: 1.7;
+        }
+
+        .insight-box ul {
+            padding-left: 18px;
+        }
+
+        .insight-box li {
+            margin-bottom: 6px;
+        }
+
+        .empty-state {
+            padding: 22px;
+            text-align: center;
+            border: 1px dashed #cbd5e1;
+            border-radius: 18px;
+            color: var(--muted);
+            background: #f8fbff;
+        }
+
         @media (max-width: 1100px) {
             .stats-grid {
                 grid-template-columns: repeat(2, 1fr);
@@ -333,138 +348,394 @@
 
             .stat-card strong {
                 font-size: 32px;
-            }
-        }
+            }}
+
+        .chart-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+
+.chart-tabs {
+    display: inline-flex;
+    gap: 8px;
+    padding: 6px;
+    border-radius: 14px;
+    background: #f8fafc;
+    border: 1px solid var(--border);
+}
+
+.chart-tab-btn {
+    border: none;
+    background: transparent;
+    color: var(--muted);
+    padding: 10px 14px;
+    border-radius: 10px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.chart-tab-btn:hover {
+    background: #eef4ff;
+    color: var(--primary);
+}
+
+.chart-tab-btn.active {
+    background: var(--primary);
+    color: white;
+}
+
+.chart-meta {
+    font-size: 13px;
+    color: var(--muted);
+    font-weight: 600;
+}
+
+.chart-empty {
+    padding: 22px;
+    text-align: center;
+    border: 1px dashed #cbd5e1;
+    border-radius: 18px;
+    color: var(--muted);
+    background: #f8fbff;
+}
+
+.more-wrap {
+    margin-top: 14px;
+    display: flex;
+    justify-content: center;
+}
+
+.more-btn {
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--secondary);
+    padding: 10px 16px;
+    border-radius: 12px;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: 0.2s ease;
+}
+
+.more-btn:hover {
+    background: #f8fafc;
+}
     </style>
 </head>
 <body>
 <div class="container">
 
     <div class="hero">
-        <h1>My Progress</h1>
-        <p>Track your TOPIK preparation journey across full mocks, reading, listening, and writing practice. Review your growth and focus on weaker areas.</p>
+        <h1>나의 학습 현황</h1>
+        <p>전체 모의고사, 읽기, 듣기, 쓰기 연습을 통해 TOPIK 준비 과정을 확인해 보세요. 성장 흐름을 분석하고 부족한 영역에 집중할 수 있습니다.</p>
         <div class="hero-meta">
-            <span class="hero-pill">Total Attempts: {{ total_attempts|default:"12" }}</span>
-            <span class="hero-pill">Completed Exams: {{ completed_attempts|default:"9" }}</span>
-            <span class="hero-pill">Average Score: {{ average_score|default:"74" }}</span>
-            <span class="hero-pill">Best Score: {{ best_score|default:"89" }}</span>
+            <span class="hero-pill">총 응시 횟수: {{ total_attempts }}</span>
+            <span class="hero-pill">완료한 시험: {{ completed_attempts }}</span>
+            <span class="hero-pill">평균 점수: {{ average_score }}</span>
+            <span class="hero-pill">최고 점수: {{ best_score }}</span>
         </div>
     </div>
 
     <div class="stats-grid">
         <div class="stat-card">
-            <span>Average Score</span>
-            <strong>{{ average_score|default:"74" }}</strong>
+            <span>평균 점수</span>
+            <strong>{{ average_score }}</strong>
         </div>
         <div class="stat-card">
-            <span>Best Score</span>
-            <strong>{{ best_score|default:"89" }}</strong>
+            <span>최고 점수</span>
+            <strong>{{ best_score }}</strong>
         </div>
         <div class="stat-card">
-            <span>Completed Tests</span>
-            <strong>{{ completed_attempts|default:"9" }}</strong>
+            <span>완료한 시험</span>
+            <strong>{{ completed_attempts }}</strong>
         </div>
         <div class="stat-card">
-            <span>Completion Rate</span>
-            <strong>{{ completion_rate|default:"82" }}%</strong>
+            <span>완료율</span>
+            <strong>{{ completion_rate }}%</strong>
         </div>
     </div>
 
     <div class="layout">
-        <div class="panel">
-            <h2>Score Trend</h2>
-            <p class="panel-subtitle">See how your performance changes over time.</p>
-            <div class="chart-placeholder">
-                Chart.js / ApexCharts progress line chart here
+     <div class="panel">
+            <div class="chart-header">
+                <div>
+                    <h2>점수 추이</h2>
+                    <p class="panel-subtitle" style="margin-bottom:0;">TOPIK I과 TOPIK II 점수 변화를 각각 확인할 수 있습니다.</p>
+                </div>
+
+                <div class="chart-tabs">
+                    <button type="button" class="chart-tab-btn active" data-chart-level="topik1">TOPIK I</button>
+                    <button type="button" class="chart-tab-btn" data-chart-level="topik2">TOPIK II</button>
+                </div>
+            </div>
+
+            <div class="chart-meta" id="chartMetaText">TOPIK I 점수 추이 (0–200점 기준)</div>
+
+            <div id="chartCanvasWrap" style="height:320px; margin-top:14px;">
+                <canvas id="progressChart"></canvas>
+            </div>
+
+            <div id="chartEmptyState" class="chart-empty" style="display:none; margin-top:14px;">
+                아직 이 단계의 응시 기록이 없습니다.
             </div>
         </div>
 
         <div class="panel">
-            <h2>Section Performance</h2>
-            <p class="panel-subtitle">Current progress by exam skill.</p>
+            <h2>영역별 성과</h2>
+            <p class="panel-subtitle">현재 시험 영역별 진행 상황입니다.</p>
 
             <div class="mini-grid">
                 <div class="mini-card">
-                    <div class="label">Reading</div>
-                    <div class="value">{{ reading_avg|default:"78" }}</div>
+                    <div class="label">읽기</div>
+                    <div class="value">{{ reading_avg }}</div>
                     <div class="progress-bar">
-                        <div class="progress-fill fill-reading"></div>
+                        <div class="progress-fill"
+                             style="width: {{ reading_avg }}%; background: linear-gradient(90deg, #2563eb, #60a5fa);">
+                        </div>
                     </div>
                 </div>
 
                 <div class="mini-card">
-                    <div class="label">Listening</div>
-                    <div class="value">{{ listening_avg|default:"64" }}</div>
+                    <div class="label">듣기</div>
+                    <div class="value">{{ listening_avg }}</div>
                     <div class="progress-bar">
-                        <div class="progress-fill fill-listening"></div>
+                        <div class="progress-fill"
+                             style="width: {{ listening_avg }}%; background: linear-gradient(90deg, #10b981, #34d399);">
+                        </div>
                     </div>
                 </div>
 
                 <div class="mini-card">
-                    <div class="label">Writing</div>
-                    <div class="value">{{ writing_avg|default:"52" }}</div>
+                    <div class="label">쓰기</div>
+                    <div class="value">{{ writing_avg }}</div>
                     <div class="progress-bar">
-                        <div class="progress-fill fill-writing"></div>
+                        <div class="progress-fill"
+                             style="width: {{ writing_avg }}%; background: linear-gradient(90deg, #7c3aed, #a78bfa);">
+                        </div>
                     </div>
                 </div>
+
+                {% if weakest_section %}
+                <div class="mini-card">
+                    <div class="label">가장 약한 영역</div>
+                    <div class="value" style="color: #ef4444;">{{ weakest_section }}</div>
+                </div>
+                {% endif %}
             </div>
 
             <div class="actions">
-                <a href="#" class="btn btn-primary">Take Full Mock</a>
-                <a href="#" class="btn btn-outline">Practice Weak Area</a>
+                <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">전체 모의고사 응시</a>
+                <a href="{% url 'topik:topik_writing_list' %}" class="btn btn-outline">쓰기 연습하기</a>
             </div>
         </div>
     </div>
+<!--    AI PART-->
+    <div style="margin-bottom:20px">
+        <div class="panel">
+    <h2>학습 분석</h2>
+    <p class="panel-subtitle">최근 TOPIK 응시 기록을 바탕으로 한 분석입니다.</p>
 
+    {% if progress_advice.summary or progress_advice.advice_items %}
+        <div class="insight-box">
+            {% if progress_advice.summary %}
+                <p>{{ progress_advice.summary }}</p>
+            {% endif %}
+
+            {% if progress_advice.focus_area %}
+                <p>
+                    <strong>집중 영역:</strong>
+                    <span style="color:#ef4444;">{{ progress_advice.focus_area }}</span>
+                </p>
+            {% endif %}
+
+            {% if progress_advice.advice_items %}
+                <ul>
+                    {% for item in progress_advice.advice_items %}
+                        <li>{{ item }}</li>
+                    {% endfor %}
+                </ul>
+            {% endif %}
+        </div>
+    {% else %}
+        <div class="empty-state">
+            아직 AI 분석이 없습니다. 제출된 시험을 완료하면 학습 조언이 생성됩니다.
+        </div>
+    {% endif %}
+</div>
+  </div>
     <div class="panel">
-        <h2>Recent Attempts</h2>
-        <p class="panel-subtitle">Your latest completed TOPIK exams and practice sessions.</p>
+        <h2>최근 응시 기록</h2>
+        <p class="panel-subtitle">최근 완료한 TOPIK 시험과 연습 기록입니다.</p>
 
         <div class="attempt-table-wrap">
             <table>
                 <thead>
                     <tr>
-                        <th>Exam</th>
-                        <th>Type</th>
-                        <th>Date</th>
-                        <th>Score</th>
-                        <th>Status</th>
+                        <th>시험명</th>
+                        <th>유형</th>
+                        <th>날짜</th>
+                        <th>점수</th>
+                        <th>상태</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <tr>
-                        <td>TOPIK II 91st Mock</td>
-                        <td><span class="badge badge-info">Full Mock</span></td>
-                        <td>2026-03-30</td>
-                        <td>89</td>
-                        <td><span class="badge badge-success">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>TOPIK Writing 51–54</td>
-                        <td><span class="badge badge-info">Writing</span></td>
-                        <td>2026-03-29</td>
-                        <td>74</td>
-                        <td><span class="badge badge-success">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>TOPIK Listening Practice</td>
-                        <td><span class="badge badge-info">Listening</span></td>
-                        <td>2026-03-27</td>
-                        <td>61</td>
-                        <td><span class="badge badge-success">Completed</span></td>
-                    </tr>
-                    <tr>
-                        <td>TOPIK Reading Set</td>
-                        <td><span class="badge badge-info">Reading</span></td>
-                        <td>2026-03-25</td>
-                        <td>80</td>
-                        <td><span class="badge badge-warning">In Progress</span></td>
-                    </tr>
-                </tbody>
+                <tbody id="recentAttemptsBody">
+    {% for attempt in recent_attempts %}
+    <tr class="attempt-row {% if forloop.counter > 3 %}extra-attempt-row{% endif %}" {% if forloop.counter > 3 %}style="display:none;"{% endif %}>
+        <td>{{ attempt.exam.title }}</td>
+        <td>
+            <span class="badge badge-info">{{ attempt.exam.get_exam_type_display }}</span>
+        </td>
+        <td>{{ attempt.submitted_at|date:"Y-m-d" }}</td>
+        <td>{{ attempt.total_score }}</td>
+        <td>
+            <span class="badge badge-success">{{ attempt.get_status_display }}</span>
+        </td>
+    </tr>
+    {% empty %}
+    <tr>
+        <td colspan="5" style="text-align:center; color:#64748b;">
+            아직 제출된 응시 기록이 없습니다.
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
             </table>
+            {% if recent_attempts|length > 3 %}
+            <div class="more-wrap">
+                <button type="button" id="toggleAttemptsBtn" class="more-btn">더 보기</button>
+            </div>
+            {% endif %}
         </div>
     </div>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    const topik1Labels = {{ topik1_labels|safe }};
+    const topik1Scores = {{ topik1_scores|safe }};
+    const topik2Labels = {{ topik2_labels|safe }};
+    const topik2Scores = {{ topik2_scores|safe }};
+
+    const chartCanvas = document.getElementById('progressChart');
+    const chartCanvasWrap = document.getElementById('chartCanvasWrap');
+    const chartEmptyState = document.getElementById('chartEmptyState');
+    const chartMetaText = document.getElementById('chartMetaText');
+    const chartButtons = document.querySelectorAll('.chart-tab-btn');
+
+    let progressChart = null;
+
+    const chartConfigs = {
+        topik1: {
+            labels: topik1Labels,
+            scores: topik1Scores,
+            max: 200,
+            color: '#2563eb',
+            bg: 'rgba(37, 99, 235, 0.08)',
+            meta: 'TOPIK I 점수 추이 (0–200점 기준)'
+        },
+        topik2: {
+            labels: topik2Labels,
+            scores: topik2Scores,
+            max: 300,
+            color: '#7c3aed',
+            bg: 'rgba(124, 58, 237, 0.08)',
+            meta: 'TOPIK II 점수 추이 (0–300점 기준)'
+        }
+    };
+
+    function renderChart(levelKey) {
+        const config = chartConfigs[levelKey];
+        const hasData = config.labels.length > 0 && config.scores.length > 0;
+
+        chartButtons.forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.chartLevel === levelKey);
+        });
+
+        chartMetaText.textContent = config.meta;
+
+        if (!hasData) {
+            chartCanvasWrap.style.display = 'none';
+            chartEmptyState.style.display = 'block';
+            if (progressChart) {
+                progressChart.destroy();
+                progressChart = null;
+            }
+            return;
+        }
+
+        chartCanvasWrap.style.display = 'block';
+        chartEmptyState.style.display = 'none';
+
+        if (progressChart) {
+            progressChart.destroy();
+        }
+
+        progressChart = new Chart(chartCanvas, {
+            type: 'line',
+            data: {
+                labels: config.labels,
+                datasets: [{
+                    label: '총점',
+                    data: config.scores,
+                    borderColor: config.color,
+                    backgroundColor: config.bg,
+                    fill: true,
+                    tension: 0.35,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        max: config.max,
+                        grid: { color: '#e5e7eb' }
+                    },
+                    x: {
+                        grid: { display: false }
+                    }
+                }
+            }
+        });
+    }
+
+    chartButtons.forEach(btn => {
+        btn.addEventListener('click', function () {
+            renderChart(this.dataset.chartLevel);
+        });
+    });
+
+    renderChart('topik1');
+
+    const toggleAttemptsBtn = document.getElementById('toggleAttemptsBtn');
+    const extraRows = document.querySelectorAll('.extra-attempt-row');
+    let attemptsExpanded = false;
+
+    if (toggleAttemptsBtn) {
+        toggleAttemptsBtn.addEventListener('click', function () {
+            attemptsExpanded = !attemptsExpanded;
+
+            extraRows.forEach(row => {
+                row.style.display = attemptsExpanded ? '' : 'none';
+            });
+
+            toggleAttemptsBtn.textContent = attemptsExpanded ? '접기' : '더 보기';
+        });
+    }
+</script>
 </body>
 </html>
+{% endblock main %}

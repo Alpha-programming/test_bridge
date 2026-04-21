@@ -1,9 +1,12 @@
+{% extends 'topik/topik.html' %}
+{% load static %}
+{% block main %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ exam.title }} - Result</title>
+    <title>{{ exam.title }} - 결과</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -38,7 +41,7 @@
         background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
         color: var(--text);
         line-height: 1.6;
-        padding: 24px;
+
     }
 
     .container {
@@ -51,7 +54,7 @@
         color: white;
         border-radius: 30px;
         padding: 36px;
-        margin-bottom: 26px;
+        margin: 26px 0px;
         box-shadow: var(--shadow);
     }
 
@@ -664,82 +667,80 @@
 <div class="container">
 
     <div class="hero">
-        <h1>{{ exam.title }} - Result</h1>
-        <p>Your exam attempt has been submitted successfully. Review your score, writing tasks, and objective answers below.</p>
+        <h1>{{ exam.title }} - 결과</h1>
+        <p>시험 응시가 성공적으로 제출되었습니다. 아래에서 점수, 쓰기 과제, 객관식 답안을 확인하세요.</p>
 
         <div class="hero-meta">
             <span class="hero-pill">{{ exam.get_level_display }}</span>
             <span class="hero-pill">{{ exam.get_exam_type_display }}</span>
-            <span class="hero-pill">{{ exam.duration_minutes }} Minutes</span>
-            <span class="hero-pill">{{ total_questions }} Objective Questions</span>
+            <span class="hero-pill">{{ exam.duration_minutes }}분</span>
+            <span class="hero-pill">객관식 {{ total_questions }}문항</span>
             {% if writing_submissions %}
-                <span class="hero-pill">{{ writing_submissions|length }} Writing Task{{ writing_submissions|length|pluralize }}</span>
+                <span class="hero-pill">쓰기 과제 {{ writing_submissions|length }}개</span>
             {% endif %}
         </div>
     </div>
 
    <div class="stats-grid">
     <div class="stat-card">
-        <span>Total Score</span>
+        <span>총점</span>
         <strong>{{ attempt.total_score }}</strong>
     </div>
 
     <div class="stat-card">
-        <span>Writing Score</span>
+        <span>쓰기 점수</span>
         <strong>{{ attempt.writing_score }}</strong>
     </div>
 
     {% if writing_submissions %}
     <div class="stat-card">
-        <span>Writing Tasks</span>
+        <span>쓰기 과제 수</span>
         <strong>{{ writing_submissions|length }}</strong>
     </div>
     {% endif %}
-
-
 </div>
 
     <div class="panel">
-        <h2>Attempt Summary</h2>
-        <p class="panel-subtitle">Overview of your exam attempt and monitoring status.</p>
+        <h2>응시 요약</h2>
+        <p class="panel-subtitle">시험 응시 정보와 모니터링 상태를 확인할 수 있습니다.</p>
 
        <div class="summary-grid">
     <div class="summary-box">
-        <span>Status</span>
+        <span>상태</span>
         <strong>{{ attempt.get_status_display }}</strong>
     </div>
 
     <div class="summary-box">
-        <span>Started At</span>
+        <span>시작 시간</span>
         <strong>{{ attempt.started_at }}</strong>
     </div>
    <div class="summary-box">
-        <span>Submitted At</span>
+        <span>제출 시간</span>
         <strong>{{ attempt.submitted_at }}</strong>
     </div>
     <div class="summary-box">
-        <span>Reading Score</span>
+        <span>읽기 점수</span>
         <strong>{{ attempt.reading_score }}</strong>
     </div>
     <div class="summary-box">
-        <span>Listening Score</span>
+        <span>듣기 점수</span>
         <strong>{{ attempt.listening_score }}</strong>
     </div>
          <div class="summary-box">
-        <span>Writing Score</span>
+        <span>쓰기 점수</span>
         <strong>{{ attempt.writing_score }}</strong>
     </div>
 
     <div class="summary-box">
-        <span>Tab Switches</span>
+        <span>탭 전환 횟수</span>
         <strong>{{ attempt.tab_switch_count }}</strong>
     </div>
     <div class="summary-box">
-        <span>Fullscreen Exits</span>
+        <span>전체화면 종료 횟수</span>
         <strong>{{ attempt.fullscreen_exit_count }}</strong>
     </div>
     <div class="summary-box">
-        <span>Copy Attempts</span>
+        <span>복사 시도 횟수</span>
         <strong>{{ attempt.copy_attempt_count }}</strong>
     </div>
 
@@ -747,30 +748,30 @@
 
         {% if attempt.is_flagged %}
             <div class="flag-box flag-warning">
-                This attempt was flagged for suspicious activity and may require review.
+                이 응시는 의심스러운 활동으로 표시되어 검토가 필요할 수 있습니다.
             </div>
         {% else %}
             <div class="flag-box flag-safe">
-                No serious suspicious activity was flagged for this attempt.
+                이 응시에서는 심각한 의심 활동이 발견되지 않았습니다.
             </div>
         {% endif %}
     </div>
 
     {% if writing_submissions %}
     <div class="panel">
-        <h2>Writing Review</h2>
-        <p class="panel-subtitle">Your writing responses and evaluation details appear here.</p>
+        <h2>쓰기 평가</h2>
+        <p class="panel-subtitle">쓰기 답안과 평가 결과를 여기에서 확인할 수 있습니다.</p>
 
         <div class="section-group">
             <div class="section-title">
-                <h3>Writing</h3>
-                <span class="section-pill">{{ writing_submissions|length }} Task{{ writing_submissions|length|pluralize }}</span>
+                <h3>쓰기</h3>
+                <span class="section-pill">과제 {{ writing_submissions|length }}개</span>
             </div>
 
             {% for submission in writing_submissions %}
                 <div class="writing-card">
                     <div class="writing-top">
-                        <h4>Task {{ submission.task.task_number }}{% if submission.task.title %} - {{ submission.task.title }}{% endif %}</h4>
+                        <h4>과제 {{ submission.task.task_number }}{% if submission.task.title %} - {{ submission.task.title }}{% endif %}</h4>
                         <span class="status-badge status-writing">{{ submission.task.get_task_type_display }}</span>
                     </div>
 
@@ -780,46 +781,46 @@
 
                     <div class="writing-meta">
                         <div class="writing-row">
-                            <span>Your Submission</span>
+                            <span>내 답안</span>
                             <div class="long-answer-box">
                                 {% if submission.answer_text %}
                                     {{ submission.answer_text }}
                                 {% else %}
-                                    No answer submitted
+                                    제출된 답안이 없습니다
                                 {% endif %}
                             </div>
                         </div>
 
                         <div class="writing-row">
-                            <span>Word Count</span>
+                            <span>어절 수</span>
                             <strong>{{ submission.word_count }}</strong>
                         </div>
 
                         <div class="writing-row">
-                            <span>Score Awarded</span>
-                            <strong>{{ submission.score_awarded|default_if_none:"Pending" }}</strong>
+                            <span>부여 점수</span>
+                            <strong>{{ submission.score_awarded|default_if_none:"평가 대기" }}</strong>
                         </div>
 
                        {% if submission.ai_score or submission.final_score or submission.ai_feedback %}
                             <div class="ai-box">
                                 <div class="ai-header">
-                                    <h5>AI Evaluation</h5>
+                                    <h5>AI 평가</h5>
                                     <span class="ai-type-pill">{{ submission.task.get_task_type_display }}</span>
                                 </div>
 
                                 <div class="ai-grid compact">
                                     <div class="ai-mini">
-                                        <span>AI Score</span>
+                                        <span>AI 점수</span>
                                         <strong>{{ submission.ai_score|default_if_none:"-" }}</strong>
                                     </div>
 
                                     <div class="ai-mini">
-                                        <span>Score Awarded</span>
+                                        <span>부여 점수</span>
                                         <strong>{{ submission.score_awarded|default_if_none:"-" }}</strong>
                                     </div>
 
                                     <div class="ai-mini">
-                                        <span>Task Max</span>
+                                        <span>과제 만점</span>
                                         <strong>{{ submission.task.score }}</strong>
                                     </div>
                                 </div>
@@ -827,23 +828,23 @@
                                 {% if submission.ai_feedback %}
                                     {% if submission.ai_feedback.feedback_summary %}
                                         <div class="ai-summary">
-                                            <strong>Summary</strong>
+                                            <strong>요약</strong>
                                             <p>{{ submission.ai_feedback.feedback_summary }}</p>
                                         </div>
                                     {% endif %}
 
                                     {% if submission.ai_feedback.blank_scores %}
                                         <div class="ai-subsection">
-                                            <div class="mini-section-title">Blank Review</div>
+                                            <div class="mini-section-title">빈칸 평가</div>
                                             <div class="blank-score-grid">
                                                 {% for blank in submission.ai_feedback.blank_scores %}
                                                     <div class="blank-score-card">
                                                         <div class="blank-score-top">
-                                                            <span>Blank {{ blank.blank_order }}</span>
+                                                            <span>{{ blank.blank_order }}번 빈칸</span>
                                                             {% if blank.is_acceptable %}
-                                                                <em class="mini-badge ok">Acceptable</em>
+                                                                <em class="mini-badge ok">적절함</em>
                                                             {% else %}
-                                                                <em class="mini-badge no">Needs Fix</em>
+                                                                <em class="mini-badge no">수정 필요</em>
                                                             {% endif %}
                                                         </div>
                                                         <strong>{{ blank.score }}</strong>
@@ -859,7 +860,7 @@
                                     {% if submission.ai_feedback.correct_blanks is not None %}
                                         <div class="ai-inline-stats">
                                             <div class="inline-stat">
-                                                <span>Correct blanks</span>
+                                                <span>정답 빈칸 수</span>
                                                 <strong>{{ submission.ai_feedback.correct_blanks }} / {{ submission.ai_feedback.total_blanks }}</strong>
                                             </div>
                                         </div>
@@ -867,29 +868,29 @@
 
                                     {% if submission.ai_feedback.grammar_score is not None or submission.ai_feedback.vocabulary_score is not None or submission.ai_feedback.coherence_score is not None or submission.ai_feedback.task_completion_score is not None %}
                                         <div class="ai-subsection">
-                                            <div class="mini-section-title">Rubric Breakdown</div>
+                                            <div class="mini-section-title">세부 평가 기준</div>
                                             <div class="ai-grid compact">
                                                 {% if submission.ai_feedback.grammar_score is not None %}
                                                     <div class="ai-mini">
-                                                        <span>Grammar</span>
+                                                        <span>문법</span>
                                                         <strong>{{ submission.ai_feedback.grammar_score }}</strong>
                                                     </div>
                                                 {% endif %}
                                                 {% if submission.ai_feedback.vocabulary_score is not None %}
                                                     <div class="ai-mini">
-                                                        <span>Vocabulary</span>
+                                                        <span>어휘</span>
                                                         <strong>{{ submission.ai_feedback.vocabulary_score }}</strong>
                                                     </div>
                                                 {% endif %}
                                                 {% if submission.ai_feedback.coherence_score is not None %}
                                                     <div class="ai-mini">
-                                                        <span>Coherence</span>
+                                                        <span>일관성</span>
                                                         <strong>{{ submission.ai_feedback.coherence_score }}</strong>
                                                     </div>
                                                 {% endif %}
                                                 {% if submission.ai_feedback.task_completion_score is not None %}
                                                     <div class="ai-mini">
-                                                        <span>Task Completion</span>
+                                                        <span>과제 수행</span>
                                                         <strong>{{ submission.ai_feedback.task_completion_score }}</strong>
                                                     </div>
                                                 {% endif %}
@@ -901,7 +902,7 @@
                                         <div class="feedback-columns">
                                             {% if submission.ai_feedback.strengths %}
                                                 <div class="feedback-col">
-                                                    <div class="mini-section-title">Strengths</div>
+                                                    <div class="mini-section-title">강점</div>
                                                     <ul>
                                                         {% for item in submission.ai_feedback.strengths %}
                                                             <li>{{ item }}</li>
@@ -912,7 +913,7 @@
 
                                             {% if submission.ai_feedback.improvements %}
                                                 <div class="feedback-col">
-                                                    <div class="mini-section-title">Improvements</div>
+                                                    <div class="mini-section-title">개선점</div>
                                                     <ul>
                                                         {% for item in submission.ai_feedback.improvements %}
                                                             <li>{{ item }}</li>
@@ -925,17 +926,17 @@
 
                                     {% if submission.ai_feedback.comment %}
                                         <div class="ai-note">
-                                            <strong>Comment:</strong> {{ submission.ai_feedback.comment }}
+                                            <strong>코멘트:</strong> {{ submission.ai_feedback.comment }}
                                         </div>
                                     {% endif %}
 
                                     {% if submission.ai_feedback.error %}
                                         <div class="ai-note error-note">
-                                            <strong>Error:</strong> {{ submission.ai_feedback.error }}
+                                            <strong>오류:</strong> {{ submission.ai_feedback.error }}
                                         </div>
                                     {% endif %}
                                 {% else %}
-                                    <div class="ai-note">No AI feedback available yet.</div>
+                                    <div class="ai-note">아직 AI 피드백이 없습니다.</div>
                                 {% endif %}
                             </div>
                         {% endif %}
@@ -947,25 +948,25 @@
     {% endif %}
 
     <div class="panel">
-        <h2>Objective Answer Review</h2>
-        <p class="panel-subtitle">Check what you answered and compare it with the correct answer.</p>
+        <h2>객관식 답안 검토</h2>
+        <p class="panel-subtitle">내가 선택한 답과 정답을 비교해 보세요.</p>
 
         {% if grouped_answers %}
             {% for section_name, section_answers in grouped_answers.items %}
                 <div class="section-group">
                     <div class="section-title">
                         <h3>{{ section_name }}</h3>
-                        <span class="section-pill">{{ section_answers|length }} Question{{ section_answers|length|pluralize }}</span>
+                        <span class="section-pill">문항 {{ section_answers|length }}개</span>
                     </div>
 
                     {% for answer in section_answers %}
                         <div class="answer-card">
                             <div class="answer-top">
-                                <h4>Question {{ answer.question.question_number }}</h4>
+                                <h4>{{ answer.question.question_number }}번 문제</h4>
                                 {% if answer.is_correct %}
-                                    <span class="status-badge status-correct">Correct</span>
+                                    <span class="status-badge status-correct">정답</span>
                                 {% else %}
-                                    <span class="status-badge status-wrong">Wrong</span>
+                                    <span class="status-badge status-wrong">오답</span>
                                 {% endif %}
                             </div>
 
@@ -975,20 +976,20 @@
 
                             <div class="answer-meta">
                                 <div class="answer-row">
-                                    <span>Your Answer</span>
+                                    <span>내 답안</span>
                                     <strong>
                                         {% if answer.selected_choice %}
                                             {{ answer.selected_choice.label }} {{ answer.selected_choice.choice_text }}
                                         {% elif answer.text_answer %}
                                             {{ answer.text_answer }}
                                         {% else %}
-                                            No answer
+                                            답안 없음
                                         {% endif %}
                                     </strong>
                                 </div>
 
                                 <div class="answer-row">
-                                    <span>Correct Answer</span>
+                                    <span>정답</span>
                                     <strong>
                                         {% if answer.question.question_type == "short_answer" %}
                                             {{ answer.question.correct_text_answer|default:"-" }}
@@ -1003,7 +1004,7 @@
                                 </div>
 
                                 <div class="answer-row">
-                                    <span>Score Awarded</span>
+                                    <span>부여 점수</span>
                                     <strong>{{ answer.score_awarded }}</strong>
                                 </div>
                             </div>
@@ -1013,16 +1014,17 @@
             {% endfor %}
         {% else %}
             <div class="empty-note">
-                No objective questions were answered in this attempt.
+                이번 응시에서 객관식 문항에 대한 답변이 없습니다.
             </div>
         {% endif %}
 
         <div class="actions">
-            <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-outline">Back to Exam</a>
-            <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="btn btn-primary">Retake Exam</a>
+            <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-outline">시험으로 돌아가기</a>
+            <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="btn btn-primary">다시 응시하기</a>
         </div>
     </div>
 
 </div>
 </body>
 </html>
+{% endblock main %}

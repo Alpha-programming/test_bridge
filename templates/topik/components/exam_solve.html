@@ -1,10 +1,10 @@
 {% load topik_extras %}
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ exam.title }} - Solve</title>
+    <title>{{ exam.title }} - 응시</title>
 
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
@@ -658,30 +658,30 @@
                     <div class="exam-meta">
                         <span class="meta-pill">{{ exam.get_level_display }}</span>
                         <span class="meta-pill">{{ main_section.get_name_display }}</span>
-                        <span class="meta-pill">Section {{ section_index }} / {{ total_sections }}</span>
-                        <span class="meta-pill">{{ main_section.duration_minutes }} Minutes</span>
+                        <span class="meta-pill">영역 {{ section_index }} / {{ total_sections }}</span>
+                        <span class="meta-pill">{{ main_section.duration_minutes }}분</span>
                     </div>
                 </div>
 
                 <div class="header-actions">
                     <div class="timer-box">
-                        <span>Time Remaining</span>
+                        <span>남은 시간</span>
                         <strong id="exam-timer" data-seconds="{{ remaining_seconds }}">00:00</strong>
                     </div>
 
                     {% if main_section.name != "writing" %}
                     <div class="view-toggle">
-                        <button type="button" class="view-btn active" id="gridViewBtn">Grid</button>
-                        <button type="button" class="view-btn" id="rowViewBtn">Row</button>
+                        <button type="button" class="view-btn active" id="gridViewBtn">격자형</button>
+                        <button type="button" class="view-btn" id="rowViewBtn">목록형</button>
                     </div>
                     {% endif %}
 
                     {% if section_index < total_sections %}
                         <a href="{% url 'topik:advance_topik_exam_section' attempt.id %}" class="submit-btn-top">
-                            Next Section
+                            다음 영역
                         </a>
                     {% else %}
-                        <button class="submit-btn-top" type="submit">Submit Exam</button>
+                        <button class="submit-btn-top" type="submit">시험 제출</button>
                     {% endif %}
                 </div>
             </div>
@@ -697,13 +697,13 @@
                     {% if section.audio_file %}
                         <audio controls>
                             <source src="{{ section.audio_file.url }}">
-                            Your browser does not support audio.
+                            사용 중인 브라우저는 오디오를 지원하지 않습니다.
                         </audio>
                     {% endif %}
                 </div>
 
                 <div class="section-badge">
-                    Section {{ section_index }}
+                    영역 {{ section_index }}
                 </div>
             </div>
 
@@ -715,16 +715,16 @@
                             <div class="material-block">
                                 <div class="material-top">
                                     <div class="material-info">
-                                        <h3>{{ task.title|default:"Writing Task" }}</h3>
+                                        <h3>{{ task.title|default:"쓰기 과제" }}</h3>
                                         <div class="material-meta">
-                                            <span class="material-pill">Task {{ task.task_number }}</span>
+                                            <span class="material-pill">과제 {{ task.task_number }}</span>
                                             <span class="material-pill">{{ task.get_task_type_display }}</span>
-                                            <span class="material-pill">{{ task.score }} Points</span>
+                                            <span class="material-pill">{{ task.score }}점</span>
                                             {% if task.min_words %}
-                                                <span class="material-pill">Min {{ task.min_words }}</span>
+                                                <span class="material-pill">최소 {{ task.min_words }}</span>
                                             {% endif %}
                                             {% if task.max_words %}
-                                                <span class="material-pill">Max {{ task.max_words }}</span>
+                                                <span class="material-pill">최대 {{ task.max_words }}</span>
                                             {% endif %}
                                         </div>
                                     </div>
@@ -732,13 +732,13 @@
 
                                 {% if task.instruction %}
                                     <div class="material-content">
-                                        <strong>Instruction</strong>
+                                        <strong>안내</strong>
                                         <p>{{ task.instruction }}</p>
                                     </div>
                                 {% endif %}
 
                                 <div class="material-content">
-                                    <strong>Prompt</strong>
+                                    <strong>문제</strong>
                                     <p>{{ task.prompt }}</p>
                                 </div>
 
@@ -755,27 +755,27 @@
                                                     class="writing-input"
                                                     data-writing-task-id="{{ task.id }}"
                                                     data-blank-id="{{ blank.id }}"
-                                                    placeholder="{{ blank.answer_label|default:'Write your answer here...' }}"
+                                                    placeholder="{{ blank.answer_label|default:'답안을 입력하세요...' }}"
                                                     value="{% if saved_submission %}{{ saved_submission.answer_text }}{% endif %}"
                                                 >
                                             </div>
                                         {% endfor %}
                                         <div class="writing-editor-footer">
-                                            <span class="writing-save-status" id="save-status-{{ task.id }}">Autosave ready</span>
+                                            <span class="writing-save-status" id="save-status-{{ task.id }}">자동 저장 준비됨</span>
                                         </div>
                                     {% else %}
                                         <textarea
                                             class="writing-textarea"
                                             data-writing-task-id="{{ task.id }}"
-                                            placeholder="Write your answer here..."
+                                            placeholder="답안을 입력하세요..."
                                         >{% if saved_submission %}{{ saved_submission.answer_text }}{% endif %}</textarea>
 
                                         <div class="writing-editor-footer">
                                             <span class="writing-count">
-                                                Word count:
+                                                어절 수:
                                                 <span id="word-count-{{ task.id }}">{% if saved_submission %}{{ saved_submission.word_count }}{% else %}0{% endif %}</span>
                                             </span>
-                                            <span class="writing-save-status" id="save-status-{{ task.id }}">Autosave ready</span>
+                                            <span class="writing-save-status" id="save-status-{{ task.id }}">자동 저장 준비됨</span>
                                         </div>
                                     {% endif %}
                                 </div>
@@ -784,7 +784,7 @@
                         {% endif %}
                     {% empty %}
                         <div class="material-block">
-                            <p>No writing tasks in this section.</p>
+                            <p>이 영역에는 쓰기 과제가 없습니다.</p>
                         </div>
                     {% endfor %}
                 </div>
@@ -794,7 +794,7 @@
                         <div class="material-block">
                             <div class="material-top">
                                 <div class="material-info">
-                                    <h3>{{ material.title|default:"Material" }}</h3>
+                                    <h3>{{ material.title|default:"자료" }}</h3>
                                     <div class="material-meta">
                                         <span class="material-pill">{{ material.get_material_type_display }}</span>
 
@@ -807,7 +807,7 @@
 
                             {% if material.instruction %}
                                 <div class="material-content">
-                                    <strong>Instruction</strong>
+                                    <strong>안내</strong>
                                     <p>{{ material.instruction }}</p>
                                 </div>
                             {% endif %}
@@ -826,7 +826,7 @@
                                                     <div class="question-number">{{ question.question_number }}</div>
 
                                                     <div class="question-text">
-                                                        <h4>Question {{ question.question_number }}</h4>
+                                                        <h4>{{ question.question_number }}번 문제</h4>
                                                         <p>{{ question.question_text }}</p>
                                                     </div>
                                                 </div>
@@ -846,7 +846,7 @@
                                                                 type="text"
                                                                 name="question_{{ question.id }}"
                                                                 data-question-id="{{ question.id }}"
-                                                                placeholder="Write your answer here..."
+                                                                placeholder="답안을 입력하세요..."
                                                                 value="{% if saved_answer %}{{ saved_answer.text_answer }}{% endif %}"
                                                             >
                                                         </div>
@@ -886,36 +886,36 @@
                     {% endif %}
                 {% empty %}
                     <div class="material-block">
-                        <p>No materials in this section.</p>
+                        <p>이 영역에는 자료가 없습니다.</p>
                     </div>
                 {% endfor %}
             {% endif %}
         </div>
         {% empty %}
             <div class="section-block">
-                <p>No sections found.</p>
+                <p>영역이 없습니다.</p>
             </div>
         {% endfor %}
 
         <div class="bottom-submit">
             <div class="bottom-submit-text">
                 {% if section_index < total_sections %}
-                    <h3>Ready for the next section?</h3>
-                    <p>You can move forward now, or review this section before continuing.</p>
+                    <h3>다음 영역으로 이동할 준비가 되셨나요?</h3>
+                    <p>이 영역을 다시 확인한 뒤 다음으로 넘어갈 수 있습니다.</p>
                 {% else %}
-                    <h3>Finished all questions?</h3>
-                    <p>Review your answers one more time before submitting the exam.</p>
+                    <h3>모든 문제를 완료하셨나요?</h3>
+                    <p>시험을 제출하기 전에 답안을 한 번 더 확인해 주세요.</p>
                 {% endif %}
             </div>
             <div class="bottom-actions">
-                <a href="javascript:history.back()" class="btn-secondary">Go Back</a>
+                <a href="javascript:history.back()" class="btn-secondary">이전으로 돌아가기</a>
 
                 {% if section_index < total_sections %}
                     <a href="{% url 'topik:advance_topik_exam_section' attempt.id %}" class="submit-btn-top">
-                        Next Section
+                        다음 영역
                     </a>
                 {% else %}
-                    <button class="submit-btn-top" type="submit">Submit Exam</button>
+                    <button class="submit-btn-top" type="submit">시험 제출</button>
                 {% endif %}
             </div>
         </div>
@@ -965,7 +965,7 @@ document.addEventListener("DOMContentLoaded", function () {
     formData.append("answer_text", answerText);
 
     if (statusEl) {
-        statusEl.textContent = "Saving...";
+        statusEl.textContent = "저장 중...";
         statusEl.classList.remove("saved");
     }
 
@@ -991,7 +991,7 @@ document.addEventListener("DOMContentLoaded", function () {
         }
 
         if (statusEl) {
-            statusEl.textContent = "Saved";
+            statusEl.textContent = "저장됨";
             statusEl.classList.add("saved");
         }
 
@@ -1005,7 +1005,7 @@ document.addEventListener("DOMContentLoaded", function () {
     .catch(err => {
         console.error("writing autosave failed", err);
         if (statusEl) {
-            statusEl.textContent = "Save failed";
+            statusEl.textContent = "저장 실패";
             statusEl.classList.remove("saved");
         }
     });
@@ -1153,7 +1153,7 @@ document.addEventListener("DOMContentLoaded", function () {
     document.addEventListener("visibilitychange", function () {
         if (document.hidden) {
             postEvent("tab_switch", "User switched tab or minimized window");
-            alert("Warning: You left the exam tab. This action has been logged.");
+            alert("경고: 시험 탭을 벗어났습니다. 이 동작은 기록되었습니다.");
         }
     });
 
@@ -1168,46 +1168,46 @@ document.addEventListener("DOMContentLoaded", function () {
 
     enterFullscreen();
 
-<!--    document.addEventListener("fullscreenchange", function () {-->
-<!--        if (!document.fullscreenElement) {-->
-<!--            postEvent("fullscreen_exit", "User exited fullscreen");-->
-<!--            alert("Warning: You exited fullscreen mode. This action has been logged.");-->
-<!--        }-->
-<!--    });-->
+    document.addEventListener("fullscreenchange", function () {
+        if (!document.fullscreenElement) {
+            postEvent("fullscreen_exit", "User exited fullscreen");
+            alert("경고: 전체화면 모드를 종료했습니다. 이 동작은 기록되었습니다.");
+        }
+    });
 
-<!--    document.addEventListener("contextmenu", function (e) {-->
-<!--        e.preventDefault();-->
-<!--        postEvent("right_click", "Right click blocked");-->
-<!--    });-->
+    document.addEventListener("contextmenu", function (e) {
+        e.preventDefault();
+        postEvent("right_click", "Right click blocked");
+    });
 
-<!--    document.addEventListener("copy", function (e) {-->
-<!--        e.preventDefault();-->
-<!--        postEvent("copy_attempt", "Copy blocked");-->
-<!--    });-->
+    document.addEventListener("copy", function (e) {
+        e.preventDefault();
+        postEvent("copy_attempt", "Copy blocked");
+    });
 
-<!--    document.addEventListener("paste", function (e) {-->
-<!--        e.preventDefault();-->
-<!--        postEvent("paste_attempt", "Paste blocked");-->
-<!--    });-->
+    document.addEventListener("paste", function (e) {
+        e.preventDefault();
+        postEvent("paste_attempt", "Paste blocked");
+    });
 
-<!--    document.addEventListener("cut", function (e) {-->
-<!--        e.preventDefault();-->
-<!--        postEvent("key_block", "Cut blocked");-->
-<!--    });-->
+    document.addEventListener("cut", function (e) {
+        e.preventDefault();
+        postEvent("key_block", "Cut blocked");
+    });
 
-<!--    document.addEventListener("keydown", function (e) {-->
-<!--        const key = e.key.toLowerCase();-->
+    document.addEventListener("keydown", function (e) {
+        const key = e.key.toLowerCase();
 
-<!--        if ((e.ctrlKey || e.metaKey) && ["c", "v", "a", "p", "s", "u"].includes(key)) {-->
-<!--            e.preventDefault();-->
-<!--            postEvent("key_block", `Blocked shortcut: ${key}`);-->
-<!--        }-->
+        if ((e.ctrlKey || e.metaKey) && ["c", "v", "a", "p", "s", "u"].includes(key)) {
+            e.preventDefault();
+            postEvent("key_block", `Blocked shortcut: ${key}`);
+        }
 
-<!--        if (key === "f12") {-->
-<!--            e.preventDefault();-->
-<!--            postEvent("key_block", "Blocked F12");-->
-<!--        }-->
-<!--    });-->
+        if (key === "f12") {
+            e.preventDefault();
+            postEvent("key_block", "Blocked F12");
+        }
+    });
 
     window.addEventListener("beforeunload", function (e) {
         e.preventDefault();

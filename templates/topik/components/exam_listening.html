@@ -1,9 +1,13 @@
+{% extends 'topik/topik.html' %}
+{% load static%}
+{% block main %}
+
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ko">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ page_title|default:"TOPIK Listening" }}</title>
+    <title>{{ page_title|default:"TOPIK 듣기" }}</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 
     <style>
@@ -33,7 +37,7 @@
             background: linear-gradient(180deg, #f8fafc 0%, #f3f6fb 100%);
             color: var(--text);
             line-height: 1.6;
-            padding: 24px;
+
         }
 
         .container {
@@ -50,6 +54,7 @@
             box-shadow: var(--shadow);
             position: relative;
             overflow: hidden;
+            margin:30px 0px
         }
 
         .hero::before {
@@ -464,23 +469,23 @@
 <div class="container">
 
     <section class="hero">
-        <div class="hero-badge">TOPIK Listening Zone</div>
-        <h1>{{ page_title|default:"TOPIK Listening" }}</h1>
-        <p>{{ page_subtitle|default:"Practice listening-only TOPIK exams with a clean and focused exam experience." }}</p>
+        <div class="hero-badge">TOPIK 듣기 학습 공간</div>
+        <h1>{{ page_title|default:"TOPIK 듣기" }}</h1>
+        <p>{{ page_subtitle|default:"깔끔하고 집중할 수 있는 시험 환경에서 TOPIK 듣기 전용 시험을 연습해 보세요." }}</p>
 
         <div class="hero-stats">
             <div class="hero-stat">
-                <span>Total Listening Exams</span>
+                <span>전체 듣기 시험 수</span>
                 <strong>{{ page_obj.paginator.count }}</strong>
             </div>
             <div class="hero-stat">
-                <span>Filter by Level</span>
+                <span>난이도별 필터</span>
                 <strong>TOPIK I / II</strong>
             </div>
             <div class="hero-stat">
-                <span>Status Tracking</span>
+                <span>진행 상태 확인</span>
                <strong>
-                    {{ completed_count }} completed · {{ pending_count }} pending
+                    {{ completed_count }} 완료 · {{ pending_count }} 미완료
                 </strong>
             </div>
         </div>
@@ -489,47 +494,47 @@
     <section class="filter-card">
         <form method="get" class="filter-form">
             <div class="filter-group">
-                <label for="search">Search</label>
+                <label for="search">검색</label>
                 <input
                     type="text"
                     id="search"
                     name="search"
                     value="{{ search }}"
-                    placeholder="Search reading exams..."
+                    placeholder="듣기 시험 검색..."
                 >
             </div>
 
             <div class="filter-group">
-                <label for="level">Level</label>
+                <label for="level">난이도</label>
                 <select name="level" id="level">
-                    <option value="">All Levels</option>
+                    <option value="">전체 난이도</option>
                     <option value="TOPIK_I" {% if level == "TOPIK_I" %}selected{% endif %}>TOPIK I</option>
                     <option value="TOPIK_II" {% if level == "TOPIK_II" %}selected{% endif %}>TOPIK II</option>
                 </select>
             </div>
 
             <div class="filter-group">
-                <label for="status">Status</label>
+                <label for="status">상태</label>
                 <select name="status" id="status">
-                    <option value="">All</option>
-                    <option value="completed" {% if status == "completed" %}selected{% endif %}>Completed</option>
-                    <option value="not_completed" {% if status == "not_completed" %}selected{% endif %}>Not Completed</option>
+                    <option value="">전체</option>
+                    <option value="completed" {% if status == "completed" %}selected{% endif %}>완료</option>
+                    <option value="not_completed" {% if status == "not_completed" %}selected{% endif %}>미완료</option>
                 </select>
             </div>
 
             <div class="filter-group">
-                <label for="sort">Sort</label>
+                <label for="sort">정렬</label>
                 <select name="sort" id="sort">
-                    <option value="newest" {% if sort == "newest" %}selected{% endif %}>Newest</option>
-                    <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>Oldest</option>
-                    <option value="title" {% if sort == "title" %}selected{% endif %}>Title</option>
-                    <option value="popular" {% if sort == "popular" %}selected{% endif %}>Most Popular</option>
+                    <option value="newest" {% if sort == "newest" %}selected{% endif %}>최신순</option>
+                    <option value="oldest" {% if sort == "oldest" %}selected{% endif %}>오래된순</option>
+                    <option value="title" {% if sort == "title" %}selected{% endif %}>제목순</option>
+                    <option value="popular" {% if sort == "popular" %}selected{% endif %}>인기순</option>
                 </select>
             </div>
 
             <div class="filter-actions">
-                <button type="submit" class="btn btn-primary">Apply</button>
-                <a href="" class="btn btn-outline">Reset</a>
+                <button type="submit" class="btn btn-primary">적용</button>
+                <a href="" class="btn btn-outline">초기화</a>
             </div>
         </form>
     </section>
@@ -537,8 +542,8 @@
     <section>
         <div class="section-head">
             <div>
-                <h2>Listening Exams</h2>
-                <p>{{ page_obj.paginator.count }} result{{ page_obj.paginator.count|pluralize }} found</p>
+                <h2>듣기 시험</h2>
+                <p>{{ page_obj.paginator.count }}개의 결과가 있습니다</p>
             </div>
         </div>
 
@@ -548,10 +553,10 @@
                     <div class="exam-card">
                         <div class="badge-row">
                             <span class="badge badge-blue">{{ exam.get_level_display }}</span>
-                            <span class="badge badge-green">Reading Only</span>
+                            <span class="badge badge-green">듣기 전용</span>
                             <span class="badge badge-gray">{{ exam.get_exam_type_display }}</span>
                             {% if exam.paper_variant %}
-                                <span class="badge badge-orange">Variant {{ exam.paper_variant }}</span>
+                                <span class="badge badge-orange">버전 {{ exam.paper_variant }}</span>
                             {% endif %}
                         </div>
 
@@ -561,25 +566,25 @@
                             {% if exam.description %}
                                 {{ exam.description|truncatechars:130 }}
                             {% else %}
-                                Practice this TOPIK listening exam with a focused section-only format and clean exam flow.
+                                듣기 영역에 집중할 수 있는 구성과 깔끔한 시험 흐름으로 TOPIK 듣기 시험을 연습해 보세요.
                             {% endif %}
                         </div>
 
                         <div class="meta-grid">
                             <div class="meta-box">
-                                <span>Exam Number</span>
+                                <span>시험 번호</span>
                                 <strong>{{ exam.exam_number|default:"-" }}</strong>
                             </div>
                             <div class="meta-box">
-                                <span>Duration</span>
-                                <strong>{{ exam.duration_minutes }} min</strong>
+                                <span>시험 시간</span>
+                                <strong>{{ exam.duration_minutes }}분</strong>
                             </div>
                             <div class="meta-box">
-                                <span>Total Questions</span>
+                                <span>총 문항 수</span>
                                 <strong>{{ exam.total_questions }}</strong>
                             </div>
                             <div class="meta-box">
-                                <span>Attempts</span>
+                                <span>응시 횟수</span>
                                 <strong>{{ exam.attempts_count }}</strong>
                             </div>
                         </div>
@@ -588,18 +593,18 @@
                             <div class="attempts">
                                 {% if request.user.is_authenticated %}
                                     {% if exam.is_completed %}
-                                        Completed
+                                        완료
                                     {% else %}
-                                        Not completed
+                                        미완료
                                     {% endif %}
                                 {% else %}
-                                    Login to track progress
+                                    로그인 후 학습 현황 확인 가능
                                 {% endif %}
                             </div>
 
                             <div style="display:flex; gap:10px; flex-wrap:wrap;">
-                                <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-outline">Details</a>
-                                <a href="{% url 'topik:start_topik_listening_exam' exam.slug %}" class="btn btn-primary">Start</a>
+                                <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-outline">상세보기</a>
+                                <a href="{% url 'topik:start_topik_listening_exam' exam.slug %}" class="btn btn-primary">시작하기</a>
                             </div>
                         </div>
                     </div>
@@ -607,8 +612,8 @@
             </div>
         {% else %}
             <div class="empty-state">
-                <h3>No listening exams found</h3>
-                <p>Try adjusting your search or filters.</p>
+                <h3>듣기 시험이 없습니다</h3>
+                <p>검색어나 필터 조건을 변경해 보세요.</p>
             </div>
         {% endif %}
 
@@ -616,7 +621,7 @@
             <div class="pagination-wrap">
                 <div class="pagination">
                     {% if page_obj.has_previous %}
-                        <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&sort={{ sort }}">Previous</a>
+                        <a href="?page={{ page_obj.previous_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&sort={{ sort }}">이전</a>
                     {% endif %}
 
                     <span class="current">
@@ -624,7 +629,7 @@
                     </span>
 
                     {% if page_obj.has_next %}
-                        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&sort={{ sort }}">Next</a>
+                        <a href="?page={{ page_obj.next_page_number }}&search={{ search }}&level={{ level }}&status={{ status }}&sort={{ sort }}">다음</a>
                     {% endif %}
                 </div>
             </div>
@@ -634,3 +639,4 @@
 </div>
 </body>
 </html>
+{% endblock main %}

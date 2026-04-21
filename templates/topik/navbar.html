@@ -1,19 +1,73 @@
-   <header class="navbar">
-        <div class="container nav-inner">
-            <a href="{% url 'topik:topik_home' %}" class="logo">TOPIK<span>Hub</span></a>
+<header class="navbar">
+    <div class="container nav-inner d-flex justify-content-between align-items-center">
 
-            <nav class="nav-links">
-                <a href="{% url 'topik:topik_reading_list' %}">Reading</a>
-                <a href="{% url 'topik:topik_listening_list' %}">Listening</a>
-                <a href="#">Writing</a>
-                <a href="#">Speaking Practice</a>
-                <a href="{% url 'topik:topik_mock_list' %}">Mock Tests</a>
-                <a href="#">Results</a>
-            </nav>
+        <a href="{% url 'topik:topik_home' %}" class="logo">
+            TOPIK<span>Hub</span>
+        </a>
 
-            <div class="nav-actions">
-                <a href="#" class="btn btn-outline">My Progress</a>
-                <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">Start Practice</a>
+        <nav class="nav-links d-flex gap-3">
+            <a href="{% url 'topik:topik_reading_list' %}">읽기</a>
+            <a href="{% url 'topik:topik_listening_list' %}">듣기</a>
+            <a href="{% url 'topik:topik_writing_list' %}">쓰기</a>
+            <a href="{% url 'topik:speaking_test_list' %}">말하기 연습</a>
+            <a href="{% url 'topik:topik_mock_list' %}">모의고사</a>
+            <a href="{% url 'topik:topik_progress' %}">결과</a>
+        </nav>
+
+        <div class="nav-actions d-flex align-items-center gap-3">
+            <a href="{% url 'topik:topik_progress' %}" class="btn btn-outline">
+                나의 학습 현황
+            </a>
+
+            <div class="dropdown">
+                <button
+                    class="btn btn-outline dropdown-toggle user-badge"
+                    type="button"
+                    data-bs-toggle="dropdown"
+                    aria-expanded="false"
+                >
+                    {% if request.user.is_authenticated %}
+                        안녕, {{ request.user.username }}
+                    {% else %}
+                        게스트
+                    {% endif %}
+                </button>
+
+                <ul class="dropdown-menu dropdown-menu-end">
+                    {% if request.user.is_authenticated %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'accounts:profile' %}">
+                                👤 프로필
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'topik:topik_progress' %}">
+                                📊 나의 결과
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li>
+                            <form method="post" action="{% url 'accounts:logout' %}">
+                                {% csrf_token %}
+                                <button type="submit" class="dropdown-item text-danger">
+                                    🚪 로그아웃
+                                </button>
+                            </form>
+                        </li>
+                    {% else %}
+                        <li>
+                            <a class="dropdown-item" href="{% url 'accounts:login' %}">
+                                🔑 로그인
+                            </a>
+                        </li>
+                        <li>
+                            <a class="dropdown-item" href="{% url 'accounts:register' %}">
+                                📝 회원가입
+                            </a>
+                        </li>
+                    {% endif %}
+                </ul>
             </div>
         </div>
-    </header>
+    </div>
+</header>

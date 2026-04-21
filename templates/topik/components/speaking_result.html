@@ -1,0 +1,698 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>말하기 시험 결과</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f4f7fb;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
+            color: var(--text);
+            padding: 24px;
+        }
+
+        .container {
+            width: min(1280px, 100%);
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a 65%, #2563eb);
+            color: white;
+            border-radius: 28px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero h1 {
+            font-size: 34px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.8px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.88);
+            font-size: 15px;
+            max-width: 800px;
+        }
+
+        .hero-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 18px;
+        }
+
+        .pill {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+        }
+
+        .summary-card span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .summary-card strong {
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--secondary);
+            letter-spacing: -1px;
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 1.3fr 0.7fr;
+            gap: 22px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .attempt-overview {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .mini-box {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 18px;
+            padding: 16px;
+        }
+
+        .mini-box span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .mini-box strong {
+            font-size: 18px;
+            color: var(--secondary);
+            font-weight: 800;
+        }
+
+        .feedback-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            border-radius: 18px;
+            padding: 18px;
+
+            color: var(--text);
+        }
+
+        .answers-list {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-top: 24px;
+        }
+
+        .answer-card {
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 20px;
+            background: #fff;
+        }
+
+        .answer-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 14px;
+        }
+
+        .tag-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-bottom: 10px;
+        }
+
+        .tag {
+            padding: 7px 10px;
+            border-radius: 999px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .tag-part {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .tag-score {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .tag-status {
+            background: #fff7ed;
+            color: #c2410c;
+        }
+
+        .answer-title {
+            font-size: 20px;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1.35;
+        }
+
+        .answer-prompt {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+            padding: 14px;
+            margin-bottom: 14px;
+
+        }
+
+        .score-grid {
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px;
+            margin-bottom: 14px;
+        }
+
+        .score-box {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 14px;
+            padding: 12px;
+        }
+
+        .score-box span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 4px;
+            font-weight: 700;
+        }
+
+        .score-box strong {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .transcript-box,
+        .ai-box,
+        .strengths-box,
+        .improvements-box {
+            border-radius: 16px;
+            padding: 16px;
+
+            margin-top: 12px;
+        }
+
+        .transcript-box {
+            background: #fafafa;
+            border: 1px solid #e5e7eb;
+        }
+
+        .ai-box {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+        }
+
+        .strengths-box {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+        }
+
+        .improvements-box {
+            background: #fff7ed;
+            border: 1px solid #fed7aa;
+        }
+
+        .box-label {
+            display: block;
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .list-box ul {
+            padding-left: 18px;
+        }
+
+        .list-box li {
+            margin-bottom: 6px;
+        }
+
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .recent-item {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px;
+            background: #fff;
+        }
+
+        .recent-item h4 {
+            font-size: 16px;
+            color: var(--secondary);
+            font-weight: 800;
+            margin-bottom: 6px;
+        }
+
+        .recent-item p {
+            color: var(--muted);
+            font-size: 13px;
+            margin-bottom: 4px;
+        }
+
+        .recent-item a {
+            display: inline-block;
+            margin-top: 8px;
+            color: var(--primary);
+            font-weight: 800;
+            font-size: 14px;
+            text-decoration: none;
+        }
+
+        .empty-state {
+            border: 1px dashed #cbd5e1;
+            border-radius: 18px;
+            padding: 20px;
+            color: var(--muted);
+            text-align: center;
+            background: #fff;
+        }
+
+        .actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 20px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 14px;
+            text-decoration: none;
+            border: none;
+            cursor: pointer;
+            transition: .25s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+
+        .notice-box {
+            border-radius: 16px;
+            padding: 16px;
+            margin-top: 18px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .notice-success {
+            background: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+        }
+
+        @media (max-width: 1100px) {
+            .summary-grid {
+                grid-template-columns: repeat(3, 1fr);
+            }
+
+            .layout {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero,
+            .card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .summary-grid,
+            .attempt-overview,
+            .score-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .answer-top {
+                flex-direction: column;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <section class="hero">
+        <h1>말하기 시험 결과</h1>
+        <p>
+            전체 말하기 시험의 결과를 확인해 보세요. 문항별 점수, 전사 내용, AI 피드백,
+            그리고 전반적인 성과 흐름을 한눈에 볼 수 있습니다.
+        </p>
+
+        <div class="hero-meta">
+            <span class="pill">시험: {{ attempt.test.title }}</span>
+            <span class="pill">상태: {{ attempt.status }}</span>
+            <span class="pill">총점: {{ attempt.overall_score|default:"0.0" }}</span>
+            <span class="pill">총 응시 횟수: {{ total_attempts }}</span>
+        </div>
+    </section>
+
+    <section class="summary-grid">
+        <div class="summary-card">
+            <span>전체 평균</span>
+            <strong>{{ average_overall }}</strong>
+        </div>
+        <div class="summary-card">
+            <span>유창성 평균</span>
+            <strong>{{ average_fluency }}</strong>
+        </div>
+        <div class="summary-card">
+            <span>문법 평균</span>
+            <strong>{{ average_grammar }}</strong>
+        </div>
+        <div class="summary-card">
+            <span>어휘 평균</span>
+            <strong>{{ average_vocab }}</strong>
+        </div>
+        <div class="summary-card">
+            <span>발음 평균</span>
+            <strong>{{ average_pronunciation }}</strong>
+        </div>
+    </section>
+
+    <div class="layout">
+        <div>
+            <section class="card">
+                <h2 class="section-title">응시 개요</h2>
+                <p class="section-subtitle">이번 말하기 시험 응시에 대한 상세 정보입니다.</p>
+
+                <div class="attempt-overview">
+                    <div class="mini-box">
+                        <span>시험명</span>
+                        <strong>{{ attempt.test.title }}</strong>
+                    </div>
+                    <div class="mini-box">
+                        <span>총점</span>
+                        <strong>{{ attempt.overall_score|default:"0.0" }}</strong>
+                    </div>
+                    <div class="mini-box">
+                        <span>시작 시간</span>
+                        <strong>{{ attempt.started_at|date:"Y-m-d H:i" }}</strong>
+                    </div>
+                    <div class="mini-box">
+                        <span>제출 시간</span>
+                        <strong>
+                            {% if attempt.submitted_at %}
+                                {{ attempt.submitted_at|date:"Y-m-d H:i" }}
+                            {% else %}
+                                -
+                            {% endif %}
+                        </strong>
+                    </div>
+                </div>
+
+                {% if attempt.ai_feedback.feedback_summary %}
+                    <div class="feedback-box">
+                        {{ attempt.ai_feedback.feedback_summary }}
+                    </div>
+                {% elif attempt.ai_feedback %}
+                    <div class="feedback-box">
+                        {{ attempt.ai_feedback }}
+                    </div>
+                {% else %}
+                    <div class="feedback-box">
+                        아직 전체 AI 피드백이 없습니다.
+                    </div>
+                {% endif %}
+
+                {% if attempt.status == "EVALUATED" %}
+                    <div class="notice-box notice-success">
+                        이 시험은 AI 평가가 자동으로 완료되었습니다.
+                    </div>
+                {% endif %}
+
+                <div class="actions">
+                    <a href="{% url 'topik:speaking_test_list' %}" class="btn btn-outline">시험 목록으로 돌아가기</a>
+
+                    {% if attempt.status == "IN_PROGRESS" %}
+                        <a href="{% url 'topik:speaking_test_room' attempt.id %}" class="btn btn-primary">시험 계속하기</a>
+                    {% endif %}
+                </div>
+            </section>
+
+            <section class="card" style="margin-top: 22px;">
+                <h2 class="section-title">답변 검토</h2>
+                <p class="section-subtitle">각 답변은 개별적으로 평가되어 어떤 부분을 개선해야 하는지 확인할 수 있습니다.</p>
+
+                {% if answers %}
+                    <div class="answers-list">
+                        {% for answer in answers %}
+                            <div class="answer-card">
+                                <div class="answer-top">
+                                    <div>
+                                        <div class="tag-row">
+                                            <span class="tag tag-part">{{ answer.question.get_part_display }}</span>
+
+                                            {% if answer.ai_score %}
+                                                <span class="tag tag-score">점수 {{ answer.ai_score }}</span>
+                                            {% else %}
+                                                <span class="tag tag-status">아직 평가되지 않음</span>
+                                            {% endif %}
+                                        </div>
+
+                                        <div class="answer-title">
+                                            {{ answer.question.title|default:"말하기 문제" }}
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="answer-prompt">
+                                    {{ answer.question.prompt }}
+                                </div>
+
+                                <div class="score-grid">
+                                    <div class="score-box">
+                                        <span>유창성</span>
+                                        <strong>{{ answer.fluency_score|default:"0.0" }}</strong>
+                                    </div>
+                                    <div class="score-box">
+                                        <span>문법</span>
+                                        <strong>{{ answer.grammar_score|default:"0.0" }}</strong>
+                                    </div>
+                                    <div class="score-box">
+                                        <span>어휘</span>
+                                        <strong>{{ answer.vocabulary_score|default:"0.0" }}</strong>
+                                    </div>
+                                    <div class="score-box">
+                                        <span>발음</span>
+                                        <strong>{{ answer.pronunciation_score|default:"0.0" }}</strong>
+                                    </div>
+                                    <div class="score-box">
+                                        <span>과제 수행</span>
+                                        <strong>{{ answer.task_completion_score|default:"0.0" }}</strong>
+                                    </div>
+                                </div>
+
+                                {% if answer.audio_file %}
+                                    <div class="transcript-box">
+                                        <span class="box-label">오디오</span>
+                                        <audio controls style="width:100%;">
+                                            <source src="{{ answer.audio_file.url }}">
+                                            사용 중인 브라우저는 오디오 재생을 지원하지 않습니다.
+                                        </audio>
+                                    </div>
+                                {% endif %}
+
+                                <div class="transcript-box">
+                                    <span class="box-label">전사 내용</span>
+                                    {{ answer.transcript|default:"전사 내용이 없습니다." }}
+                                </div>
+
+                                <div class="ai-box">
+                                    <span class="box-label">AI 피드백 요약</span>
+                                    {{ answer.ai_feedback.feedback_summary|default:"피드백이 없습니다." }}
+                                </div>
+
+                                <div class="strengths-box list-box">
+                                    <span class="box-label">강점</span>
+                                    <ul>
+                                        {% for item in answer.ai_feedback.strengths %}
+                                            <li>{{ item }}</li>
+                                        {% empty %}
+                                            <li>강점 정보가 없습니다.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+
+                                <div class="improvements-box list-box">
+                                    <span class="box-label">개선점</span>
+                                    <ul>
+                                        {% for item in answer.ai_feedback.improvements %}
+                                            <li>{{ item }}</li>
+                                        {% empty %}
+                                            <li>개선점 정보가 없습니다.</li>
+                                        {% endfor %}
+                                    </ul>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        이번 응시에 대한 답변이 없습니다.
+                    </div>
+                {% endif %}
+            </section>
+        </div>
+
+        <aside>
+            <section class="card">
+                <h2 class="section-title">최근 응시 기록</h2>
+                <p class="section-subtitle">최근 평가가 완료된 말하기 시험 기록입니다.</p>
+
+                {% if recent_attempts %}
+                    <div class="recent-list">
+                        {% for item in recent_attempts %}
+                            <div class="recent-item">
+                                <h4>{{ item.test.title }}</h4>
+                                <p><strong>점수:</strong> {{ item.overall_score|default:"0.0" }}</p>
+                                <p><strong>날짜:</strong> {{ item.started_at|date:"Y-m-d H:i" }}</p>
+                                <a href="{% url 'topik:speaking_result' item.id %}">결과 보기</a>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <div class="empty-state">
+                        아직 이전 평가 기록이 없습니다.
+                    </div>
+                {% endif %}
+            </section>
+        </aside>
+    </div>
+
+</div>
+</body>
+</html>

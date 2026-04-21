@@ -1,976 +1,232 @@
-{% load static %}
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOPIK Preparation Hub</title>
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-
-        :root {
-            --bg: #f4f7fb;
-            --white: #ffffff;
-            --primary: #2563eb;
-            --primary-dark: #1d4ed8;
-            --secondary: #0f172a;
-            --text: #1e293b;
-            --muted: #64748b;
-            --border: #e2e8f0;
-            --success: #10b981;
-            --warning: #f59e0b;
-            --danger: #ef4444;
-            --shadow: 0 10px 30px rgba(15, 23, 42, 0.08);
-            --radius: 20px;
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background: var(--bg);
-            color: var(--text);
-            line-height: 1.6;
-        }
-
-        a {
-            text-decoration: none;
-            color: inherit;
-        }
-
-        .container {
-            width: min(1200px, 92%);
-            margin: 0 auto;
-        }
-
-        /* NAVBAR */
-        .navbar {
-            position: sticky;
-            top: 0;
-            z-index: 1000;
-            background: rgba(255,255,255,0.85);
-            backdrop-filter: blur(14px);
-            border-bottom: 1px solid rgba(226,232,240,0.8);
-        }
-
-        .nav-inner {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 18px 0;
-        }
-
-        .logo {
-            font-size: 26px;
-            font-weight: 800;
-            color: var(--secondary);
-            letter-spacing: -0.8px;
-        }
-
-        .logo span {
-            color: var(--primary);
-        }
-
-        .nav-links {
-            display: flex;
-            align-items: center;
-            gap: 14px;
-            flex-wrap: wrap;
-        }
-
-        .nav-links a {
-            padding: 10px 16px;
-            border-radius: 999px;
-            font-size: 14px;
-            font-weight: 600;
-            color: var(--muted);
-            transition: 0.25s ease;
-        }
-
-        .nav-links a:hover,
-        .nav-links a.active {
-            background: #eaf1ff;
-            color: var(--primary);
-        }
-
-        .nav-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        .btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            border: none;
-            border-radius: 14px;
-            padding: 12px 20px;
-            font-weight: 700;
-            font-size: 14px;
-            cursor: pointer;
-            transition: 0.25s ease;
-        }
-
-        .btn-primary {
-            background: var(--primary);
-            color: white;
-            box-shadow: 0 10px 20px rgba(37, 99, 235, 0.25);
-        }
-
-        .btn-primary:hover {
-            background: var(--primary-dark);
-            transform: translateY(-2px);
-        }
-
-        .btn-outline {
-            background: white;
-            color: var(--secondary);
-            border: 1px solid var(--border);
-        }
-
-        .btn-outline:hover {
-            background: #f8fafc;
-        }
-
-        /* HERO */
-        .hero {
-            padding: 70px 0 40px;
-        }
-
-        .hero-grid {
-            display: grid;
-            grid-template-columns: 1.15fr 0.85fr;
-            gap: 28px;
-            align-items: stretch;
-        }
-
-        .hero-card {
-            background: linear-gradient(135deg, #0f172a, #1e3a8a 60%, #2563eb);
-            color: white;
-            border-radius: 32px;
-            padding: 48px;
-            box-shadow: var(--shadow);
-            min-height: 470px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .hero-card::before {
-            content: "";
-            position: absolute;
-            width: 260px;
-            height: 260px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.08);
-            top: -40px;
-            right: -40px;
-        }
-
-        .hero-card::after {
-            content: "";
-            position: absolute;
-            width: 180px;
-            height: 180px;
-            border-radius: 50%;
-            background: rgba(255,255,255,0.06);
-            bottom: -60px;
-            left: -40px;
-        }
-
-        .hero-badge {
-            display: inline-block;
-            padding: 8px 14px;
-            background: rgba(255,255,255,0.12);
-            border: 1px solid rgba(255,255,255,0.18);
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 600;
-            margin-bottom: 18px;
-            width: fit-content;
-        }
-
-        .hero h1 {
-            font-size: 52px;
-            line-height: 1.08;
-            font-weight: 800;
-            margin-bottom: 18px;
-            max-width: 650px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero p {
-            font-size: 17px;
-            color: rgba(255,255,255,0.88);
-            max-width: 620px;
-            margin-bottom: 28px;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-actions {
-            display: flex;
-            gap: 14px;
-            flex-wrap: wrap;
-            position: relative;
-            z-index: 1;
-        }
-
-        .hero-stats {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 18px;
-        }
-
-        .mini-card {
-            background: white;
-            border-radius: 24px;
-            padding: 24px;
-            box-shadow: var(--shadow);
-            border: 1px solid #eef2f7;
-        }
-
-        .mini-card h3 {
-            font-size: 15px;
-            color: var(--muted);
-            margin-bottom: 12px;
-        }
-
-        .mini-value {
-            font-size: 34px;
-            font-weight: 800;
-            color: var(--secondary);
-        }
-
-        .mini-sub {
-            margin-top: 8px;
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        .progress-ring {
-            width: 90px;
-            height: 90px;
-            border-radius: 50%;
-            border: 8px solid #dbeafe;
-            border-top-color: var(--primary);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: var(--primary);
-            margin-top: 10px;
-        }
-
-        /* SECTION CARDS */
-        .section {
-            padding: 28px 0;
-        }
-
-        .section-header {
-            display: flex;
-            align-items: end;
-            justify-content: space-between;
-            gap: 12px;
-            margin-bottom: 22px;
-        }
-
-        .section-header h2 {
-            font-size: 30px;
-            color: var(--secondary);
-            letter-spacing: -0.5px;
-        }
-
-        .section-header p {
-            color: var(--muted);
-            font-size: 15px;
-        }
-
-        .feature-grid {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 20px;
-        }
-
-        .feature-card {
-            background: white;
-            border-radius: 24px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-            transition: 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-4px);
-        }
-
-        .feature-icon {
-            width: 54px;
-            height: 54px;
-            border-radius: 16px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 22px;
-            margin-bottom: 18px;
-            background: #eaf1ff;
-        }
-
-        .feature-card h3 {
-            font-size: 20px;
-            margin-bottom: 10px;
-            color: var(--secondary);
-        }
-
-        .feature-card p {
-            color: var(--muted);
-            font-size: 14px;
-            margin-bottom: 16px;
-        }
-
-        .feature-card a {
-            color: var(--primary);
-            font-weight: 700;
-            font-size: 14px;
-        }
-
-        /* EXAMS */
-        .exam-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 22px;
-        }
-
-        .exam-card {
-            background: white;
-            border-radius: 24px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-
-        .tag-row {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-            margin-bottom: 16px;
-        }
-
-        .tag {
-            display: inline-block;
-            padding: 7px 12px;
-            border-radius: 999px;
-            font-size: 12px;
-            font-weight: 700;
-        }
-
-        .tag-blue {
-            background: #dbeafe;
-            color: #1d4ed8;
-        }
-
-        .tag-green {
-            background: #dcfce7;
-            color: #15803d;
-        }
-
-        .tag-orange {
-            background: #ffedd5;
-            color: #c2410c;
-        }
-
-        .exam-card h3 {
-            font-size: 22px;
-            color: var(--secondary);
-            margin-bottom: 8px;
-        }
-
-        .exam-card p {
-            color: var(--muted);
-            font-size: 14px;
-            margin-bottom: 18px;
-        }
-
-        .exam-meta {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 12px;
-            margin-bottom: 18px;
-        }
-
-        .meta-box {
-            background: #f8fafc;
-            border-radius: 14px;
-            padding: 12px;
-        }
-
-        .meta-box span {
-            display: block;
-            color: var(--muted);
-            font-size: 12px;
-            margin-bottom: 4px;
-        }
-
-        .meta-box strong {
-            color: var(--secondary);
-            font-size: 15px;
-        }
-
-        .exam-actions {
-            display: flex;
-            gap: 12px;
-        }
-
-        /* DASHBOARD */
-        .dashboard-grid {
-            display: grid;
-            grid-template-columns: 1.1fr 0.9fr;
-            gap: 24px;
-        }
-
-        .panel {
-            background: white;
-            border-radius: 24px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-
-        .panel h3 {
-            font-size: 22px;
-            margin-bottom: 18px;
-            color: var(--secondary);
-        }
-
-        .activity-item,
-        .rank-item {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            gap: 14px;
-            padding: 14px 0;
-            border-bottom: 1px solid #eef2f7;
-        }
-
-        .activity-item:last-child,
-        .rank-item:last-child {
-            border-bottom: none;
-        }
-
-        .activity-info strong,
-        .rank-info strong {
-            display: block;
-            color: var(--secondary);
-            font-size: 15px;
-        }
-
-        .activity-info span,
-        .rank-info span {
-            color: var(--muted);
-            font-size: 13px;
-        }
-
-        .score-pill {
-            padding: 8px 12px;
-            border-radius: 999px;
-            font-size: 13px;
-            font-weight: 800;
-            background: #ecfeff;
-            color: #0f766e;
-        }
-
-        /* WHY US */
-        .why-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 20px;
-        }
-
-        .why-card {
-            background: white;
-            border-radius: 24px;
-            padding: 24px;
-            border: 1px solid var(--border);
-            box-shadow: var(--shadow);
-        }
-
-        .why-card h3 {
-            margin-bottom: 10px;
-            color: var(--secondary);
-            font-size: 20px;
-        }
-
-        .why-card p {
-            color: var(--muted);
-            font-size: 14px;
-        }
-
-        /* CTA */
-        .cta {
-            padding: 40px 0 70px;
-        }
-
-        .cta-box {
-            background: linear-gradient(135deg, #eff6ff, #ffffff);
-            border: 1px solid #dbeafe;
-            border-radius: 30px;
-            padding: 40px;
-            text-align: center;
-            box-shadow: var(--shadow);
-        }
-
-        .cta-box h2 {
-            font-size: 34px;
-            color: var(--secondary);
-            margin-bottom: 12px;
-        }
-
-        .cta-box p {
-            max-width: 700px;
-            margin: 0 auto 22px;
-            color: var(--muted);
-        }
-
-        /* FOOTER */
-        .footer {
-            background: #0f172a;
-            color: rgba(255,255,255,0.82);
-            padding: 30px 0;
-            margin-top: 10px;
-        }
-
-        .footer-inner {
-            display: flex;
-            justify-content: space-between;
-            gap: 18px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links {
-            display: flex;
-            gap: 16px;
-            flex-wrap: wrap;
-        }
-
-        .footer-links a {
-            color: rgba(255,255,255,0.78);
-            font-size: 14px;
-        }
-
-        @media (max-width: 1100px) {
-            .hero-grid,
-            .dashboard-grid,
-            .feature-grid,
-            .exam-grid,
-            .why-grid {
-                grid-template-columns: 1fr 1fr;
-            }
-
-            .hero-card {
-                min-height: auto;
-            }
-        }
-
-        @media (max-width: 768px) {
-            .nav-inner {
-                flex-direction: column;
-                align-items: stretch;
-                gap: 14px;
-            }
-
-            .nav-links,
-            .nav-actions {
-                justify-content: center;
-            }
-
-            .hero-grid,
-            .dashboard-grid,
-            .feature-grid,
-            .exam-grid,
-            .why-grid,
-            .hero-stats {
-                grid-template-columns: 1fr;
-            }
-
-            .hero h1 {
-                font-size: 38px;
-            }
-
-            .section-header {
-                flex-direction: column;
-                align-items: flex-start;
-            }
-
-            .cta-box h2 {
-                font-size: 28px;
-            }
-        }
-    </style>
-</head>
-<body>
-
-    <!-- NAVBAR -->
-    <header class="navbar">
-        <div class="container nav-inner">
-            <a href="{% url 'topik:topik_home' %}" class="logo">TOPIK<span>Hub</span></a>
-
-            <nav class="nav-links">
-                <a href="{% url 'topik:topik_reading_list' %}">Reading</a>
-                <a href="{% url 'topik:topik_listening_list' %}">Listening</a>
-                <a href="{% url 'topik:topik_writing_list' %}">Writing</a>
-                <a href="#">Speaking Practice</a>
-                <a href="{% url 'topik:topik_mock_list' %}">Mock Tests</a>
-                <a href="#">Results</a>
-            </nav>
-
-            <div class="nav-actions">
-                <a href="#" class="btn btn-outline">My Progress</a>
-                <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">Start Practice</a>
+{% extends 'topik/topik.html' %}
+{% block main %}
+<section class="hero">
+    <div class="container hero-grid">
+        <div class="hero-card">
+            <div class="hero-badge">TOPIK 스마트 학습 플랫폼</div>
+            <h1>실전처럼 연습하고, 체계적으로 관리하며, TOPIK 실력을 확실하게 높여보세요.</h1>
+            <p>
+                읽기, 듣기, 쓰기, 모의고사까지 한곳에서 학습할 수 있습니다.
+                영역별 연습, 복습 기능, 성취도 확인을 통해 더욱 효율적으로 준비해 보세요.
+            </p>
+            <div class="hero-actions">
+                <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">모의고사 보러 가기</a>
+                <a href="{% url 'topik:topik_progress' %}" class="btn btn-outline">학습 현황 보기</a>
             </div>
         </div>
-    </header>
 
-    <!-- HERO -->
-    <section class="hero">
-        <div class="container hero-grid">
-            <div class="hero-card">
-                <div class="hero-badge">Smart Korean Exam Preparation</div>
-                <h1>Master TOPIK with focused practice, progress tracking, and real exam structure.</h1>
-                <p>
-                    Prepare for Reading, Listening, Writing, and Speaking Practice in one modern platform.
-                    Build confidence with section-based learning, mock exams, review tools, and performance insights.
-                </p>
-                <div class="hero-actions">
-                    <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">Explore Exams</a>
-                    <a href="#" class="btn btn-outline">View Sections</a>
-                </div>
+        <div class="hero-stats">
+            <div class="mini-card">
+                <h3>전체 학습률</h3>
+                <div class="progress-ring">{{ stats.progress_percent }}%</div>
+                <div class="mini-sub">제출 완료한 TOPIK 결과를 바탕으로 계산된 학습 진행률입니다.</div>
             </div>
 
-            <div class="hero-stats">
-                <div class="mini-card">
-                    <h3>Overall Progress</h3>
-                    <div class="progress-ring">72%</div>
-                    <div class="mini-sub">You are getting closer to your target level.</div>
-                </div>
+            <div class="mini-card">
+                <h3>완료한 시험</h3>
+                <div class="mini-value">{{ stats.total_attempts }}</div>
+                <div class="mini-sub">완료한 모의고사와 영역별 연습 횟수입니다.</div>
+            </div>
 
-                <div class="mini-card">
-                    <h3>Completed Tests</h3>
-                    <div class="mini-value">18</div>
-                    <div class="mini-sub">Mock tests and section drills finished.</div>
-                </div>
+            <div class="mini-card">
+                <h3>최고 점수</h3>
+                <div class="mini-value">{{ stats.best_score }}</div>
+                <div class="mini-sub">지금까지 기록한 가장 높은 점수입니다.</div>
+            </div>
 
-                <div class="mini-card">
-                    <h3>Best Score</h3>
-                    <div class="mini-value">186</div>
-                    <div class="mini-sub">Your highest recent performance.</div>
-                </div>
-
-                <div class="mini-card">
-                    <h3>Current Goal</h3>
-                    <div class="mini-value">TOPIK II</div>
-                    <div class="mini-sub">Keep improving with daily reading and listening practice.</div>
-                </div>
+            <div class="mini-card">
+                <h3>현재 목표</h3>
+                <div class="mini-value" style="font-size:22px;">{{ stats.current_goal }}</div>
+                <div class="mini-sub">현재 학습 현황과 최고 점수를 바탕으로 설정된 목표입니다.</div>
             </div>
         </div>
-    </section>
+    </div>
+</section>
 
-    <!-- SECTION SHORTCUTS -->
-    <section class="section">
-        <div class="container">
-            <div class="section-header">
-                <div>
-                    <h2>Section-Based Learning</h2>
-                    <p>Choose a section and improve one skill at a time.</p>
-                </div>
-            </div>
-
-            <div class="feature-grid">
-                <div class="feature-card">
-                    <div class="feature-icon">📖</div>
-                    <h3>Reading</h3>
-                    <p>Practice notices, messages, passages, visual questions, and grouped question sets.</p>
-                    <a href="#">Go to Reading →</a>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">🎧</div>
-                    <h3>Listening</h3>
-                    <p>Train with audio-based questions, image choices, quick-response tasks, and test timing.</p>
-                    <a href="#">Go to Listening →</a>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">✍️</div>
-                    <h3>Writing</h3>
-                    <p>Build sentence structure, short answers, and guided writing practice with clean prompts.</p>
-                    <a href="#">Go to Writing →</a>
-                </div>
-
-                <div class="feature-card">
-                    <div class="feature-icon">🗣️</div>
-                    <h3>Speaking Practice</h3>
-                    <p>Boost fluency with conversation tasks, topic cards, pronunciation drills, and speaking prompts.</p>
-                    <a href="#">Go to Speaking →</a>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- FEATURED EXAMS -->
-    <section class="section">
-        <div class="container">
-            <div class="section-header">
-                <div>
-                    <h2>Featured Practice Sets</h2>
-                    <p>Start with a full exam or focus on one section only.</p>
-                </div>
-                <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-outline">See All Exams</a>
-            </div>
-
-            <div class="exam-grid">
-                <div class="exam-card">
-                    <div class="tag-row">
-                        <span class="tag tag-blue">TOPIK I</span>
-                        <span class="tag tag-green">Beginner</span>
-                    </div>
-                    <h3>TOPIK I Full Mock Test</h3>
-                    <p>Practice the complete beginner-level experience with listening and reading in one session.</p>
-                    <div class="exam-meta">
-                        <div class="meta-box">
-                            <span>Sections</span>
-                            <strong>Listening + Reading</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Duration</span>
-                            <strong>100 min</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Questions</span>
-                            <strong>70</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Status</span>
-                            <strong>Ready</strong>
-                        </div>
-                    </div>
-                    <div class="exam-actions">
-                        <a href="" class="btn btn-primary">Start Now</a>
-                        <a href="#" class="btn btn-outline">Preview</a>
-                    </div>
-                </div>
-
-                <div class="exam-card">
-                    <div class="tag-row">
-                        <span class="tag tag-blue">TOPIK II</span>
-                        <span class="tag tag-orange">Intermediate</span>
-                    </div>
-                    <h3>Reading Intensive Drill</h3>
-                    <p>Improve speed, comprehension, and answer selection with curated reading question blocks.</p>
-                    <div class="exam-meta">
-                        <div class="meta-box">
-                            <span>Focus</span>
-                            <strong>Reading</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Duration</span>
-                            <strong>45 min</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Questions</span>
-                            <strong>24</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Difficulty</span>
-                            <strong>Medium</strong>
-                        </div>
-                    </div>
-                    <div class="exam-actions">
-                        <a href="#" class="btn btn-primary">Practice</a>
-                        <a href="#" class="btn btn-outline">Details</a>
-                    </div>
-                </div>
-
-                <div class="exam-card">
-                    <div class="tag-row">
-                        <span class="tag tag-blue">Skill Builder</span>
-                        <span class="tag tag-green">Popular</span>
-                    </div>
-                    <h3>Listening Quick Session</h3>
-                    <p>Sharpen listening accuracy with short audio questions and image-based responses.</p>
-                    <div class="exam-meta">
-                        <div class="meta-box">
-                            <span>Focus</span>
-                            <strong>Listening</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Duration</span>
-                            <strong>25 min</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Questions</span>
-                            <strong>15</strong>
-                        </div>
-                        <div class="meta-box">
-                            <span>Format</span>
-                            <strong>Audio + Image</strong>
-                        </div>
-                    </div>
-                    <div class="exam-actions">
-                        <a href="#" class="btn btn-primary">Start Drill</a>
-                        <a href="#" class="btn btn-outline">Review</a>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- DASHBOARD -->
-    <section class="section">
-        <div class="container dashboard-grid">
-            <div class="panel">
-                <h3>Recent Activity</h3>
-
-                <div class="activity-item">
-                    <div class="activity-info">
-                        <strong>TOPIK I Reading Drill</strong>
-                        <span>Completed today • 12 questions</span>
-                    </div>
-                    <div class="score-pill">84%</div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-info">
-                        <strong>Listening Mini Test</strong>
-                        <span>Yesterday • Audio comprehension practice</span>
-                    </div>
-                    <div class="score-pill">76%</div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-info">
-                        <strong>Vocabulary Review Session</strong>
-                        <span>2 days ago • Korean daily expressions</span>
-                    </div>
-                    <div class="score-pill">Done</div>
-                </div>
-
-                <div class="activity-item">
-                    <div class="activity-info">
-                        <strong>Writing Practice 01</strong>
-                        <span>3 days ago • Short structured response</span>
-                    </div>
-                    <div class="score-pill">68%</div>
-                </div>
-            </div>
-
-            <div class="panel">
-                <h3>Skill Performance</h3>
-
-                <div class="rank-item">
-                    <div class="rank-info">
-                        <strong>Reading</strong>
-                        <span>Strong understanding of short passages</span>
-                    </div>
-                    <div class="score-pill">88%</div>
-                </div>
-
-                <div class="rank-item">
-                    <div class="rank-info">
-                        <strong>Listening</strong>
-                        <span>Good improvement in fast conversations</span>
-                    </div>
-                    <div class="score-pill">79%</div>
-                </div>
-
-                <div class="rank-item">
-                    <div class="rank-info">
-                        <strong>Writing</strong>
-                        <span>Needs more structure and grammar control</span>
-                    </div>
-                    <div class="score-pill">65%</div>
-                </div>
-
-                <div class="rank-item">
-                    <div class="rank-info">
-                        <strong>Speaking Practice</strong>
-                        <span>Build confidence with topic-based prompts</span>
-                    </div>
-                    <div class="score-pill">71%</div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- WHY US -->
-    <section class="section">
-        <div class="container">
-            <div class="section-header">
-                <div>
-                    <h2>Why This Platform Works</h2>
-                    <p>Designed for focused learning and real progress.</p>
-                </div>
-            </div>
-
-            <div class="why-grid">
-                <div class="why-card">
-                    <h3>Modern Exam Experience</h3>
-                    <p>Clean layout, section-based navigation, and structured practice make studying easier and less stressful.</p>
-                </div>
-
-                <div class="why-card">
-                    <h3>Smart Progress Tracking</h3>
-                    <p>Monitor your score trends, review weak sections, and build a better preparation strategy over time.</p>
-                </div>
-
-                <div class="why-card">
-                    <h3>All Skills in One Place</h3>
-                    <p>Reading, listening, writing, and speaking practice are organized clearly so you can focus on what matters most.</p>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- CTA -->
-    <section class="cta">
-        <div class="container">
-            <div class="cta-box">
-                <h2>Ready to improve your TOPIK score?</h2>
-                <p>
-                    Start with a full mock test or choose a single section to practice today.
-                    Build your Korean skills with a platform designed for serious learners.
-                </p>
-                <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">Begin Your Practice</a>
-            </div>
-        </div>
-    </section>
-
-    <!-- FOOTER -->
-    <footer class="footer">
-        <div class="container footer-inner">
+<section class="section">
+    <div class="container">
+        <div class="section-header">
             <div>
-                <strong>TOPIKHub</strong><br>
-                <span>Modern Korean exam preparation platform.</span>
-            </div>
-
-            <div class="footer-links">
-                <a href="#">Home</a>
-                <a href="#">Reading</a>
-                <a href="#">Listening</a>
-                <a href="#">Writing</a>
-                <a href="#">Speaking Practice</a>
-                <a href="#">Mock Tests</a>
+                <h2>영역별 학습</h2>
+                <p>원하는 영역을 선택해 집중적으로 연습해 보세요.</p>
             </div>
         </div>
-    </footer>
 
-</body>
-</html>
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📖</div>
+                <h3>읽기</h3>
+                <p>안내문, 메시지, 지문, 시각 자료 문제와 묶음형 문제를 단계별로 연습할 수 있습니다.</p>
+                <a href="{% url 'topik:topik_reading_list' %}">읽기 학습하기 →</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎧</div>
+                <h3>듣기</h3>
+                <p>음성 문제, 그림 선택형 문제, 짧은 응답형 문제 등 실전형 듣기 훈련을 할 수 있습니다.</p>
+                <a href="{% url 'topik:topik_listening_list' %}">듣기 학습하기 →</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">✍️</div>
+                <h3>쓰기</h3>
+                <p>문장 완성, 단답형, 유도형 쓰기 연습을 통해 표현력과 구성력을 키워 보세요.</p>
+                <a href="{% url 'topik:topik_writing_list' %}">쓰기 학습하기 →</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🗣️</div>
+                <h3>말하기 연습</h3>
+                <p>대화형 연습, 주제 카드, 발음 훈련, 말하기 프롬프트로 유창성을 높여 보세요.</p>
+                <a href="#">말하기 학습하기 →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2>추천 학습 세트</h2>
+                <p>전체 시험을 풀어보거나 원하는 영역만 골라서 시작해 보세요.</p>
+            </div>
+            <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-outline">전체 시험 보기</a>
+        </div>
+
+        <div class="exam-grid">
+            {% for exam in featured_exams %}
+            <div class="exam-card">
+                <div class="tag-row">
+                    <span class="tag tag-blue">{{ exam.get_level_display }}</span>
+                    <span class="tag tag-green">{{ exam.get_exam_type_display }}</span>
+                </div>
+
+                <h3>{{ exam.title }}</h3>
+                <p>{{ exam.description|default:"이 시험으로 한국어 실력을 체계적으로 점검해 보세요." }}</p>
+
+                <div class="exam-meta">
+                    <div class="meta-box">
+                        <span>구성 영역</span>
+                        <strong>{{ exam.sections_display }}</strong>
+                    </div>
+
+                    <div class="meta-box">
+                        <span>시험 시간</span>
+                        <strong>{{ exam.duration_minutes }}분</strong>
+                    </div>
+
+                    <div class="meta-box">
+                        <span>문항 수</span>
+                        <strong>{{ exam.questions_count }}</strong>
+                    </div>
+
+                    <div class="meta-box">
+                        <span>응시 상태</span>
+                        <strong>응시 가능</strong>
+                    </div>
+                </div>
+
+                <div class="exam-actions">
+                    <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="btn btn-primary">바로 시작하기</a>
+                    <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-outline">시험 미리보기</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-box" style="grid-column: 1 / -1;">
+                아직 추천 시험이 없습니다.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container dashboard-grid">
+        <div class="panel">
+            <h3>최근 학습 기록</h3>
+
+            {% for item in stats.recent_activity %}
+            <div class="activity-item">
+                <div class="activity-info">
+                    <strong>{{ item.title }}</strong>
+                    <span>{{ item.subtitle }}</span>
+                </div>
+                <div class="score-pill">{{ item.score_text }}</div>
+            </div>
+            {% empty %}
+            <div class="activity-item">
+                <div class="activity-info">
+                    <strong>아직 학습 기록이 없습니다</strong>
+                    <span>첫 TOPIK 시험을 완료하면 최근 기록이 여기에 표시됩니다.</span>
+                </div>
+                <div class="score-pill">시작 전</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="panel">
+            <h3>영역별 성취도</h3>
+
+            {% for skill in stats.skill_performance %}
+            <div class="rank-item">
+                <div class="rank-info">
+                    <strong>{{ skill.name }}</strong>
+                    <span>{{ skill.description }}</span>
+                </div>
+                <div class="score-pill">{{ skill.score }}</div>
+            </div>
+            {% empty %}
+            <div class="rank-item">
+                <div class="rank-info">
+                    <strong>아직 분석할 데이터가 없습니다</strong>
+                    <span>시험을 완료하면 영역별 평균과 성취도가 표시됩니다.</span>
+                </div>
+                <div class="score-pill">-</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2>왜 이 플랫폼일까요?</h2>
+                <p>실제 점수 향상에 도움이 되는 방식으로 설계했습니다.</p>
+            </div>
+        </div>
+
+        <div class="why-grid">
+            <div class="why-card">
+                <h3>실전형 학습 환경</h3>
+                <p>깔끔한 화면 구성과 체계적인 문제 흐름으로 실제 시험처럼 집중해서 연습할 수 있습니다.</p>
+            </div>
+
+            <div class="why-card">
+                <h3>똑똑한 학습 관리</h3>
+                <p>점수 변화와 약한 영역을 확인하면서 나에게 맞는 학습 전략을 세울 수 있습니다.</p>
+            </div>
+
+            <div class="why-card">
+                <h3>한곳에서 끝내는 TOPIK 준비</h3>
+                <p>읽기, 듣기, 쓰기, 말하기 연습까지 한 플랫폼에서 효율적으로 준비할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <div class="cta-box">
+            <h2>이제 TOPIK 점수 상승을 시작해 보세요</h2>
+            <p>
+                전체 모의고사를 풀어보거나 필요한 영역만 선택해서 바로 연습할 수 있습니다.
+                꾸준한 연습으로 한국어 실력을 확실하게 높여 보세요.
+            </p>
+            <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">학습 시작하기</a>
+        </div>
+    </div>
+</section>
+{% endblock main %}
