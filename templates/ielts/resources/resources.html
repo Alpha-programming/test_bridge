@@ -6,14 +6,18 @@
 <div class="container py-4">
 
     <!-- 🔍 SEARCH -->
-    <form method="GET" class="mb-4">
-        <div class="input-group">
-            <input type="text" name="q" class="form-control"
-                   placeholder="Search {{ type }}..."
-                   value="{{ request.GET.q }}">
-            <button class="btn btn-primary">Search</button>
-        </div>
-    </form>
+    <div class="row mb-4">
+    <div class="col-md-6 mx-auto">
+        <form method="GET">
+            <div class="input-group">
+                <input type="text" name="q" class="form-control"
+                       placeholder="Search {{ type }}..."
+                       value="{{ request.GET.q }}">
+                <button class="btn btn-primary">Search</button>
+            </div>
+        </form>
+    </div>
+</div>
 
     <!-- 📚 GRID -->
     <div class="row">

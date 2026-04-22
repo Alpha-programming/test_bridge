@@ -44,13 +44,11 @@ body { margin:0; font-family:Arial; background:#f4f7fb; }
     transition:0.3s;
 }
 
-/* WARNING */
 .timer-warning {
     border-color:#ff9800;
     color:#ff9800;
 }
 
-/* CRITICAL */
 .timer-danger {
     border-color:#dc3545;
     color:#dc3545;
@@ -66,61 +64,23 @@ body { margin:0; font-family:Arial; background:#f4f7fb; }
 /* START OVERLAY */
 .overlay {
     position:fixed;
-    top:0; left:0; right:0; bottom:0;
-    background:rgba(0,0,0,0.85);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    flex-direction:column;
-    z-index:9999;
-    color:white;
-}
-
-/* BOTTOM NAV */
-.bottom-bar {
-    height:50px;
-    display:flex;
-    justify-content:center;
-    gap:10px;
-    background:#fff;
-    border-top:1px solid #ddd;
-}
-
-/* THEMES */
-.light-mode { background:#f4f7fb; color:#000; }
-.dark-mode { background:#121212; color:#fff; }
-.yellow-mode { background:#000; color:#f6e05e; }
-
-.dark-mode .top-bar,
-.dark-mode .main { background:#1e1e1e; color:#fff; }
-
-.yellow-mode .top-bar,
-.yellow-mode .main { background:#000; color:#f6e05e; }
-
-/* Disable selection */
-body { user-select:none; }
-
-/* MATCHING STYLE */
-.match-option {
-    display:inline-block;
-    background:#6c757d;
-    color:#fff;
-    padding:5px 10px;
-    margin:3px;
-    border-radius:5px;
-    font-size:14px;
-}
-
-.overlay {
-    position:fixed;
     inset:0;
-    background:#000; /* 🔥 FULL BLACK */
+    background:#000;
     display:flex;
     justify-content:center;
     align-items:center;
     flex-direction:column;
     z-index:2147483647;
     color:white;
+}
+
+/* NAV */
+.bottom-bar {
+    height:60px;
+    display:flex;
+    align-items:center;
+    background:#fff;
+    border-top:1px solid #ddd;
 }
 
 .nav-row {
@@ -144,26 +104,78 @@ body { user-select:none; }
     color:white;
 }
 
-.bottom-bar {
-    height:60px;
+/* THEMES */
+.light-mode { background:#f4f7fb; color:#000; }
+.dark-mode { background:#121212; color:#fff; }
+.yellow-mode { background:#000; color:#f6e05e; }
+
+.dark-mode .top-bar,
+.dark-mode .main { background:#1e1e1e; color:#fff; }
+
+.yellow-mode .top-bar,
+.yellow-mode .main { background:#000; color:#f6e05e; }
+
+/* Disable selection */
+body { user-select:none; }
+
+/* MATCH */
+.match-option {
+    display:inline-block;
+    background:#6c757d;
+    color:#fff;
+    padding:5px 10px;
+    margin:3px;
+    border-radius:5px;
+    font-size:14px;
+}
+
+/* 🔥 SPLIT LAYOUT */
+.split-group {
     display:flex;
-    align-items:center;
-    background:#fff;
-    border-top:1px solid #ddd;
+    gap:20px;
+    align-items:flex-start;
+}
+
+/* BIGGER IMAGE */
+.split-image {
+    width:60%;
+    position:sticky;
+    top:10px;
+}
+
+.split-image img {
+    width:100%;
+    max-height:80vh;
+    object-fit:contain;
+    border-radius:10px;
+    border:1px solid #ddd;
+}
+
+/* SMALLER INPUT SIDE */
+.split-questions {
+    width:40%;
+}
+
+/* MOBILE */
+@media(max-width:768px){
+    .split-group { flex-direction:column; }
+    .split-image,
+    .split-questions { width:100%; }
 }
 </style>
 
 </head>
 <body>
 
-<!-- 🚀 START SCREEN -->
+<!-- START -->
 <div id="startOverlay" class="overlay">
     <h3 class="mb-3">Are you ready?</h3>
     <button class="btn btn-danger btn-lg" onclick="startTest()">Start Listening</button>
 </div>
 
-<!-- 🔝 TOP -->
+<!-- MAIN CONTENT -->
 <div id="mainContent" style="display:none;">
+
 <div class="top-bar">
     <h5>{{ test.title }}</h5>
 
@@ -181,14 +193,14 @@ body { user-select:none; }
     </div>
 </div>
 
-<!-- 🎧 AUDIO -->
+<!-- AUDIO -->
 <div id="audioWrapper" style="display:none;" class="p-3 bg-white border-bottom">
     <audio id="audioPlayer" controls controlsList="nodownload" class="w-100">
         <source src="{{ test.audio.url }}" type="audio/mpeg">
     </audio>
 </div>
 
-<!-- 🔽 MAIN -->
+<!-- MAIN -->
 <div class="main">
 
 {% for section in sections %}
@@ -200,13 +212,25 @@ body { user-select:none; }
 
         <p><strong>{{ group.instruction }}</strong></p>
 
-        {% if group.image %}
+        <!-- 🔥 PART 1 & 4 -->
+        {% if group.image and section.order == 1 or group.image and section.order == 4 %}
+        <div class="split-group">
+
+            <div class="split-image">
+                <img src="{{ group.image.url }}">
+            </div>
+
+            <div class="split-questions">
+        {% endif %}
+
+        <!-- PART 2 & 3 -->
+        {% if group.image and section.order != 1 and section.order != 4 %}
         <div class="mb-3 text-center">
             <img src="{{ group.image.url }}" style="max-width:100%;">
         </div>
         {% endif %}
 
-        <!-- ================= MCQ ================= -->
+        <!-- MCQ -->
         {% if group.group_type == "MCQ" %}
             {% for q in group.questions.all %}
             <div class="mb-3" id="q{{ q.id }}">
@@ -227,42 +251,30 @@ body { user-select:none; }
             {% endfor %}
         {% endif %}
 
-        <!-- ================= MATCHING ================= -->
+        <!-- MATCH -->
         {% if group.group_type == "MATCH" %}
+        <div class="mb-3">
+            <strong>Options:</strong><br>
+            {% for opt in group.unique_options %}
+                <span class="match-option">{{ opt.label }} {{ opt.text }}</span>
+            {% endfor %}
+        </div>
 
-<!-- ✅ OPTIONS (NO DUPLICATES) -->
-<div class="mb-3">
-    <strong>Options:</strong><br>
-
-    {% for opt in group.unique_options %}
-        <span class="match-option">
-            {{ opt.label }} {{ opt.text }}
-        </span>
-    {% endfor %}
-</div>
-
-<!-- ✅ QUESTIONS -->
-{% for q in group.questions.all %}
-<div class="mb-3" id="q{{ q.id }}">
-    <b>{{ q.number }}. {{ q.text }}</b>
-
-    <select class="form-control mt-2"
-            onchange="saveAnswer({{ q.id }}, this.value)">
-        <option value="">Select</option>
-
-        {% for opt in group.unique_options %}
-            <option value="{{ opt.label }}">
-                {{ opt.label }}
-            </option>
+        {% for q in group.questions.all %}
+        <div class="mb-3" id="q{{ q.id }}">
+            <b>{{ q.number }}. {{ q.text }}</b>
+            <select class="form-control mt-2"
+                    onchange="saveAnswer({{ q.id }}, this.value)">
+                <option value="">Select</option>
+                {% for opt in group.unique_options %}
+                    <option value="{{ opt.label }}">{{ opt.label }}</option>
+                {% endfor %}
+            </select>
+        </div>
         {% endfor %}
+        {% endif %}
 
-    </select>
-</div>
-{% endfor %}
-
-{% endif %}
-
-        <!-- ================= OTHER TYPES ================= -->
+        <!-- INPUT -->
         {% if group.group_type != "MCQ" and group.group_type != "MATCH" %}
             {% for q in group.questions.all %}
             <div class="mb-3" id="q{{ q.id }}">
@@ -273,6 +285,12 @@ body { user-select:none; }
             {% endfor %}
         {% endif %}
 
+        <!-- CLOSE SPLIT -->
+        {% if group.image and section.order == 1 or group.image and section.order == 4 %}
+            </div>
+        </div>
+        {% endif %}
+
     </div>
     {% endfor %}
 </div>
@@ -280,10 +298,9 @@ body { user-select:none; }
 
 </div>
 
-<!-- 🔻 NAV -->
+<!-- NAV -->
 <div class="bottom-bar justify-content-between px-3">
 
-    <!-- LEFT: PARTS -->
     <div class="d-flex gap-2">
         {% for section in sections %}
             <button class="btn btn-sm btn-outline-danger section-btn"
@@ -294,11 +311,9 @@ body { user-select:none; }
         {% endfor %}
     </div>
 
-    <!-- RIGHT: QUESTIONS -->
     {% for section in sections %}
     <div id="nav-section{{ section.order }}"
          class="nav-row {% if not forloop.first %}hidden{% endif %}">
-
         {% for group in section.groups.all %}
             {% for q in group.questions.all %}
                 <button class="nav-btn"
@@ -307,7 +322,6 @@ body { user-select:none; }
                 </button>
             {% endfor %}
         {% endfor %}
-
     </div>
     {% endfor %}
 
@@ -315,115 +329,93 @@ body { user-select:none; }
 </div>
 
 <script>
-
-// 🚀 START
-let started = false;
+// START
+let started=false;
 
 function startTest(){
     if(started) return;
-    started = true;
+    started=true;
 
-    document.getElementById("startOverlay").style.display = "none";
+    document.getElementById("startOverlay").style.display="none";
+    document.getElementById("mainContent").style.display="block";
+    document.getElementById("audioWrapper").style.display="block";
 
-    // 🔥 SHOW CONTENT
-    document.getElementById("mainContent").style.display = "block";
-    document.getElementById("audioWrapper").style.display = "block";
-
-    // 🔥 PLAY AUDIO
-    const audio = document.getElementById("audioPlayer");
-    audio.play();
+    document.getElementById("audioPlayer").play();
 }
 
-// SECTION SWITCH
-function switchSection(id, btn){
-
+// SWITCH
+function switchSection(id,btn){
     if(!started) return;
 
-    // show section
-    document.querySelectorAll('.section').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.section').forEach(el=>el.classList.add('hidden'));
     document.getElementById('section'+id).classList.remove('hidden');
 
-    // 🔥 show only that part questions
-    document.querySelectorAll('.nav-row').forEach(el => el.classList.add('hidden'));
+    document.querySelectorAll('.nav-row').forEach(el=>el.classList.add('hidden'));
     document.getElementById('nav-section'+id).classList.remove('hidden');
 
-    // reset buttons
     document.querySelectorAll('.section-btn').forEach(b=>{
         b.classList.remove('btn-danger');
         b.classList.add('btn-outline-danger');
     });
 
-    // activate current
     if(btn){
         btn.classList.remove('btn-outline-danger');
         btn.classList.add('btn-danger');
     }
 
-    document.querySelector(".main").scrollTop = 0;
+    document.querySelector(".main").scrollTop=0;
 }
 
+// SCROLL
 function scrollToQuestion(qid){
-    const container = document.querySelector(".main");
-    const el = document.getElementById("q"+qid);
+    const container=document.querySelector(".main");
+    const el=document.getElementById("q"+qid);
 
     if(el){
-        const top = el.offsetTop - container.offsetTop;
-
         container.scrollTo({
-            top: top - 50,
-            behavior: "smooth"
+            top:el.offsetTop-50,
+            behavior:"smooth"
         });
     }
 }
 
-// SAVE ANSWER
-function saveAnswer(qid, value){
-    fetch("{% url 'ielts:listening_save_answer' %}", {
+// SAVE
+function saveAnswer(qid,value){
+    fetch("{% url 'ielts:listening_save_answer' %}",{
         method:"POST",
         headers:{
             "X-CSRFToken":"{{ csrf_token }}",
             "Content-Type":"application/x-www-form-urlencoded"
         },
         body:new URLSearchParams({
-            question_id: qid,
-            answer: value,
-            user_test_id: "{{ user_test.id }}"
+            question_id:qid,
+            answer:value,
+            user_test_id:"{{ user_test.id }}"
         })
     });
 }
 
-// AUDIO + TIMER
-const audio = document.getElementById("audioPlayer");
-let finished = false;
+// TIMER
+const audio=document.getElementById("audioPlayer");
+let finished=false;
 
-audio.addEventListener("ended", ()=>{
+audio.addEventListener("ended",()=>{
     if(!finished){
-        finished = true;
+        finished=true;
         startReviewTimer();
     }
 });
 
-audio.addEventListener("play", ()=>{
-    if(finished) audio.pause();
-});
-
 function startReviewTimer(){
-    let t = 120;
+    let t=120;
+    const el=document.getElementById("reviewTimer");
 
-    const el = document.getElementById("reviewTimer");
-
-    const interval = setInterval(()=>{
-        el.innerText = `Check answers: ${t}s`;
-
-        el.classList.remove("timer-danger");
-
-        if(t <= 120){ // always red for review
-            el.classList.add("timer-danger");
-        }
-
+    const interval=setInterval(()=>{
+        el.innerText=`Check answers: ${t}s`;
+        el.classList.add("timer-danger");
         t--;
 
-        if(t < 0){
+        if(t<0){
             clearInterval(interval);
             submitTest();
         }
@@ -432,8 +424,16 @@ function startReviewTimer(){
 
 // SUBMIT
 function submitTest(){
-    window.location.href = "{% url 'ielts:listening_submit' user_test.id %}";
+    window.location.href="{% url 'ielts:listening_submit' user_test.id %}";
 }
+
+// LOAD
+window.onload=()=>{
+    setTheme(localStorage.getItem("theme") || "light");
+    document.body.style.fontSize=(localStorage.getItem("fontSize") || 16)+"px";
+    const firstBtn=document.getElementById("btn1");
+    switchSection(1,firstBtn);
+};
 
 // THEME
 function setTheme(mode){
@@ -447,48 +447,20 @@ function setTheme(mode){
 }
 
 // FONT
-let fontSize = localStorage.getItem("fontSize") || 16;
+let fontSize=localStorage.getItem("fontSize")||16;
 
 function changeFont(change){
-    fontSize = parseInt(fontSize) + change;
-    fontSize = Math.max(12, Math.min(24, fontSize));
-
-    document.body.style.fontSize = fontSize + "px";
+    fontSize=parseInt(fontSize)+change;
+    fontSize=Math.max(12,Math.min(24,fontSize));
+    document.body.style.fontSize=fontSize+"px";
     localStorage.setItem("fontSize",fontSize);
 }
 
-// LOAD
-window.onload = ()=>{
-    setTheme(localStorage.getItem("theme") || "light");
-    document.body.style.fontSize = (localStorage.getItem("fontSize") || 16) + "px";
-    const firstBtn = document.getElementById("btn1");
-    switchSection(1, firstBtn);
-};
-
 // BLOCK
-document.addEventListener("copy", e=>e.preventDefault());
-document.addEventListener("paste", e=>e.preventDefault());
-document.addEventListener("cut", e=>e.preventDefault());
-document.addEventListener("contextmenu", e=>e.preventDefault());
-
-document.addEventListener("keydown", function(e){
-    if (
-        (e.ctrlKey && ["c","v","x","u","s"].includes(e.key.toLowerCase())) ||
-        (e.metaKey && ["c","v","x","u","s"].includes(e.key.toLowerCase()))
-    ){
-        e.preventDefault();
-    }
-
-    if (e.key === "F5" || (e.ctrlKey && e.key.toLowerCase()==="r")){
-        e.preventDefault();
-        alert("⚠️ If you refresh, the test will restart and your answers will be lost.");
-    }
-});
-
-window.addEventListener("beforeunload", function (e) {
-    e.preventDefault();
-    e.returnValue = "If you leave, answers will be lost.";
-});
+document.addEventListener("copy",e=>e.preventDefault());
+document.addEventListener("paste",e=>e.preventDefault());
+document.addEventListener("cut",e=>e.preventDefault());
+document.addEventListener("contextmenu",e=>e.preventDefault());
 </script>
 
 </body>

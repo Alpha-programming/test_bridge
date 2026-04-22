@@ -3,24 +3,76 @@
 
 {% block content %}
 
+<style>
+    /* 🔥 MAIN BUTTON (restore style) */
+.main-btn {
+    display:inline-block;
+    background:#c8102e;
+    color:white;
+    padding:10px 16px;
+    border-radius:10px;
+    font-weight:700;
+    text-align:center;
+    transition:0.2s;
+}
+
+.main-btn:hover {
+    background:#a50d26;
+    color:white;
+}
+
+/* 🔍 SEARCH BUTTON */
+.search-btn {
+    background:#0d6efd;
+    color:white;
+    border:none;
+}
+
+.search-btn:hover {
+    background:#0b5ed7;
+}
+
+/* 🔍 SEARCH INPUT */
+.search-input {
+    border-radius:10px 0 0 10px;
+}
+
+.search-btn {
+    border-radius:0 10px 10px 0;
+}
+
+/* 📦 CARD STYLE */
+.card-custom {
+    background:white;
+    border-radius:16px;
+    box-shadow:0 6px 20px rgba(0,0,0,0.05);
+    transition:0.2s;
+}
+
+.card-custom:hover {
+    transform:translateY(-3px);
+}
+</style>
+
 <div class="container mt-4">
 
-    <div class="card-custom p-3 mb-3 text-center">
-
-        <p>🧠 AI Used Today: {{ subscription.ai_used_today }}</p>
-        <p>📝 Tests Used Today: {{ subscription.tests_used_today }}</p>
-
-    </div>
 
     <!-- 🔍 SEARCH -->
     <form method="GET" class="mb-4 d-flex justify-content-center">
-        <div class="input-group search-box">
-            <input type="text" name="q" value="{{ query|default:'' }}"
-                   class="form-control search-input"
-                   placeholder="Search writing tests...">
-            <button class="btn search-btn">Search</button>
-        </div>
-    </form>
+    <div class="input-group" style="max-width:400px; width:100%;">
+
+        <input
+            type="text"
+            name="q"
+            value="{{ query|default:'' }}"
+            class="form-control"
+            placeholder="Search tests..."
+        >
+
+        <button class="btn btn-primary px-3">Search</button>
+
+    </div>
+</form>
 
     <!-- ✍️ TESTS -->
     <h3 class="mb-3">Writing Tests</h3>
@@ -45,7 +97,7 @@
                 </div>
             </div>
         {% empty %}
-            <p>No tests found</p>
+            <p class="text-muted">No tests found</p>
         {% endfor %}
     </div>
 
@@ -55,7 +107,7 @@
             <a href="?page={{ page_obj.previous_page_number }}" class="main-btn">Prev</a>
         {% endif %}
 
-        <span>
+        <span class="text-muted">
             Page {{ page_obj.number }} of {{ page_obj.paginator.num_pages }}
         </span>
 

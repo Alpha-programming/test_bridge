@@ -1,6 +1,7 @@
 from django.shortcuts import render, redirect
 from django.contrib.auth.decorators import login_required
 from django.db.models import Avg
+from ..services.subscription import prepare_subscription
 
 from ..models import (
     UserReadingTest,
@@ -79,7 +80,8 @@ def profile_view(request):
     speaking_avg = speaking.aggregate(avg=Avg("overall_band"))["avg"] or 0
 
     # 💳 SUBSCRIPTION
-    sub = Subscription.objects.filter(user=user).first()
+    sub = prepare_subscription(user)
+
 
     return render(request, "ielts/profile/profile.html", {
         "reading_avg_score": reading_avg_score,

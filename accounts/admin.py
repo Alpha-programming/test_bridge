@@ -12,8 +12,8 @@ class SubscriptionAdmin(admin.ModelAdmin):
         "user",
         "plan",
         "is_active",
-        "ai_used_today",
-        "tests_used_today",
+        "ai_used",
+        "tests_used",
         "start_date",
         "end_date",
     )

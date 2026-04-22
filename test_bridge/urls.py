@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path,include
 from django.conf.urls.static import static
 from django.conf import settings
-from .views import home
+from .views import home,about
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -26,11 +26,15 @@ urlpatterns = [
     # 🌍 Landing page
     path("", home, name="home"),
 
+    path("about/", about, name="about"),
+
     # 🔐 Auth (login/register/logout)
     path("auth/", include("accounts.urls")),
 
     # 📘 IELTS app
     path("ielts/", include("ielts.urls")),
+
+    path("topik/", include("topik.urls")),
 ]
 
 

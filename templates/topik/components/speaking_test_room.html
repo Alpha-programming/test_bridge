@@ -1,0 +1,970 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ attempt.test.title }}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --bg: #f4f7fb;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+            --radius-xl: 28px;
+            --radius-lg: 22px;
+            --radius-md: 16px;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
+            color: var(--text);
+            padding: 24px;
+        }
+
+        .container {
+            width: min(1200px, 100%);
+            margin: 0 auto;
+        }
+
+        .topbar {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a 65%, #2563eb);
+            color: white;
+            border-radius: 28px;
+            padding: 26px 30px;
+            margin-bottom: 22px;
+            box-shadow: var(--shadow);
+        }
+
+        .topbar h1 {
+            font-size: 30px;
+            font-weight: 800;
+            margin-bottom: 10px;
+            letter-spacing: -0.6px;
+        }
+
+        .topbar p {
+            color: rgba(255,255,255,0.85);
+            font-size: 14px;
+        }
+
+        .top-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .pill {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 700;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.16);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 22px;
+        }
+
+        .sidebar,
+        .main-card {
+            background: var(--white);
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .sidebar {
+            padding: 22px;
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .sidebar h3 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 14px;
+        }
+
+        .progress-box {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 18px;
+            padding: 16px;
+            margin-bottom: 18px;
+        }
+
+        .progress-box span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .progress-box strong {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .question-nav {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+        }
+
+        .nav-item {
+            height: 48px;
+            border-radius: 14px;
+            border: 1px solid var(--border);
+            background: #f8fafc;
+            color: var(--secondary);
+            font-weight: 800;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: .2s ease;
+        }
+
+        .nav-item:hover {
+            background: #eef4ff;
+            border-color: #bfdbfe;
+        }
+
+        .nav-item.active {
+            background: #dbeafe;
+            border-color: #93c5fd;
+            color: #1d4ed8;
+        }
+
+        .nav-item.done {
+            background: #dcfce7;
+            border-color: #86efac;
+            color: #15803d;
+        }
+
+        .nav-item.active.done {
+            box-shadow: inset 0 0 0 2px #15803d;
+        }
+
+        .main-card {
+            padding: 28px;
+        }
+
+        .question-head {
+            display: flex;
+            justify-content: space-between;
+            gap: 16px;
+            align-items: flex-start;
+            margin-bottom: 20px;
+        }
+
+        .question-title-wrap {
+            flex: 1;
+        }
+
+        .part-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 12px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+            background: #dbeafe;
+            color: #1d4ed8;
+            margin-bottom: 12px;
+        }
+
+        .question-title {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--secondary);
+            line-height: 1.3;
+            margin-bottom: 8px;
+        }
+
+        .question-order {
+            font-size: 14px;
+            color: var(--muted);
+            font-weight: 600;
+        }
+
+        .timers {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .timer-box {
+            min-width: 150px;
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 18px;
+            padding: 14px 16px;
+        }
+
+        .timer-box span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+        }
+
+        .timer-box strong {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .prompt-box {
+            background: #f8fbff;
+            border: 1px solid #dbeafe;
+            border-radius: 22px;
+            padding: 22px;
+            margin-bottom: 20px;
+        }
+
+        .prompt-box h4 {
+            font-size: 15px;
+            color: var(--secondary);
+            font-weight: 800;
+            margin-bottom: 10px;
+        }
+
+        .prompt-text {
+            font-size: 18px;
+            line-height: 1.9;
+            color: var(--text);
+            white-space: pre-line;
+        }
+
+        .follow-up-box {
+            margin-top: 16px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .follow-up-box h5 {
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 10px;
+        }
+
+        .follow-up-box ul {
+            padding-left: 20px;
+        }
+
+        .follow-up-box li {
+            margin-bottom: 8px;
+            color: var(--text);
+            line-height: 1.7;
+        }
+
+        .record-panel {
+            display: grid;
+            grid-template-columns: 1fr auto auto auto;
+            gap: 12px;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .status-box {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 18px;
+            padding: 14px 16px;
+            min-height: 56px;
+            display: flex;
+            align-items: center;
+            font-weight: 700;
+            color: var(--secondary);
+        }
+
+        .btn {
+            border: none;
+            border-radius: 14px;
+            padding: 13px 18px;
+            font-weight: 800;
+            font-size: 14px;
+            cursor: pointer;
+            transition: .25s ease;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+        }
+
+        .btn-dark {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-dark:hover {
+            opacity: .92;
+        }
+
+        .btn-success {
+            background: var(--success);
+            color: white;
+        }
+
+        .btn-success:hover {
+            opacity: .92;
+        }
+
+        .btn-warning {
+            background: var(--warning);
+            color: white;
+        }
+
+        .btn-danger {
+            background: var(--danger);
+            color: white;
+        }
+
+        .btn:disabled {
+            opacity: .5;
+            cursor: not-allowed;
+            transform: none !important;
+        }
+
+        .transcript-box {
+            margin-bottom: 20px;
+        }
+
+        .transcript-box label {
+            display: block;
+            margin-bottom: 8px;
+            font-size: 14px;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .transcript-box textarea {
+            width: 100%;
+            min-height: 140px;
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 16px;
+            font-size: 15px;
+            resize: vertical;
+            outline: none;
+            font-family: inherit;
+        }
+
+        .transcript-box textarea:focus {
+            border-color: var(--primary);
+        }
+
+        .bottom-actions {
+            display: flex;
+            justify-content: space-between;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .left-actions,
+        .right-actions {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .audio-preview {
+            margin-top: 10px;
+        }
+
+        .audio-preview audio {
+            width: 100%;
+        }
+
+        .hidden {
+            display: none !important;
+        }
+
+        @media (max-width: 980px) {
+            .layout {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .record-panel {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .question-head {
+                flex-direction: column;
+            }
+        }
+
+        @media (max-width: 680px) {
+            body {
+                padding: 14px;
+            }
+
+            .topbar,
+            .main-card,
+            .sidebar {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .question-title {
+                font-size: 22px;
+            }
+
+            .record-panel,
+            .bottom-actions,
+            .left-actions,
+            .right-actions {
+                grid-template-columns: 1fr;
+                display: grid;
+            }
+
+            .btn {
+                width: 100%;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+    <section class="topbar">
+        <h1>{{ attempt.test.title }}</h1>
+        <p>각 문제에 순서대로 답변해 주세요. 모든 문제에서 음성을 녹음하고 답안을 저장한 뒤, 전체 시험을 제출하여 평가를 받을 수 있습니다.</p>
+        <div class="top-meta">
+            <span class="pill">응시 #{{ attempt.id }}</span>
+            <span class="pill">전체 문항 수: {{ total_questions }}</span>
+            <span class="pill">상태: {{ attempt.status }}</span>
+        </div>
+    </section>
+
+    <div class="layout">
+        <aside class="sidebar">
+            <h3>시험 진행 상황</h3>
+
+            <div class="progress-box">
+                <span>현재 문제</span>
+                <strong><span id="currentQuestionNumber">1</span> / {{ total_questions }}</strong>
+            </div>
+
+            <div class="progress-box">
+                <span>답변 완료</span>
+                <strong><span id="answeredCount">0</span> / {{ total_questions }}</strong>
+            </div>
+
+            <div class="question-nav" id="questionNav"></div>
+        </aside>
+
+        <main class="main-card">
+            <div class="question-head">
+                <div class="question-title-wrap">
+                    <div class="part-badge" id="partBadge">파트 1</div>
+                    <div class="question-title" id="questionTitle"></div>
+                    <div class="question-order" id="questionOrderText"></div>
+                </div>
+
+                <div class="timers">
+                    <div class="timer-box">
+                        <span>준비 시간</span>
+                        <strong id="prepTimer">00:00</strong>
+                    </div>
+                    <div class="timer-box">
+                        <span>말하기 시간</span>
+                        <strong id="speakTimer">00:00</strong>
+                    </div>
+                </div>
+            </div>
+
+            <div class="prompt-box">
+                <h4>문제</h4>
+                <div class="prompt-text" id="questionPrompt"></div>
+
+                <div class="follow-up-box hidden" id="followUpBox">
+                    <h5>가이드 포인트</h5>
+                    <ul id="followUpList"></ul>
+                </div>
+            </div>
+
+            <div class="record-panel">
+                <div class="status-box" id="statusBox">준비가 되면 “녹음 시작” 버튼을 눌러 주세요.</div>
+                <button class="btn btn-primary" id="recordBtn" type="button">녹음 시작</button>
+                <button class="btn btn-dark" id="stopBtn" type="button" disabled>중지</button>
+                <button class="btn btn-warning" id="playBtn" type="button" disabled>미리 듣기</button>
+            </div>
+
+            <div class="audio-preview hidden" id="audioPreviewBox">
+                <audio id="audioPreview" controls></audio>
+            </div>
+
+            <div class="transcript-box">
+                <label for="transcriptInput">선택 입력용 전사 / 메모</label>
+                <textarea id="transcriptInput" placeholder="필요하다면 여기에 답변 내용을 입력할 수 있습니다..."></textarea>
+            </div>
+
+            <div class="bottom-actions">
+                <div class="left-actions">
+                    <button class="btn btn-dark" id="prevBtn" type="button">이전 문제</button>
+                    <button class="btn btn-success" id="saveBtn" type="button">답안 저장</button>
+                </div>
+
+                <div class="right-actions">
+                    <button class="btn btn-primary" id="nextBtn" type="button">다음 문제</button>
+                    <button class="btn btn-danger hidden" id="submitBtn" type="button">시험 제출</button>
+                </div>
+            </div>
+        </main>
+    </div>
+</div>
+
+{{ questions_data|json_script:"questions-data" }}
+
+<script>
+    const attemptId = {{ attempt.id }};
+    const questions = JSON.parse(document.getElementById("questions-data").textContent);
+
+    let currentIndex = 0;
+    let mediaRecorder = null;
+    let audioChunks = [];
+    let recordedBlob = null;
+    let recordedUrl = null;
+    let stream = null;
+
+    let prepInterval = null;
+    let speakInterval = null;
+    let prepRemaining = 0;
+    let speakRemaining = 0;
+
+    const savedAnswers = {};
+
+    const questionNav = document.getElementById("questionNav");
+    const currentQuestionNumber = document.getElementById("currentQuestionNumber");
+    const answeredCount = document.getElementById("answeredCount");
+
+    const partBadge = document.getElementById("partBadge");
+    const questionTitle = document.getElementById("questionTitle");
+    const questionOrderText = document.getElementById("questionOrderText");
+    const questionPrompt = document.getElementById("questionPrompt");
+
+    const followUpBox = document.getElementById("followUpBox");
+    const followUpList = document.getElementById("followUpList");
+
+    const prepTimer = document.getElementById("prepTimer");
+    const speakTimer = document.getElementById("speakTimer");
+
+    const statusBox = document.getElementById("statusBox");
+    const transcriptInput = document.getElementById("transcriptInput");
+
+    const recordBtn = document.getElementById("recordBtn");
+    const stopBtn = document.getElementById("stopBtn");
+    const playBtn = document.getElementById("playBtn");
+    const saveBtn = document.getElementById("saveBtn");
+    const prevBtn = document.getElementById("prevBtn");
+    const nextBtn = document.getElementById("nextBtn");
+    const submitBtn = document.getElementById("submitBtn");
+
+    const audioPreviewBox = document.getElementById("audioPreviewBox");
+    const audioPreview = document.getElementById("audioPreview");
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== "") {
+            const cookies = document.cookie.split(";");
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + "=")) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
+
+    const csrftoken = getCookie("csrftoken");
+
+    function formatTime(seconds) {
+        const m = String(Math.floor(seconds / 60)).padStart(2, "0");
+        const s = String(seconds % 60).padStart(2, "0");
+        return `${m}:${s}`;
+    }
+
+    function updateAnsweredCount() {
+        answeredCount.textContent = Object.keys(savedAnswers).length;
+    }
+
+    function buildNavigator() {
+        questionNav.innerHTML = "";
+        questions.forEach((q, index) => {
+            const div = document.createElement("button");
+            div.type = "button";
+            div.className = "nav-item";
+
+            if (index === currentIndex) div.classList.add("active");
+            if (savedAnswers[q.question_id]?.saved || q.has_answer) div.classList.add("done");
+
+            div.textContent = index + 1;
+
+            div.addEventListener("click", () => {
+                if (index === currentIndex) return;
+
+                if (hasUnsavedCurrentAnswer()) {
+                    const leave = confirm("현재 문제에 저장되지 않은 답변이 있습니다. 이동하시겠습니까?");
+                    if (!leave) return;
+                }
+
+                currentIndex = index;
+                loadQuestion(currentIndex);
+            });
+
+            questionNav.appendChild(div);
+        });
+    }
+
+    function clearAudioPreview() {
+        recordedBlob = null;
+        if (recordedUrl) {
+            URL.revokeObjectURL(recordedUrl);
+            recordedUrl = null;
+        }
+        audioPreview.pause();
+        audioPreview.src = "";
+        audioPreviewBox.classList.add("hidden");
+        playBtn.disabled = true;
+    }
+
+    function hasUnsavedCurrentAnswer() {
+        const q = questions[currentIndex];
+        const transcript = transcriptInput.value.trim();
+        const hasSaved = savedAnswers[q.question_id]?.saved;
+        return !hasSaved && (recordedBlob || transcript);
+    }
+
+    function loadQuestion(index) {
+        const q = questions[index];
+        if (!q) return;
+
+        currentQuestionNumber.textContent = index + 1;
+        partBadge.textContent = q.part_display || q.part;
+        questionTitle.textContent = q.title || `문제 ${index + 1}`;
+        questionOrderText.textContent = `전체 ${questions.length}문제 중 ${index + 1}번`;
+        questionPrompt.textContent = q.prompt || "";
+
+        if (q.follow_up_questions && q.follow_up_questions.length > 0) {
+            followUpList.innerHTML = "";
+            q.follow_up_questions.forEach(item => {
+                const li = document.createElement("li");
+                li.textContent = item;
+                followUpList.appendChild(li);
+            });
+            followUpBox.classList.remove("hidden");
+        } else {
+            followUpBox.classList.add("hidden");
+            followUpList.innerHTML = "";
+        }
+
+        prepRemaining = q.prep_time || 0;
+        speakRemaining = q.speak_time || 0;
+        prepTimer.textContent = formatTime(prepRemaining);
+        speakTimer.textContent = formatTime(speakRemaining);
+
+        clearInterval(prepInterval);
+        clearInterval(speakInterval);
+
+        startPrepTimer();
+
+        transcriptInput.value = savedAnswers[q.question_id]?.transcript || q.saved_transcript || "";
+        clearAudioPreview();
+
+        if (savedAnswers[q.question_id]?.saved || q.has_answer) {
+            statusBox.textContent = "이 문제에는 이미 저장된 답변이 있습니다.";
+        } else {
+            statusBox.textContent = "문제를 읽고 준비해 주세요.";
+        }
+
+        prevBtn.disabled = index === 0;
+
+        if (index === questions.length - 1) {
+            nextBtn.classList.add("hidden");
+            submitBtn.classList.remove("hidden");
+        } else {
+            nextBtn.classList.remove("hidden");
+            submitBtn.classList.add("hidden");
+        }
+
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+
+        buildNavigator();
+        updateAnsweredCount();
+    }
+
+    function startPrepTimer() {
+        prepTimer.textContent = formatTime(prepRemaining);
+
+        prepInterval = setInterval(() => {
+            if (prepRemaining > 0) {
+                prepRemaining--;
+                prepTimer.textContent = formatTime(prepRemaining);
+            } else {
+                clearInterval(prepInterval);
+                statusBox.textContent = "준비 시간이 끝났습니다. 이제 답변을 시작하세요.";
+            }
+        }, 1000);
+    }
+
+    function startSpeakTimer(duration) {
+        clearInterval(speakInterval);
+        speakRemaining = duration;
+        speakTimer.textContent = formatTime(speakRemaining);
+
+        speakInterval = setInterval(() => {
+            if (speakRemaining > 0) {
+                speakRemaining--;
+                speakTimer.textContent = formatTime(speakRemaining);
+            } else {
+                clearInterval(speakInterval);
+                if (mediaRecorder && mediaRecorder.state === "recording") {
+                    stopRecording();
+                }
+            }
+        }, 1000);
+    }
+
+    async function startRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") return;
+
+        try {
+            clearAudioPreview();
+            stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = event => {
+                if (event.data.size > 0) {
+                    audioChunks.push(event.data);
+                }
+            };
+
+            mediaRecorder.onstop = () => {
+                recordedBlob = new Blob(audioChunks, { type: "audio/webm" });
+                recordedUrl = URL.createObjectURL(recordedBlob);
+                audioPreview.src = recordedUrl;
+                audioPreviewBox.classList.remove("hidden");
+                playBtn.disabled = false;
+            };
+
+            mediaRecorder.start();
+            recordBtn.disabled = true;
+            stopBtn.disabled = false;
+            statusBox.textContent = "녹음 중입니다...";
+            startSpeakTimer(questions[currentIndex].speak_time || 60);
+        } catch (error) {
+            statusBox.textContent = "마이크 접근에 실패했습니다.";
+            console.error(error);
+        }
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+        }
+
+        if (stream) {
+            stream.getTracks().forEach(track => track.stop());
+            stream = null;
+        }
+
+        recordBtn.disabled = false;
+        stopBtn.disabled = true;
+        statusBox.textContent = "녹음이 중지되었습니다. 미리 듣거나 저장해 주세요.";
+        clearInterval(speakInterval);
+    }
+
+    async function saveAnswer() {
+        const q = questions[currentIndex];
+        const transcript = transcriptInput.value.trim();
+
+        if (!recordedBlob && !transcript) {
+            alert("저장하기 전에 음성을 녹음하거나 전사 내용을 입력해 주세요.");
+            return;
+        }
+
+        const formData = new FormData();
+        if (recordedBlob) {
+            formData.append("audio_file", recordedBlob, `question_${q.question_id}.webm`);
+        }
+        if (transcript) {
+            formData.append("transcript", transcript);
+        }
+
+        saveBtn.disabled = true;
+        statusBox.textContent = "답안을 저장하는 중입니다...";
+
+        try {
+            const response = await fetch(`/topik/speaking/attempt/${attemptId}/answer/${q.question_id}/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrftoken
+                },
+                body: formData
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                savedAnswers[q.question_id] = {
+                    saved: true,
+                    transcript: transcript
+                };
+                statusBox.textContent = "답안이 저장되었습니다.";
+                buildNavigator();
+                updateAnsweredCount();
+            } else {
+                alert(data.error || "답안 저장에 실패했습니다.");
+                statusBox.textContent = "답안 저장에 실패했습니다.";
+            }
+        } catch (error) {
+            console.error(error);
+            statusBox.textContent = "저장 중 오류가 발생했습니다.";
+        } finally {
+            saveBtn.disabled = false;
+        }
+    }
+
+    async function submitTest() {
+        if (hasUnsavedCurrentAnswer()) {
+            const leave = confirm("현재 문제에 저장되지 않은 답변이 있습니다. 그래도 제출하시겠습니까?");
+            if (!leave) return;
+        }
+
+        const confirmed = confirm("전체 말하기 시험을 제출하시겠습니까?");
+        if (!confirmed) return;
+
+        submitBtn.disabled = true;
+        statusBox.textContent = "시험을 제출하는 중입니다...";
+
+        try {
+            const response = await fetch(`/topik/speaking/attempt/${attemptId}/submit/`, {
+                method: "POST",
+                headers: {
+                    "X-CSRFToken": csrftoken
+                }
+            });
+
+            const data = await response.json();
+
+            if (data.success) {
+                window.location.href = data.redirect_url;
+            } else {
+                alert(data.error || "제출에 실패했습니다.");
+                statusBox.textContent = "제출에 실패했습니다.";
+                submitBtn.disabled = false;
+            }
+        } catch (error) {
+            console.error(error);
+            statusBox.textContent = "제출 중 오류가 발생했습니다.";
+            submitBtn.disabled = false;
+        }
+    }
+
+    prevBtn.addEventListener("click", () => {
+        if (hasUnsavedCurrentAnswer()) {
+            const leave = confirm("현재 문제에 저장되지 않은 답변이 있습니다. 이동하시겠습니까?");
+            if (!leave) return;
+        }
+
+        if (currentIndex > 0) {
+            currentIndex--;
+            loadQuestion(currentIndex);
+        }
+    });
+
+    nextBtn.addEventListener("click", () => {
+        if (hasUnsavedCurrentAnswer()) {
+            const leave = confirm("현재 문제에 저장되지 않은 답변이 있습니다. 이동하시겠습니까?");
+            if (!leave) return;
+        }
+
+        if (currentIndex < questions.length - 1) {
+            currentIndex++;
+            loadQuestion(currentIndex);
+        }
+    });
+
+    recordBtn.addEventListener("click", startRecording);
+    stopBtn.addEventListener("click", stopRecording);
+
+    playBtn.addEventListener("click", () => {
+        if (audioPreview.src) {
+            audioPreview.play();
+        }
+    });
+
+    saveBtn.addEventListener("click", saveAnswer);
+    submitBtn.addEventListener("click", submitTest);
+
+    questions.forEach(q => {
+        if (q.has_answer) {
+            savedAnswers[q.question_id] = {
+                saved: true,
+                transcript: q.saved_transcript || ""
+            };
+        }
+    });
+
+    if (questions.length > 0) {
+        loadQuestion(currentIndex);
+    } else {
+        statusBox.textContent = "이 말하기 시험에는 문제가 없습니다.";
+        recordBtn.disabled = true;
+        stopBtn.disabled = true;
+        saveBtn.disabled = true;
+        nextBtn.disabled = true;
+        prevBtn.disabled = true;
+        submitBtn.disabled = true;
+    }
+</script>
+</body>
+</html>

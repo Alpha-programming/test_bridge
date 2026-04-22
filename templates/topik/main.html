@@ -1,0 +1,232 @@
+{% extends 'topik/topik.html' %}
+{% block main %}
+<section class="hero">
+    <div class="container hero-grid">
+        <div class="hero-card">
+            <div class="hero-badge">TOPIK 스마트 학습 플랫폼</div>
+            <h1>실전처럼 연습하고, 체계적으로 관리하며, TOPIK 실력을 확실하게 높여보세요.</h1>
+            <p>
+                읽기, 듣기, 쓰기, 모의고사까지 한곳에서 학습할 수 있습니다.
+                영역별 연습, 복습 기능, 성취도 확인을 통해 더욱 효율적으로 준비해 보세요.
+            </p>
+            <div class="hero-actions">
+                <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">모의고사 보러 가기</a>
+                <a href="{% url 'topik:topik_progress' %}" class="btn btn-outline">학습 현황 보기</a>
+            </div>
+        </div>
+
+        <div class="hero-stats">
+            <div class="mini-card">
+                <h3>전체 학습률</h3>
+                <div class="progress-ring">{{ stats.progress_percent }}%</div>
+                <div class="mini-sub">제출 완료한 TOPIK 결과를 바탕으로 계산된 학습 진행률입니다.</div>
+            </div>
+
+            <div class="mini-card">
+                <h3>완료한 시험</h3>
+                <div class="mini-value">{{ stats.total_attempts }}</div>
+                <div class="mini-sub">완료한 모의고사와 영역별 연습 횟수입니다.</div>
+            </div>
+
+            <div class="mini-card">
+                <h3>최고 점수</h3>
+                <div class="mini-value">{{ stats.best_score }}</div>
+                <div class="mini-sub">지금까지 기록한 가장 높은 점수입니다.</div>
+            </div>
+
+            <div class="mini-card">
+                <h3>현재 목표</h3>
+                <div class="mini-value" style="font-size:22px;">{{ stats.current_goal }}</div>
+                <div class="mini-sub">현재 학습 현황과 최고 점수를 바탕으로 설정된 목표입니다.</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2>영역별 학습</h2>
+                <p>원하는 영역을 선택해 집중적으로 연습해 보세요.</p>
+            </div>
+        </div>
+
+        <div class="feature-grid">
+            <div class="feature-card">
+                <div class="feature-icon">📖</div>
+                <h3>읽기</h3>
+                <p>안내문, 메시지, 지문, 시각 자료 문제와 묶음형 문제를 단계별로 연습할 수 있습니다.</p>
+                <a href="{% url 'topik:topik_reading_list' %}">읽기 학습하기 →</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🎧</div>
+                <h3>듣기</h3>
+                <p>음성 문제, 그림 선택형 문제, 짧은 응답형 문제 등 실전형 듣기 훈련을 할 수 있습니다.</p>
+                <a href="{% url 'topik:topik_listening_list' %}">듣기 학습하기 →</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">✍️</div>
+                <h3>쓰기</h3>
+                <p>문장 완성, 단답형, 유도형 쓰기 연습을 통해 표현력과 구성력을 키워 보세요.</p>
+                <a href="{% url 'topik:topik_writing_list' %}">쓰기 학습하기 →</a>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">🗣️</div>
+                <h3>말하기 연습</h3>
+                <p>대화형 연습, 주제 카드, 발음 훈련, 말하기 프롬프트로 유창성을 높여 보세요.</p>
+                <a href="#">말하기 학습하기 →</a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2>추천 학습 세트</h2>
+                <p>전체 시험을 풀어보거나 원하는 영역만 골라서 시작해 보세요.</p>
+            </div>
+            <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-outline">전체 시험 보기</a>
+        </div>
+
+        <div class="exam-grid">
+            {% for exam in featured_exams %}
+            <div class="exam-card">
+                <div class="tag-row">
+                    <span class="tag tag-blue">{{ exam.get_level_display }}</span>
+                    <span class="tag tag-green">{{ exam.get_exam_type_display }}</span>
+                </div>
+
+                <h3>{{ exam.title }}</h3>
+                <p>{{ exam.description|default:"이 시험으로 한국어 실력을 체계적으로 점검해 보세요." }}</p>
+
+                <div class="exam-meta">
+                    <div class="meta-box">
+                        <span>구성 영역</span>
+                        <strong>{{ exam.sections_display }}</strong>
+                    </div>
+
+                    <div class="meta-box">
+                        <span>시험 시간</span>
+                        <strong>{{ exam.duration_minutes }}분</strong>
+                    </div>
+
+                    <div class="meta-box">
+                        <span>문항 수</span>
+                        <strong>{{ exam.questions_count }}</strong>
+                    </div>
+
+                    <div class="meta-box">
+                        <span>응시 상태</span>
+                        <strong>응시 가능</strong>
+                    </div>
+                </div>
+
+                <div class="exam-actions">
+                    <a href="{% url 'topik:start_topik_exam' exam.slug %}" class="btn btn-primary">바로 시작하기</a>
+                    <a href="{% url 'topik:topik_exam_detail' exam.slug %}" class="btn btn-outline">시험 미리보기</a>
+                </div>
+            </div>
+            {% empty %}
+            <div class="empty-box" style="grid-column: 1 / -1;">
+                아직 추천 시험이 없습니다.
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container dashboard-grid">
+        <div class="panel">
+            <h3>최근 학습 기록</h3>
+
+            {% for item in stats.recent_activity %}
+            <div class="activity-item">
+                <div class="activity-info">
+                    <strong>{{ item.title }}</strong>
+                    <span>{{ item.subtitle }}</span>
+                </div>
+                <div class="score-pill">{{ item.score_text }}</div>
+            </div>
+            {% empty %}
+            <div class="activity-item">
+                <div class="activity-info">
+                    <strong>아직 학습 기록이 없습니다</strong>
+                    <span>첫 TOPIK 시험을 완료하면 최근 기록이 여기에 표시됩니다.</span>
+                </div>
+                <div class="score-pill">시작 전</div>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="panel">
+            <h3>영역별 성취도</h3>
+
+            {% for skill in stats.skill_performance %}
+            <div class="rank-item">
+                <div class="rank-info">
+                    <strong>{{ skill.name }}</strong>
+                    <span>{{ skill.description }}</span>
+                </div>
+                <div class="score-pill">{{ skill.score }}</div>
+            </div>
+            {% empty %}
+            <div class="rank-item">
+                <div class="rank-info">
+                    <strong>아직 분석할 데이터가 없습니다</strong>
+                    <span>시험을 완료하면 영역별 평균과 성취도가 표시됩니다.</span>
+                </div>
+                <div class="score-pill">-</div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="section-header">
+            <div>
+                <h2>왜 이 플랫폼일까요?</h2>
+                <p>실제 점수 향상에 도움이 되는 방식으로 설계했습니다.</p>
+            </div>
+        </div>
+
+        <div class="why-grid">
+            <div class="why-card">
+                <h3>실전형 학습 환경</h3>
+                <p>깔끔한 화면 구성과 체계적인 문제 흐름으로 실제 시험처럼 집중해서 연습할 수 있습니다.</p>
+            </div>
+
+            <div class="why-card">
+                <h3>똑똑한 학습 관리</h3>
+                <p>점수 변화와 약한 영역을 확인하면서 나에게 맞는 학습 전략을 세울 수 있습니다.</p>
+            </div>
+
+            <div class="why-card">
+                <h3>한곳에서 끝내는 TOPIK 준비</h3>
+                <p>읽기, 듣기, 쓰기, 말하기 연습까지 한 플랫폼에서 효율적으로 준비할 수 있습니다.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta">
+    <div class="container">
+        <div class="cta-box">
+            <h2>이제 TOPIK 점수 상승을 시작해 보세요</h2>
+            <p>
+                전체 모의고사를 풀어보거나 필요한 영역만 선택해서 바로 연습할 수 있습니다.
+                꾸준한 연습으로 한국어 실력을 확실하게 높여 보세요.
+            </p>
+            <a href="{% url 'topik:topik_mock_list' %}" class="btn btn-primary">학습 시작하기</a>
+        </div>
+    </div>
+</section>
+{% endblock main %}

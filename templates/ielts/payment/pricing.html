@@ -86,8 +86,9 @@
 <h4>Free</h4>
 <div class="price">$0</div>
 
-<p>2 tests/day</p>
-<p>1 AI/day</p>
+<p>✔ 50 tests total</p>
+<p>❌ No AI access</p>
+<p>✔ Reading & Listening only</p>
 
 {% if subscription.plan == "FREE" %}
 <button class="btn btn-secondary btn-buy">Current Plan</button>
@@ -107,10 +108,11 @@
 <span class="badge-plan badge-current">Popular</span>
 
 <h4>Standard</h4>
-<div class="price">$2.99</div>
+<div class="price">$2.99 <small>/month</small></div>
 
-<p>10 tests/day</p>
-<p>5 AI/day</p>
+<p>✔ 15 AI / month</p>
+<p>✔ Up to 50 tests / month</p>
+<p>✔ Full access (Reading, Listening, Writing, Speaking)</p>
 
 {% if subscription.plan == "STANDARD" %}
 <button class="btn btn-secondary btn-buy">Current Plan</button>
@@ -127,13 +129,14 @@
 <div class="col-md-4">
 <div class="plan-card {% if subscription.plan == 'PRO' %}plan-active{% endif %}">
 
-<span class="badge-plan badge-pro">Best Value</span>
+<span class="badge-plan badge-pro">Best Value 🔥</span>
 
 <h4>Pro</h4>
-<div class="price">$5.99</div>
+<div class="price">$5.99 <small>/3 months</small></div>
 
-<p>Unlimited tests</p>
-<p>Unlimited AI</p>
+<p>🚀 100 AI / month</p>
+<p>🚀 Unlimited tests</p>
+<p>🚀 Priority access + future features</p>
 
 {% if subscription.plan == "PRO" %}
 <button class="btn btn-secondary btn-buy">Current Plan</button>

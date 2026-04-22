@@ -12,9 +12,6 @@
 <!-- Google Font -->
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;800&display=swap" rel="stylesheet">
 
-<!-- Custom CSS -->
-<link rel="stylesheet" href="{% static 'ielts/css/ielts.css' %}">
-
 <style>
 :root{
   --primary:#c8102e;
@@ -28,42 +25,53 @@ body{
   font-family:'Inter',sans-serif;
   background:var(--bg);
   color:var(--text);
-
   display:flex;
   flex-direction:column;
   min-height:100vh;
+  scroll-behavior:smooth;
 }
 
+/* LINKS */
 a {
   text-decoration: none !important;
   transition: 0.2s;
 }
-
 a:hover {
   opacity: 0.85;
 }
 
 /* NAVBAR */
-
 .glass-nav {
   position: sticky;
   top: 0;
   z-index: 1000;
-  background: linear-gradient(135deg, #c81d22, #a10f14);
+  background: #a10f14;
+  backdrop-filter: blur(10px);
   box-shadow: 0 4px 20px rgba(0,0,0,0.15);
 }
 
-/* LINKS */
 .nav-link {
   color: white !important;
   font-weight: 600;
   padding: 8px 14px !important;
   border-radius: 999px;
-  transition: 0.25s;
+  position: relative;
 }
 
-.nav-link:hover {
-  background: rgba(255,255,255,0.15);
+/* underline effect */
+.nav-link::after {
+  content: "";
+  position: absolute;
+  bottom: 4px;
+  left: 20%;
+  width: 0;
+  height: 2px;
+  background: white;
+  transition: 0.3s;
+}
+
+.nav-link:hover::after {
+  width: 60%;
 }
 
 .nav-link.active {
@@ -74,23 +82,19 @@ a:hover {
 .dropdown-menu {
   border-radius: 12px;
   padding: 10px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .dropdown-item {
   border-radius: 8px;
   padding: 8px 12px;
-  transition: 0.2s;
 }
 
 .dropdown-item:hover {
   background: #f1f5f9;
 }
 
-/* MOBILE FIX */
-.navbar-toggler {
-  font-size: 24px;
-}
-
+/* BUTTON */
 .btn-main{
   background:var(--primary);
   color:#fff;
@@ -101,13 +105,12 @@ a:hover {
 }
 
 .btn-main:hover{
-  background:#a50d26;
+  background:var(--primary-dark);
 }
 
 /* MAIN */
 main{
   flex:1;
-  padding-top:20px;
 }
 
 /* FOOTER */
@@ -117,27 +120,51 @@ footer{
   text-align:center;
   color:white;
   background:#1e3a8a;
-  border-top:none;
 }
 
+/* LOGO */
 .logo{
   width:42px;
   height:42px;
   object-fit:contain;
   border-radius:10px;
-  padding:4px;
-}
-
-@media (max-width: 991px) {
-  .dropdown-menu {
-    width: 100%;
-  }
 }
 
 .brand:hover {
   transform: scale(1.03);
   transition: 0.2s;
 }
+
+/* MOBILE */
+@media (max-width: 991px) {
+  .dropdown-menu {
+    width: 100%;
+  }
+}
+
+.profile-btn {
+  background: transparent !important;
+  color: white !important;
+  border: 1px solid rgba(255,255,255,0.4) !important;
+  box-shadow: none !important;
+}
+
+.profile-btn:hover,
+.profile-btn:focus,
+.profile-btn:active {
+  background: rgba(255,255,255,0.1) !important;
+  color: white !important;
+  border-color: white !important;
+  box-shadow: none !important;
+}
+
+/* Fix dropdown arrow color */
+.profile-btn::after {
+  filter: invert(1);
+}
+
+/* BUTTON ANIMATION */
+
 </style>
 
 {% block extra_css %}{% endblock %}
@@ -145,104 +172,73 @@ footer{
 
 <body>
 
-<!-- NAVBAR -->
+<!-- ================= NAVBAR ================= -->
 <div class="glass-nav">
   <div class="container">
     <nav class="navbar navbar-expand-lg">
 
       <!-- LOGO -->
       <a class="brand d-flex align-items-center gap-2" href="{% url 'ielts:home' %}">
-        <img src="{% static 'ielts/img/logo2.jpeg' %}" class="logo">
-        <span style="font-weight:800; font-size:1.2rem; letter-spacing:0.5px; color: white;">
+        <span style="font-weight:800; font-size:1.2rem; color:white;">
           TEST Bridge
         </span>
       </a>
 
-
-      <!-- ☰ MOBILE BUTTON -->
+      <!-- MOBILE -->
       <button class="navbar-toggler text-white border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
         ☰
       </button>
 
-      <!-- NAV CONTENT -->
+      <!-- MENU -->
       <div class="collapse navbar-collapse" id="navMenu">
 
-        <!-- CENTER LINKS -->
+        <!-- CENTER -->
         <div class="mx-auto d-flex flex-column flex-lg-row gap-2 text-center mt-3 mt-lg-0">
           <a href="{% url 'ielts:reading' %}" class="nav-link {% if 'reading' in request.path %}active{% endif %}">Reading</a>
           <a href="{% url 'ielts:listening' %}" class="nav-link {% if 'listening' in request.path %}active{% endif %}">Listening</a>
           <a href="{% url 'ielts:writing' %}" class="nav-link {% if 'writing' in request.path %}active{% endif %}">Writing</a>
           <a href="{% url 'ielts:speaking' %}" class="nav-link {% if 'speaking' in request.path %}active{% endif %}">Speaking</a>
+
+          <!-- RESOURCES -->
+          <div class="nav-item dropdown">
+            <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
+              Resources
+            </a>
+            <ul class="dropdown-menu">
+              <li><a class="dropdown-item" href="{% url 'ielts:books' %}">Books</a></li>
+              <li><a class="dropdown-item" href="{% url 'ielts:magazines' %}">Magazines</a></li>
+              <li><a class="dropdown-item" href="{% url 'ielts:newspapers' %}">Newspapers</a></li>
+            </ul>
+          </div>
         </div>
 
-        <li class="nav-item dropdown">
-          <a class="nav-link dropdown-toggle" href="#" data-bs-toggle="dropdown">
-            📚 Resources
-          </a>
-
-          <ul class="dropdown-menu">
-            <li><a class="dropdown-item" href="{% url 'ielts:books' %}">Books</a></li>
-            <li><a class="dropdown-item" href="{% url 'ielts:magazines' %}">Magazines</a></li>
-            <li><a class="dropdown-item" href="{% url 'ielts:newspapers' %}">Newspapers</a></li>
-          </ul>
-        </li>
-
-        <!-- RIGHT SIDE -->
+        <!-- RIGHT -->
         <div class="ms-auto mt-3 mt-lg-0">
 
           {% if user.is_authenticated %}
-          <!-- 👤 PROFILE DROPDOWN -->
           <div class="dropdown">
-            <button class="btn btn-light dropdown-toggle rounded-pill px-3" data-bs-toggle="dropdown">
-              👤 {{ user.username }}
-            </button>
+            <button class="btn dropdown-toggle rounded-pill px-3 profile-btn"
+        data-bs-toggle="dropdown"
+        aria-expanded="false">
+  👤 {{ user.username }}
+</button>
 
             <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-
-              <li>
-                <a class="dropdown-item" href="{% url 'ielts:profile' %}">
-                  👤Profile
-                </a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" href="{% url 'ielts:results' %}">
-                  📊My Results
-                </a>
-              </li>
-
+              <li><a class="dropdown-item" href="{% url 'ielts:profile' %}">Profile</a></li>
+              <li><a class="dropdown-item" href="{% url 'ielts:results' %}">My Results</a></li>
               <li><hr class="dropdown-divider"></li>
-
-              <li>
-                <a class="dropdown-item text-danger" href="{% url 'logout' %}">
-                  🚪Logout
-                </a>
-              </li>
-
+              <li><a class="dropdown-item text-danger" href="{% url 'accounts:logout' %}">Logout</a></li>
             </ul>
           </div>
 
           {% else %}
-          <!-- 🔐 LOGIN DROPDOWN -->
           <div class="dropdown">
             <button class="btn btn-light dropdown-toggle rounded-pill px-3" data-bs-toggle="dropdown">
               Account
             </button>
-
             <ul class="dropdown-menu dropdown-menu-end shadow border-0">
-
-              <li>
-                <a class="dropdown-item" href="{% url 'login' %}">
-                  Login
-                </a>
-              </li>
-
-              <li>
-                <a class="dropdown-item" href="{% url 'register' %}">
-                  Register
-                </a>
-              </li>
-
+              <li><a class="dropdown-item" href="{% url 'accounts:login' %}">Login</a></li>
+              <li><a class="dropdown-item" href="{% url 'accounts:register' %}">Register</a></li>
             </ul>
           </div>
           {% endif %}
@@ -254,13 +250,13 @@ footer{
   </div>
 </div>
 
-<!-- CONTENT -->
-<main class="container">
+<!-- ================= CONTENT ================= -->
+<main>
   {% block content %}
   {% endblock %}
 </main>
 
-<!-- FOOTER -->
+<!-- ================= FOOTER ================= -->
 <footer>
   © IELTS Bridge Platform
 </footer>

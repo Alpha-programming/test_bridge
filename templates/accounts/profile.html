@@ -1,0 +1,608 @@
+
+{% extends 'topik/topik.html' %}
+{% load static%}
+{% block main %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>My Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg: #f4f7fb;
+            --white: #ffffff;
+            --primary: #2563eb;
+            --primary-dark: #1d4ed8;
+            --secondary: #0f172a;
+            --text: #1e293b;
+            --muted: #64748b;
+            --border: #e2e8f0;
+            --success: #10b981;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+            --shadow: 0 14px 34px rgba(15, 23, 42, 0.08);
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(180deg, #f8fbff 0%, #f3f7fc 100%);
+            color: var(--text);
+            \
+        }
+
+        .container {
+            width: min(1200px, 100%);
+            margin: 0 auto;
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #0f172a, #1e3a8a 65%, #2563eb);
+            color: white;
+            border-radius: 28px;
+            padding: 30px;
+            margin: 30px 0px;
+            margin-bottom: 24px;
+            box-shadow: var(--shadow);
+        }
+
+        .hero h1 {
+            font-size: 34px;
+            font-weight: 800;
+            margin-bottom: 8px;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.88);
+            font-size: 15px;
+        }
+
+        .hero-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .pill {
+            padding: 8px 12px;
+            border-radius: 999px;
+            background: rgba(255,255,255,0.12);
+            border: 1px solid rgba(255,255,255,0.18);
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: var(--shadow);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .summary-card::before {
+            content: "";
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+        }
+
+        .summary-card span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .summary-card strong {
+            font-size: 30px;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .layout {
+            display: grid;
+            grid-template-columns: 0.9fr 1.1fr;
+            gap: 22px;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border);
+            border-radius: 24px;
+            box-shadow: var(--shadow);
+            padding: 24px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 6px;
+        }
+
+        .section-subtitle {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+
+        .profile-box {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 24px;
+        }
+
+        .avatar {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #2563eb, #60a5fa);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .profile-info h2 {
+            font-size: 24px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 4px;
+        }
+
+        .profile-info p {
+            color: var(--muted);
+            font-size: 14px;
+        }
+
+        .info-list {
+            display: grid;
+            gap: 14px;
+        }
+
+        .info-item {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 16px;
+            padding: 16px;
+        }
+
+        .info-item span {
+            display: block;
+            font-size: 12px;
+            color: var(--muted);
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .info-item strong {
+            font-size: 16px;
+            color: var(--secondary);
+            font-weight: 800;
+        }
+
+        .plan-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 14px;
+            border-radius: 999px;
+            font-size: 12px;
+            font-weight: 800;
+        }
+
+        .plan-free {
+            background: #e5e7eb;
+            color: #374151;
+        }
+
+        .plan-standard {
+            background: #dbeafe;
+            color: #1d4ed8;
+        }
+
+        .plan-pro {
+            background: #dcfce7;
+            color: #15803d;
+        }
+
+        .usage-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+        }
+
+        .usage-card {
+            background: #f8fafc;
+            border: 1px solid #edf2f7;
+            border-radius: 18px;
+            padding: 18px;
+        }
+
+        .usage-card h3 {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 6px;
+        }
+
+        .usage-card p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .usage-number {
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--secondary);
+        }
+
+        .progress-wrap {
+            margin-top: 12px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 10px;
+            background: #e5e7eb;
+            border-radius: 999px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #2563eb, #60a5fa);
+            border-radius: 999px;
+        }
+
+        .quick-links {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-top: 24px;
+        }
+
+        .plan-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 14px;
+            margin-top: 20px;
+        }
+
+        .plan-card {
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 18px;
+            background: #f8fafc;
+        }
+
+        .plan-card.current {
+            border: 2px solid var(--primary);
+            background: #eff6ff;
+        }
+
+        .plan-card h4 {
+            font-size: 18px;
+            font-weight: 800;
+            color: var(--secondary);
+            margin-bottom: 8px;
+        }
+
+        .plan-card p {
+            color: var(--muted);
+            font-size: 14px;
+            margin-bottom: 6px;
+        }
+
+        .plan-form {
+            margin-top: 14px;
+        }
+
+        .plan-form form {
+            width: 100%;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px 18px;
+            border-radius: 14px;
+            font-size: 14px;
+            font-weight: 800;
+            text-decoration: none;
+            transition: .25s ease;
+            border: none;
+            cursor: pointer;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-dark);
+        }
+
+        .btn-outline {
+            background: white;
+            color: var(--secondary);
+            border: 1px solid var(--border);
+        }
+
+        .btn-outline:hover {
+            background: #f8fafc;
+        }
+
+        .btn-dark {
+            background: var(--secondary);
+            color: white;
+        }
+
+        .btn-dark:hover {
+            opacity: .92;
+        }
+
+        .btn-full {
+            width: 100%;
+        }
+
+        @media (max-width: 950px) {
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+            .layout,
+            .plan-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 680px) {
+            body {
+                padding: 14px;
+            }
+
+            .hero, .card {
+                padding: 20px;
+                border-radius: 20px;
+            }
+
+            .summary-grid,
+            .usage-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .hero h1 {
+                font-size: 28px;
+            }
+
+            .profile-box {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="container">
+
+    <section class="hero">
+        <h1>My Profile</h1>
+        <p>Manage your account, subscription plan, daily usage, and access to AI-powered test features.</p>
+
+        <div class="hero-meta">
+            <span class="pill">Plan: {{ subscription.plan }}</span>
+            <span class="pill">Tests Left Today: {{ remaining_tests }}</span>
+            <span class="pill">AI Evaluations Left Today: {{ remaining_ai }}</span>
+            <span class="pill">Member Since: {{ user.date_joined|date:"Y-m-d" }}</span>
+        </div>
+    </section>
+
+    <section class="summary-grid">
+        <div class="summary-card">
+            <span>Current Plan</span>
+            <strong>{{ subscription.plan }}</strong>
+        </div>
+        <div class="summary-card">
+            <span>Tests Left Today</span>
+            <strong>{{ remaining_tests }}</strong>
+        </div>
+        <div class="summary-card">
+            <span>AI Left Today</span>
+            <strong>{{ remaining_ai }}</strong>
+        </div>
+        <div class="summary-card">
+            <span>Tests Used Today</span>
+            <strong>{{ subscription.tests_used }}</strong>
+        </div>
+    </section>
+
+    <div class="layout">
+        <section class="card">
+            <h2 class="section-title">Account Information</h2>
+            <p class="section-subtitle">Basic information about your account.</p>
+
+            <div class="profile-box">
+                <div class="avatar">
+                    {{ user.username|slice:":1"|upper }}
+                </div>
+                <div class="profile-info">
+                    <h2>{{ user.username }}</h2>
+                    <p>{{ user.email|default:"No email added" }}</p>
+                </div>
+            </div>
+
+            <div class="info-list">
+                <div class="info-item">
+                    <span>Username</span>
+                    <strong>{{ user.username }}</strong>
+                </div>
+
+                <div class="info-item">
+                    <span>Email</span>
+                    <strong>{{ user.email|default:"No email added" }}</strong>
+                </div>
+
+                <div class="info-item">
+                    <span>Joined</span>
+                    <strong>{{ user.date_joined|date:"Y-m-d H:i" }}</strong>
+                </div>
+
+                <div class="info-item">
+                    <span>Last Login</span>
+                    <strong>{{ user.last_login|date:"Y-m-d H:i"|default:"No login data" }}</strong>
+                </div>
+            </div>
+        </section>
+
+        <section class="card">
+            <h2 class="section-title">Subscription & Usage</h2>
+            <p class="section-subtitle">Your current plan, access limits, daily usage, and plan options.</p>
+
+            <div class="info-item" style="margin-bottom:16px;">
+                <span>Subscription Plan</span>
+                <strong>
+                    <span class="plan-badge plan-{{ subscription.plan|lower }}">
+                        {{ subscription.plan }}
+                    </span>
+                </strong>
+            </div>
+
+            <div class="info-item" style="margin-bottom:16px;">
+                <span>Subscription Status</span>
+                <strong>
+                    {% if subscription.is_active %}
+                        Active
+                    {% else %}
+                        Inactive
+                    {% endif %}
+                </strong>
+            </div>
+
+            <div class="info-item" style="margin-bottom:16px;">
+                <span>Plan Period</span>
+                <strong>
+                    {% if subscription.start_date %}{{ subscription.start_date|date:"Y-m-d" }}{% else %}-{% endif %}
+                    →
+                    {% if subscription.end_date %}{{ subscription.end_date|date:"Y-m-d" }}{% else %}-{% endif %}
+                </strong>
+            </div>
+
+            <div class="usage-grid">
+                <div class="usage-card">
+                    <h3>Tests</h3>
+                    <p>Used today: {{ subscription.tests_used }} / {{ test_limit }}</p>
+                    <div class="usage-number">{{ remaining_tests }}</div>
+                    <div class="progress-wrap">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ tests_progress_percent }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="usage-card">
+                    <h3>AI Evaluations</h3>
+                    <p>Used today: {{ subscription.ai_used }} / {{ ai_limit }}</p>
+                    <div class="usage-number">{{ remaining_ai }}</div>
+                    <div class="progress-wrap">
+                        <div class="progress-bar">
+                            <div class="progress-fill" style="width: {{ ai_progress_percent }}%;"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="plan-grid">
+                <div class="plan-card {% if subscription.plan == 'FREE' %}current{% endif %}">
+                    <h4>FREE</h4>
+                    <p>Tests per day: 10</p>
+                    <p>AI evaluations per day: 3</p>
+                    <div class="plan-form">
+                        <form method="post" action="{% url 'accounts:update_plan' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="plan" value="FREE">
+                            {% if subscription.plan == "FREE" %}
+                                <button type="submit" class="btn btn-dark btn-full">Current Plan</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-outline btn-full">Switch to FREE</button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+
+                <div class="plan-card {% if subscription.plan == 'STANDARD' %}current{% endif %}">
+                    <h4>STANDARD</h4>
+                    <p>Tests per day: 15</p>
+                    <p>AI evaluations per day: 10</p>
+                    <div class="plan-form">
+                        <form method="post" action="{% url 'accounts:update_plan' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="plan" value="STANDARD">
+                            {% if subscription.plan == "STANDARD" %}
+                                <button type="submit" class="btn btn-dark btn-full">Current Plan</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-primary btn-full">Choose STANDARD</button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+
+                <div class="plan-card {% if subscription.plan == 'PRO' %}current{% endif %}">
+                    <h4>PRO</h4>
+                    <p>Tests per day: 100</p>
+                    <p>AI evaluations per day: 100</p>
+                    <div class="plan-form">
+                        <form method="post" action="{% url 'accounts:update_plan' %}">
+                            {% csrf_token %}
+                            <input type="hidden" name="plan" value="PRO">
+                            {% if subscription.plan == "PRO" %}
+                                <button type="submit" class="btn btn-dark btn-full">Current Plan</button>
+                            {% else %}
+                                <button type="submit" class="btn btn-primary btn-full">Choose PRO</button>
+                            {% endif %}
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <div class="quick-links">
+                <a href="{% url 'topik:topik_progress' %}" class="btn btn-primary">View Progress</a>
+                <a href="{% url 'topik:speaking_test_list' %}" class="btn btn-outline">Speaking Tests</a>
+                <a href="{% url 'topik:topik_home' %}" class="btn btn-outline">TOPIK Home</a>
+            </div>
+        </section>
+    </div>
+
+</div>
+</body>
+</html>
+{% endblock main %}
