@@ -1,3 +1,4 @@
+{% load static %}
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -112,15 +113,21 @@
             filter: brightness(0.4) saturate(1.1);
         }
 
-        /* IELTS Background - Global/Library vibes */
-        .ielts-side .bg-layer {
-            background-image: url('https://images.unsplash.com/photo-1522202176988-66273c2fd55f?q=80&w=2070&auto=format&fit=crop');
-        }
+        /* IELTS Background */
 
-        /* TOPIK Background - Korean Academic/Seoul vibes */
-        .topik-side .bg-layer {
-            background-image: url('https://images.unsplash.com/photo-1538481199705-c710c4e965fc?q=80&w=2070&auto=format&fit=crop');
-        }
+    .ielts-side .bg-layer {
+
+        background-image: url("{% static 'images/ielts_background.png' %}");
+
+    }
+
+    /* TOPIK Background */
+
+    .topik-side .bg-layer {
+
+        background-image: url("{% static 'images/topik_background.png' %}");
+
+    }
 
         .side:hover .bg-layer {
             transform: scale(1.1);
