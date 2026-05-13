@@ -1,231 +1,618 @@
+<!-- templates/ielts/main.html -->
+
 {% extends "ielts/ielts.html" %}
 {% load static %}
 
 {% block content %}
 
 <style>
-/* HERO */
-.hero-full {
-  width: 100%;
-  height: 520px;
-  position: relative;
-  overflow: hidden;
+
+/* ================= HERO ================= */
+
+.hero-section{
+    position:relative;
+    min-height:720px;
+    display:flex;
+    align-items:center;
+    overflow:hidden;
+    color:white;
+
+    background:
+    linear-gradient(
+    90deg,
+    rgba(3,7,18,.88) 0%,
+    rgba(7,27,90,.65) 40%,
+    rgba(7,27,90,.15) 100%
+    );
 }
 
-.hero-full img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+.hero-bg{
+    position:absolute;
+    inset:0;
+    width:100%;
+    height:100%;
+    object-fit:cover;
+    z-index:-2;
 }
 
-.hero-overlay {
-  position: absolute;
-  inset: 0;
-  background: rgba(0,0,0,0.45);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  text-align: center;
-  padding: 20px;
+.hero-overlay{
+    position:absolute;
+    inset:0;
+
+    background:
+    linear-gradient(
+    90deg,
+    rgba(3,7,18,.82) 0%,
+    rgba(7,27,90,.45) 45%,
+    rgba(7,27,90,.10) 100%
+    );
+
+    z-index:-1;
 }
 
-.hero-content {
-  color: white;
-  max-width: 850px;
-  animation: fadeUp 1s ease;
+.hero-content{
+    max-width:620px;
 }
 
-.hero-content h1 {
-  font-size: 3rem;
-  font-weight: 900;
+.hero-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    padding:12px 18px;
+
+    border-radius:999px;
+
+    background:rgba(255,255,255,0.08);
+
+    border:1px solid rgba(255,255,255,0.08);
+
+    backdrop-filter:blur(10px);
+
+    font-size:.95rem;
+    font-weight:600;
+
+    margin-bottom:28px;
 }
 
-.hero-buttons {
-  margin-top: 25px;
-  display: flex;
-  gap: 15px;
-  justify-content: center;
-  flex-wrap: wrap;
+.hero-title{
+    font-size:4rem;
+    font-weight:900;
+    line-height:1.1;
+    margin-bottom:25px;
 }
 
-.hero-btn {
-  background: white;
-  color: black;
-  padding: 12px 26px;
-  border-radius: 8px;
-  font-weight: 700;
-  transition: 0.25s;
+.hero-title span{
+    color:#EF4444;
 }
 
-.hero-btn:hover {
-  transform: translateY(-2px);
-  background: #e5e7eb;
+.hero-desc{
+    font-size:1.15rem;
+    color:rgba(255,255,255,.82);
+    line-height:1.9;
+    margin-bottom:35px;
 }
 
-.hero-btn.red {
-  background: #c8102e;
-  color: white;
+/* HERO BUTTONS */
+
+.hero-buttons{
+    display:flex;
+    gap:18px;
+    flex-wrap:wrap;
 }
 
-.hero-btn.red:hover {
-  background: #a50d26;
+.hero-btn{
+    padding:16px 28px;
+    border-radius:16px;
+    font-weight:700;
+
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+
+    transition:.3s;
 }
 
-/* FEATURES */
-.features {
-  margin-top: 60px;
+.hero-btn-primary{
+    background:#EF4444;
+    color:white;
 }
 
-.feature-card {
-  padding: 25px;
-  border-radius: 16px;
-  background: white;
-  box-shadow: 0 8px 25px rgba(0,0,0,0.05);
-  transition: 0.3s;
-
-  height: 100%;
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
+.hero-btn-primary:hover{
+    background:#DC2626;
+    color:white;
+    transform:translateY(-3px);
 }
 
-.feature-card:hover {
-  transform: translateY(-5px);
+.hero-btn-outline{
+    border:1px solid rgba(255,255,255,.25);
+    color:white;
+    backdrop-filter:blur(12px);
 }
 
-/* limit text lines for equal size */
-.feature-card p {
-  display: -webkit-box;
-  -webkit-line-clamp: 5;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
+.hero-btn-outline:hover{
+    background:rgba(255,255,255,.08);
+    color:white;
+    transform:translateY(-3px);
 }
 
-/* ANIMATION */
-@keyframes fadeUp {
-  from {
-    opacity:0;
-    transform: translateY(30px);
-  }
-  to {
-    opacity:1;
-    transform: translateY(0);
-  }
+/* ================= FEATURES ================= */
+
+.features{
+    padding:100px 0 40px;
 }
 
-/* MOBILE */
+.section-mini{
+    text-align:center;
+
+    color:#6366F1;
+
+    font-size:.9rem;
+    font-weight:700;
+
+    letter-spacing:1px;
+
+    margin-bottom:15px;
+}
+
+.section-title{
+    text-align:center;
+
+    font-size:3rem;
+    font-weight:800;
+
+    margin-bottom:15px;
+}
+
+.section-desc{
+    text-align:center;
+
+    color:#64748B;
+
+    max-width:700px;
+
+    margin:auto auto 70px;
+}
+
+.feature-card{
+    background:white;
+
+    padding:35px;
+
+    border-radius:28px;
+
+    height:100%;
+
+    box-shadow:
+    0 10px 35px rgba(0,0,0,0.05);
+
+    transition:.35s;
+}
+
+.feature-card:hover{
+    transform:translateY(-8px);
+}
+
+.feature-icon{
+    width:72px;
+    height:72px;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-size:1.8rem;
+
+    margin-bottom:25px;
+}
+
+.feature-card h4{
+    font-weight:800;
+    margin-bottom:18px;
+}
+
+.feature-card p{
+    color:#64748B;
+    line-height:1.8;
+}
+
+/* ICON COLORS */
+
+.blue{
+    background:#DBEAFE;
+    color:#2563EB;
+}
+
+.green{
+    background:#DCFCE7;
+    color:#16A34A;
+}
+
+.purple{
+    background:#F3E8FF;
+    color:#7C3AED;
+}
+
+.orange{
+    background:#FFEDD5;
+    color:#EA580C;
+}
+
+/* ================= WHY CHOOSE ================= */
+
+.why-section{
+    padding:80px 0;
+}
+
+.why-image-box{
+    background:white;
+    padding:24px;
+    border-radius:32px;
+
+    box-shadow:
+    0 10px 35px rgba(0,0,0,0.05);
+}
+
+.why-image-box img{
+    width:100%;
+    border-radius:22px;
+}
+
+.why-title{
+    font-size:2.7rem;
+    font-weight:900;
+    margin-bottom:35px;
+}
+
+.why-item{
+    display:flex;
+    gap:18px;
+    margin-bottom:30px;
+}
+
+.why-icon{
+    min-width:48px;
+    height:48px;
+
+    border-radius:50%;
+
+    background:#2563EB;
+
+    color:white;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    font-weight:700;
+}
+
+.why-item h5{
+    font-weight:800;
+    margin-bottom:8px;
+}
+
+.why-item p{
+    color:#64748B;
+    margin:0;
+    line-height:1.7;
+}
+
+/* ================= MOBILE ================= */
+
+@media(max-width:991px){
+
+.hero-section{
+    min-height:auto;
+    padding:120px 0 90px;
+}
+
+.hero-title{
+    font-size:3rem;
+}
+
+.why-title{
+    margin-top:40px;
+}
+
+}
+
 @media(max-width:768px){
-  .hero-content h1{
-    font-size:2rem;
-  }
+
+.hero-title{
+    font-size:2.3rem;
 }
+
+.hero-desc{
+    font-size:1rem;
+}
+
+.section-title{
+    font-size:2rem;
+}
+
+.why-title{
+    font-size:2rem;
+}
+
+}
+
 </style>
 
-<!-- HERO -->
-<div class="hero-full">
+<!-- ================= HERO ================= -->
 
-  {% if content and content.image %}
-    <img src="{{ content.image.url }}">
-  {% else %}
-    <img src="{% static 'ielts/img/default.jpg' %}">
-  {% endif %}
+<section class="hero-section">
 
-  <div class="hero-overlay">
-    <div class="hero-content">
+<img src="{% static 'ielts/img/hero-bg.jpg' %}"
+class="hero-bg">
 
-      <h1>
-        Achieve Band 7+ with AI-Powered IELTS Practice 🚀
-      </h1>
+<div class="hero-overlay"></div>
 
-      <p class="mt-3 fs-5">
-        Practice Reading, Writing, Listening and Speaking with real exam simulations and instant AI feedback.
-      </p>
+<div class="container">
 
-      <div class="hero-buttons">
+<div class="hero-content">
 
-        <a href="{% url 'ielts:reading' %}" class="hero-btn red">
-          Start Reading →
-        </a>
+<div class="hero-badge">
+✨ AI-Powered IELTS Preparation
+</div>
 
-        <a href="{% url 'ielts:listening' %}" class="hero-btn red">
-          Start Listening →
-        </a>
+<h1 class="hero-title">
+Achieve Your Dream
+<span>IELTS</span> Score
+with AI
+</h1>
 
-        <a href="{% url 'ielts:writing' %}" class="hero-btn red">
-          Writing AI →
-        </a>
+<p class="hero-desc">
+Real exam simulation, AI feedback,
+speaking evaluation, and personalized
+analytics to help you score Band 7+.
+</p>
 
-        <a href="{% url 'ielts:speaking' %}" class="hero-btn red">
-          Speaking →
-        </a>
+<div class="hero-buttons">
 
-      </div>
+<a href="{% url 'ielts:reading' %}"
+class="hero-btn hero-btn-primary">
 
-    </div>
-  </div>
+Start Practice →
+
+</a>
+
+<a href="{% url 'ielts:listening' %}"
+class="hero-btn hero-btn-outline">
+
+Free Mock Test →
+
+</a>
 
 </div>
 
-<!-- FEATURES -->
-<div class="container features">
-
-  <div class="row text-center g-4 align-items-stretch">
-
-    <!-- READING -->
-    <div class="col-md-3">
-      <div class="feature-card">
-        <div>
-          <h5>📘 Reading</h5>
-          <p>
-            Practice full IELTS Academic passages with real exam timing.
-            Navigate questions easily, track your answers, and review detailed results with accuracy insights.
-            Improve skimming, scanning, and time management skills.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- LISTENING -->
-    <div class="col-md-3">
-      <div class="feature-card">
-        <div>
-          <h5>🎧 Listening</h5>
-          <p>
-            Experience real IELTS listening tests with structured sections and audio playback.
-            Answer while listening, review during the final time window, and analyze your mistakes to boost your score.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- WRITING -->
-    <div class="col-md-3">
-      <div class="feature-card">
-        <div>
-          <h5>✍️ Writing AI</h5>
-          <p>
-            Submit Task 1 and Task 2 responses and get instant AI evaluation.
-            Receive band scores, feedback on coherence, vocabulary, grammar, and clear suggestions to improve your writing.
-          </p>
-        </div>
-      </div>
-    </div>
-
-    <!-- SPEAKING -->
-    <div class="col-md-3">
-      <div class="feature-card">
-        <div>
-          <h5>🎤 Speaking AI</h5>
-          <p>
-            Practice speaking with real IELTS-style questions.
-            Record your answers and get AI feedback on fluency, pronunciation, grammar, and vocabulary — just like a real examiner.
-          </p>
-        </div>
-      </div>
-    </div>
-
-  </div>
+</div>
 
 </div>
+
+</section>
+
+<!-- ================= FEATURES ================= -->
+
+<section class="features">
+
+<div class="container">
+
+<div class="section-mini">
+PREPARE WITH CONFIDENCE
+</div>
+
+<h2 class="section-title">
+Everything You Need for IELTS Success
+</h2>
+
+<p class="section-desc">
+AI-powered tools and real exam practice
+to improve all four modules.
+</p>
+
+<div class="row g-4">
+
+<!-- READING -->
+
+<div class="col-lg-3 col-md-6">
+
+<div class="feature-card">
+
+<div class="feature-icon blue">
+📘
+</div>
+
+<h4>Reading</h4>
+
+<p>
+Practice real IELTS reading passages
+with timing, answer review,
+and detailed analytics.
+</p>
+
+</div>
+
+</div>
+
+<!-- LISTENING -->
+
+<div class="col-lg-3 col-md-6">
+
+<div class="feature-card">
+
+<div class="feature-icon green">
+🎧
+</div>
+
+<h4>Listening</h4>
+
+<p>
+Experience full IELTS listening tests
+with realistic sections and AI insights.
+</p>
+
+</div>
+
+</div>
+
+<!-- WRITING -->
+
+<div class="col-lg-3 col-md-6">
+
+<div class="feature-card">
+
+<div class="feature-icon purple">
+✍️
+</div>
+
+<h4>Writing AI</h4>
+
+<p>
+Get instant band scores and detailed
+AI feedback for Task 1 and Task 2.
+</p>
+
+</div>
+
+</div>
+
+<!-- SPEAKING -->
+
+<div class="col-lg-3 col-md-6">
+
+<div class="feature-card">
+
+<div class="feature-icon orange">
+🎤
+</div>
+
+<h4>Speaking AI</h4>
+
+<p>
+Record answers and receive fluency,
+pronunciation and vocabulary feedback.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
+
+<!-- ================= WHY CHOOSE ================= -->
+
+<section class="why-section">
+
+<div class="container">
+
+<div class="row align-items-center g-5">
+
+<!-- LEFT -->
+
+<div class="col-lg-6">
+
+<div class="why-image-box">
+
+<img src="{% static 'ielts/img/chart.png' %}"
+alt="Analytics">
+
+</div>
+
+</div>
+
+<!-- RIGHT -->
+
+<div class="col-lg-6">
+
+<h2 class="why-title">
+Why Choose TEST Bridge?
+</h2>
+
+<div class="why-item">
+
+<div class="why-icon">
+✓
+</div>
+
+<div>
+
+<h5>AI-Powered Evaluation</h5>
+
+<p>
+Get accurate band scores with advanced AI feedback.
+</p>
+
+</div>
+
+</div>
+
+<div class="why-item">
+
+<div class="why-icon">
+✓
+</div>
+
+<div>
+
+<h5>Real Exam Experience</h5>
+
+<p>
+Practice with real IELTS timing and structure.
+</p>
+
+</div>
+
+</div>
+
+<div class="why-item">
+
+<div class="why-icon">
+✓
+</div>
+
+<div>
+
+<h5>Personalized Analytics</h5>
+
+<p>
+Track progress and improve weak areas faster.
+</p>
+
+</div>
+
+</div>
+
+<div class="why-item">
+
+<div class="why-icon">
+✓
+</div>
+
+<div>
+
+<h5>Trusted by Students</h5>
+
+<p>
+Thousands of learners prepare daily using TEST Bridge.
+</p>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</section>
 
 {% endblock %}
